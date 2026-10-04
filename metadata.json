@@ -1,0 +1,6 @@
+{
+  "name": "NOVORA — Zero-Cost Global Discovery Marketplace",
+  "description": "Discover More. Trade Beyond Borders. An original global classified and multi-category discovery marketplace built with a strict zero-cost architecture.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

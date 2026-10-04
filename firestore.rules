@@ -1,0 +1,158 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email == "alphapro889@gmail.com" && request.auth.token.email_verified == true) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // 1. Users Collection (PII strictly protected to owner or admin)
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) 
+        && incoming().id == userId
+        && (!('isAdmin' in incoming()) || incoming().isAdmin == false || isAdmin());
+      allow update: if isOwner(userId)
+        && incoming().id == existing().id
+        && (!('isAdmin' in incoming()) || incoming().isAdmin == existing().isAdmin || isAdmin());
+      allow delete: if isOwner(userId) || isAdmin();
+
+      // User favorites subcollection (strict document-level ownership)
+      match /favorites/{listingId} {
+        allow read, delete: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(listingId)
+          && incoming().listingId == listingId;
+        allow update: if false; // Favorites are add/delete references only
+      }
+    }
+
+    // 2. Admins Collection (Strictly protected to authorized platform admins)
+    match /admins/{adminId} {
+      allow read, write: if isAdmin();
+    }
+
+    // 3. Listings Collection (Public marketplace catalog)
+    match /listings/{listingId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn()
+        && incoming().sellerId == request.auth.uid
+        && incoming().title is string && incoming().title.size() <= 200
+        && incoming().price is number && incoming().price >= 0;
+      allow update: if (isSignedIn() && existing().sellerId == request.auth.uid && incoming().sellerId == existing().sellerId)
+        || (incoming().diff(existing()).affectedKeys().hasOnly(['viewsCount']))
+        || (isSignedIn() && incoming().diff(existing()).affectedKeys().hasOnly(['favoritesCount']))
+        || isAdmin();
+      allow delete: if (isSignedIn() && existing().sellerId == request.auth.uid) || isAdmin();
+    }
+
+    // 4. Buyer Requests (Request Orbit public sourcing board)
+    match /requests/{requestId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn()
+        && incoming().buyerId == request.auth.uid
+        && incoming().title is string && incoming().title.size() <= 200;
+      allow update: if (isSignedIn() && existing().buyerId == request.auth.uid && incoming().buyerId == existing().buyerId)
+        || (isSignedIn() && incoming().diff(existing()).affectedKeys().hasOnly(['offersCount']))
+        || isAdmin();
+      allow delete: if (isSignedIn() && existing().buyerId == request.auth.uid) || isAdmin();
+    }
+
+    // 5. Request Offers (Confidential seller commercial proposals)
+    match /offers/{offerId} {
+      allow get: if isSignedIn() && (
+        resource.data.sellerId == request.auth.uid ||
+        resource.data.buyerId == request.auth.uid ||
+        isAdmin()
+      );
+      allow list: if isSignedIn() && (
+        resource.data.sellerId == request.auth.uid ||
+        resource.data.buyerId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isSignedIn()
+        && incoming().sellerId == request.auth.uid
+        && incoming().proposedPrice is number && incoming().proposedPrice > 0
+        && incoming().currency is string && incoming().currency.size() <= 10
+        && incoming().description is string && incoming().description.size() <= 3000
+        && exists(/databases/$(database)/documents/requests/$(incoming().requestId))
+        && incoming().buyerId == get(/databases/$(database)/documents/requests/$(incoming().requestId)).data.buyerId;
+      allow update: if isSignedIn() && (
+        (existing().sellerId == request.auth.uid && incoming().sellerId == existing().sellerId && incoming().buyerId == existing().buyerId && incoming().requestId == existing().requestId)
+        || (existing().buyerId == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['status']))
+        || isAdmin()
+      );
+      allow delete: if (isSignedIn() && existing().sellerId == request.auth.uid) || isAdmin();
+    }
+
+    // 6. Direct Conversations (Strictly private buyer-seller threads)
+    match /conversations/{conversationId} {
+      allow get: if isSignedIn() && request.auth.uid in resource.data.participantIds;
+      allow list: if isSignedIn() && request.auth.uid in resource.data.participantIds;
+      allow create: if isSignedIn() 
+        && request.auth.uid in incoming().participantIds
+        && incoming().participantIds.size() >= 2
+        && incoming().participantIds.size() <= 10;
+      allow update: if isSignedIn() 
+        && request.auth.uid in existing().participantIds
+        && incoming().participantIds == existing().participantIds;
+      allow delete: if isAdmin();
+
+      // Messages subcollection (Master Gate verification)
+      match /messages/{messageId} {
+        allow get: if isSignedIn()
+          && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
+        allow list: if isSignedIn()
+          && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds;
+        allow create: if isSignedIn()
+          && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participantIds
+          && incoming().senderId == request.auth.uid
+          && incoming().text is string && incoming().text.size() > 0 && incoming().text.size() <= 2000;
+        allow update: if false; // Messages are immutable
+        allow delete: if isAdmin();
+      }
+    }
+
+    // 7. Community Moderation Reports
+    match /reports/{reportId} {
+      allow create: if isSignedIn() 
+        && incoming().reporterId == request.auth.uid
+        && incoming().targetId is string && incoming().targetId.size() <= 128
+        && incoming().details is string && incoming().details.size() <= 2000;
+      allow read, update, delete: if isAdmin();
+    }
+
+  }
+}

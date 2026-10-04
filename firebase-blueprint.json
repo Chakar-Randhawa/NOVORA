@@ -1,0 +1,214 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User public and account profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string", "maxLength": 100 },
+        "username": { "type": "string", "maxLength": 50 },
+        "country": { "type": "string", "maxLength": 50 },
+        "city": { "type": "string", "maxLength": 100 },
+        "preferredCurrency": { "type": "string", "maxLength": 10 },
+        "bio": { "type": "string", "maxLength": 1000 },
+        "isSeller": { "type": "boolean" },
+        "sellerTagline": { "type": "string", "maxLength": 200 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "email", "name", "country", "isSeller", "createdAt"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Platform administrator role record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "assignedAt": { "type": "string" }
+      },
+      "required": ["userId", "email"]
+    },
+    "Listing": {
+      "title": "Listing",
+      "description": "Multi-category marketplace offering",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 5000 },
+        "categoryId": { "type": "string", "maxLength": 50 },
+        "listingType": { "type": "string", "maxLength": 50 },
+        "price": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "condition": { "type": "string", "maxLength": 30 },
+        "sellerId": { "type": "string" },
+        "sellerName": { "type": "string", "maxLength": 100 },
+        "sellerCountry": { "type": "string", "maxLength": 50 },
+        "sellerCity": { "type": "string", "maxLength": 100 },
+        "images": { "type": "array" },
+        "customAttributes": { "type": "object" },
+        "shipsInternationally": { "type": "boolean" },
+        "shippingDestinations": { "type": "array" },
+        "shippingCostDescription": { "type": "string", "maxLength": 500 },
+        "allowsCustomization": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["active", "paused", "archived"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "viewsCount": { "type": "number" },
+        "favoritesCount": { "type": "number" },
+        "tags": { "type": "array" }
+      },
+      "required": ["id", "title", "description", "categoryId", "price", "currency", "sellerId", "sellerName", "status", "createdAt"]
+    },
+    "BuyerRequest": {
+      "title": "BuyerRequest",
+      "description": "Open request posted on Request Orbit",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 5000 },
+        "categoryId": { "type": "string", "maxLength": 50 },
+        "buyerId": { "type": "string" },
+        "buyerName": { "type": "string", "maxLength": 100 },
+        "buyerCountry": { "type": "string", "maxLength": 50 },
+        "budgetMin": { "type": "number" },
+        "budgetMax": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "quantity": { "type": "number" },
+        "destinationCountry": { "type": "string", "maxLength": 50 },
+        "deadline": { "type": "string", "maxLength": 50 },
+        "customizationDetails": { "type": "string", "maxLength": 1000 },
+        "fulfillmentPreference": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "enum": ["open", "fulfilled", "closed"] },
+        "createdAt": { "type": "string" },
+        "offersCount": { "type": "number" },
+        "visibility": { "type": "string" }
+      },
+      "required": ["id", "title", "description", "categoryId", "buyerId", "buyerName", "budgetMin", "budgetMax", "currency", "destinationCountry", "status", "createdAt"]
+    },
+    "RequestOffer": {
+      "title": "RequestOffer",
+      "description": "Seller quote submitted in response to a request",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "requestId": { "type": "string" },
+        "buyerId": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "sellerName": { "type": "string", "maxLength": 100 },
+        "sellerCountry": { "type": "string", "maxLength": 50 },
+        "proposedPrice": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "description": { "type": "string", "maxLength": 3000 },
+        "deliverables": { "type": "string", "maxLength": 1000 },
+        "estimatedDays": { "type": "number" },
+        "shippingOrFulfillmentDetails": { "type": "string", "maxLength": 1000 },
+        "customizationIncluded": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "declined"] },
+        "createdAt": { "type": "string" },
+        "validUntil": { "type": "string" }
+      },
+      "required": ["id", "requestId", "sellerId", "sellerName", "proposedPrice", "currency", "description", "shippingOrFulfillmentDetails", "status", "createdAt"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "Direct message thread between buyer and seller",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "participantIds": { "type": "array" },
+        "participantNames": { "type": "object" },
+        "listingId": { "type": "string" },
+        "listingTitle": { "type": "string" },
+        "requestId": { "type": "string" },
+        "requestTitle": { "type": "string" },
+        "lastMessageText": { "type": "string", "maxLength": 2000 },
+        "lastMessageAt": { "type": "string" },
+        "unreadCount": { "type": "object" }
+      },
+      "required": ["id", "participantIds", "participantNames", "lastMessageText", "lastMessageAt"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Individual message within a conversation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "conversationId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string", "maxLength": 100 },
+        "text": { "type": "string", "maxLength": 2000 },
+        "createdAt": { "type": "string" },
+        "read": { "type": "boolean" }
+      },
+      "required": ["id", "conversationId", "senderId", "senderName", "text", "createdAt"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "Content or user report for platform administrators",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["listing", "request", "user", "message"] },
+        "targetId": { "type": "string" },
+        "reporterId": { "type": "string" },
+        "reason": { "type": "string" },
+        "details": { "type": "string", "maxLength": 2000 },
+        "createdAt": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "resolved", "dismissed"] }
+      },
+      "required": ["id", "targetType", "targetId", "reporterId", "reason", "details", "createdAt", "status"]
+    },
+    "Favorite": {
+      "title": "Favorite",
+      "description": "User bookmarked listing reference",
+      "type": "object",
+      "properties": {
+        "listingId": { "type": "string" },
+        "addedAt": { "type": "string" }
+      },
+      "required": ["listingId", "addedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User account profiles"
+    },
+    "/admins/{adminId}": {
+      "schema": "Admin",
+      "description": "Authorized platform administrators"
+    },
+    "/listings/{listingId}": {
+      "schema": "Listing",
+      "description": "Public multi-category offerings"
+    },
+    "/requests/{requestId}": {
+      "schema": "BuyerRequest",
+      "description": "Public buyer sourcing requests"
+    },
+    "/offers/{offerId}": {
+      "schema": "RequestOffer",
+      "description": "Seller quotes submitted for requests"
+    },
+    "/conversations/{conversationId}": {
+      "schema": "Conversation",
+      "description": "Private direct conversation threads"
+    },
+    "/conversations/{conversationId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Individual messages in a conversation"
+    },
+    "/reports/{reportId}": {
+      "schema": "Report",
+      "description": "Trust & moderation reports for admins"
+    },
+    "/users/{userId}/favorites/{listingId}": {
+      "schema": "Favorite",
+      "description": "User saved listings"
+    }
+  }
+}
