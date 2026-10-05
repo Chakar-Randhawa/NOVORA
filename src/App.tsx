@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Listing,
   BuyerRequest,
   RequestOffer,
   UserProfile,
   Conversation,
-  ReportItem
+  ReportItem,
+  Storefront,
+  MainViewMode
 } from './types';
 import {
   testConnection,
@@ -28,17 +30,24 @@ import {
   getOrCreateConversation,
   subscribeToReports,
   submitReport,
-  resolveReport
+  resolveReport,
+  subscribeToStores,
+  saveStore,
+  fetchStoreBySlug,
+  fetchStoreBySellerId,
+  fetchUserProfileById
 } from './services/firebase';
 
 import { Header } from './components/common/Header';
 import { Footer } from './components/common/Footer';
 import { ToastContainer, ToastMessage } from './components/common/Toast';
 import { ReportModal } from './components/common/ReportModal';
+import { NotificationDrawer } from './components/common/NotificationDrawer';
 
 import { Hero } from './components/home/Hero';
 import { CategoriesGrid } from './components/home/CategoriesGrid';
 import { FeaturedListings } from './components/home/FeaturedListings';
+import { DiscoveryShowcase } from './components/home/DiscoveryShowcase';
 import { RequestOrbitPreview } from './components/home/RequestOrbitPreview';
 import { SellerSpotlight } from './components/home/SellerSpotlight';
 import { TrustSafetyBanner } from './components/home/TrustSafetyBanner';
@@ -53,6 +62,10 @@ import { MessagingModal } from './components/messaging/MessagingModal';
 import { SellerWorkspace } from './components/workspace/SellerWorkspace';
 import { BuyerWorkspace } from './components/workspace/BuyerWorkspace';
 import { AdminWorkspace } from './components/workspace/AdminWorkspace';
+import { PublicStorefront } from './components/store/PublicStorefront';
+import { StoreSetupWizard } from './components/store/StoreSetupWizard';
+import { PublicUserProfile } from './components/profile/PublicUserProfile';
+import { InfoPages } from './components/legal/InfoPages';
 import { AuthModal } from './components/auth/AuthModal';
 
 export const App: React.FC = () => {
@@ -66,16 +79,20 @@ export const App: React.FC = () => {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [reports, setReports] = useState<ReportItem[]>([]);
+  const [stores, setStores] = useState<Storefront[]>([]);
 
   // Country & Currency preferences
   const [currentCountry, setCurrentCountry] = useState<string>('US');
   const [currentCurrency, setCurrentCurrency] = useState<string>('USD');
 
   // Navigation & View state
-  const [activeView, setActiveView] = useState<'home' | 'seller' | 'buyer' | 'admin' | 'request-orbit'>('home');
+  const [activeView, setActiveView] = useState<'home' | 'seller' | 'buyer' | 'admin' | 'request-orbit' | 'store' | 'user-profile' | 'info'>('home');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [activeStoreForView, setActiveStoreForView] = useState<Storefront | null>(null);
+  const [activeProfileForView, setActiveProfileForView] = useState<UserProfile | null>(null);
+  const [activeInfoPage, setActiveInfoPage] = useState<'about' | 'how-it-works' | 'safety' | 'terms' | 'seller-guide' | 'help'>('about');
 
-  // Modals
+  // Modals & Drawers
   const [activeListingForDetail, setActiveListingForDetail] = useState<Listing | null>(null);
   const [showCreateListingModal, setShowCreateListingModal] = useState(false);
   const [showCreateRequestModal, setShowCreateRequestModal] = useState(false);
@@ -86,6 +103,8 @@ export const App: React.FC = () => {
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authInitialMode, setAuthInitialMode] = useState<'signin' | 'register'>('signin');
+  const [showStoreWizard, setShowStoreWizard] = useState(false);
+  const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
   const [reportTarget, setReportTarget] = useState<{
     type: 'listing' | 'request' | 'user' | 'message';
     id: string;
@@ -111,7 +130,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     testConnection().then(connected => {
       if (!connected) {
-        addToast('error', 'Connection Notice', 'Connecting to real-time marketplace database...');
+        console.info('[NOVORA] Database connecting or operating in offline cache mode.');
       }
     });
 
@@ -125,6 +144,11 @@ export const App: React.FC = () => {
       setRequests(liveRequests);
     });
 
+    // Real-time public stores
+    const unsubStores = subscribeToStores((liveStores) => {
+      setStores(liveStores);
+    });
+
     // Listen to Firebase Auth state
     const unsubAuth = subscribeToAuth((profile) => {
       setCurrentUser(profile);
@@ -135,9 +159,42 @@ export const App: React.FC = () => {
       }
     });
 
+    // Check URL parameters for direct deep link access (e.g. ?store=... or ?profile=...)
+    const params = new URLSearchParams(window.location.search);
+    const storeSlug = params.get('store');
+    const profileId = params.get('profile');
+    const viewParam = params.get('view');
+    const pageParam = params.get('page');
+
+    if (storeSlug) {
+      fetchStoreBySlug(storeSlug).then(st => {
+        if (st) {
+          setActiveStoreForView(st);
+          setActiveView('store');
+        }
+      });
+    } else if (profileId) {
+      fetchUserProfileById(profileId).then(p => {
+        if (p) {
+          setActiveProfileForView(p);
+          setActiveView('user-profile');
+        }
+      });
+    } else if (viewParam === 'seller') {
+      setActiveView('seller');
+    } else if (viewParam === 'buyer') {
+      setActiveView('buyer');
+    } else if (viewParam === 'request-orbit') {
+      setActiveView('request-orbit');
+    } else if (pageParam) {
+      setActiveInfoPage(pageParam as any);
+      setActiveView('info');
+    }
+
     return () => {
       unsubListings();
       unsubRequests();
+      unsubStores();
       unsubAuth();
     };
   }, []);
@@ -160,14 +217,18 @@ export const App: React.FC = () => {
       setConversations(convs);
     });
 
-    const unsubOffers = subscribeToUserOffers(currentUser.id, Boolean(currentUser.isAdmin), (userOffers) => {
-      setOffers(userOffers);
-    });
+    const unsubOffers = subscribeToUserOffers(
+      currentUser.id,
+      Boolean(currentUser.isAdmin),
+      (liveOffers) => {
+        setOffers(liveOffers);
+      }
+    );
 
-    let unsubReports: (() => void) | undefined;
+    let unsubReports: (() => void) | null = null;
     if (currentUser.isAdmin) {
-      unsubReports = subscribeToReports((repItems) => {
-        setReports(repItems);
+      unsubReports = subscribeToReports((liveReports) => {
+        setReports(liveReports);
       });
     }
 
@@ -179,328 +240,324 @@ export const App: React.FC = () => {
     };
   }, [currentUser]);
 
-  // Auth state update from modal
-  const handleUserChanged = (newUser: UserProfile) => {
-    setCurrentUser(newUser);
-    setCurrentCountry(newUser.country);
-    setCurrentCurrency(newUser.preferredCurrency || 'USD');
-    addToast('success', 'Signed In Successfully', `Welcome to NOVORA, ${newUser.name}.`);
-  };
+  // Current user's store
+  const userStore = useMemo(() => {
+    return stores.find(s => s.sellerId === currentUser?.id) || null;
+  }, [stores, currentUser]);
 
-  // Sign out
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-      setCurrentUser(null);
-      setConversations([]);
-      setFavorites([]);
-      setActiveView('home');
-      addToast('info', 'Signed Out', 'You are now browsing NOVORA as a guest.');
-    } catch (err: any) {
-      addToast('error', 'Sign out failed', err.message);
-    }
-  };
+  // Unread notification count
+  const unreadNotificationsCount = useMemo(() => {
+    if (!currentUser) return 0;
+    const unreadMsgs = conversations.reduce((acc, c) => acc + (c.unreadCount?.[currentUser.id] || 0), 0);
+    const myRequestIds = new Set(requests.filter(r => r.buyerId === currentUser.id).map(r => r.id));
+    const pendingOffers = offers.filter(o => myRequestIds.has(o.requestId) && o.status === 'pending').length;
+    return unreadMsgs + pendingOffers;
+  }, [currentUser, conversations, requests, offers]);
 
-  // Open Auth modal with specific mode
+  // Handlers
   const handleOpenAuth = (mode: 'signin' | 'register' = 'signin') => {
     setAuthInitialMode(mode);
     setShowAuthModal(true);
   };
 
-  // Favorite toggle (Real Firestore user subcollection)
+  const handleLogout = async () => {
+    await logoutUser();
+    setCurrentUser(null);
+    setActiveView('home');
+    addToast('info', 'Signed Out', 'You have been safely signed out.');
+  };
+
+  const handleUserChanged = (user: UserProfile | null) => {
+    setCurrentUser(user);
+    if (user) {
+      addToast('success', `Welcome, ${user.name}!`, 'You are signed in to NOVORA.');
+    }
+  };
+
   const handleToggleFavorite = async (listingId: string) => {
     if (!currentUser) {
       handleOpenAuth('signin');
       return;
     }
     try {
-      const isSaved = await toggleFavorite(listingId);
-      addToast(
-        'info',
-        isSaved ? 'Saved to Favorites' : 'Removed from Favorites',
-        isSaved ? 'Item saved to your Buyer Sanctuary wishlist.' : undefined
-      );
-    } catch (err: any) {
-      addToast('error', 'Favorite action failed', err.message);
+      const added = await toggleFavorite(listingId);
+      if (added) {
+        addToast('success', 'Saved to Wishlist', 'Listing added to your buyer collection.');
+      } else {
+        addToast('info', 'Removed from Wishlist', 'Listing removed from your collection.');
+      }
+    } catch {
+      addToast('error', 'Action Failed', 'Could not update favorites.');
     }
   };
 
-  // Open listing details & record real view in Firestore
   const handleSelectListing = (listing: Listing) => {
-    incrementListingView(listing.id);
     setActiveListingForDetail(listing);
+    incrementListingView(listing.id);
+    // Add to recently viewed in localStorage
+    try {
+      const raw = localStorage.getItem('novora_recent_viewed');
+      const prev: string[] = raw ? JSON.parse(raw) : [];
+      const updated = [listing.id, ...prev.filter(id => id !== listing.id)].slice(0, 10);
+      localStorage.setItem('novora_recent_viewed', JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
   };
 
-  // Publish Listing
-  const handleCreateListing = async (newListing: Listing) => {
-    if (!currentUser) {
-      handleOpenAuth('signin');
-      return;
-    }
+  const handleCreateListing = async (newListingData: any) => {
     try {
-      await createListing({
-        title: newListing.title,
-        description: newListing.description,
-        categoryId: newListing.categoryId,
-        listingType: newListing.listingType,
-        price: newListing.price,
-        currency: newListing.currency,
-        condition: newListing.condition,
-        sellerId: currentUser.id,
-        sellerName: currentUser.name,
-        sellerCountry: currentUser.country,
-        sellerCity: currentUser.city,
-        images: newListing.images,
-        customAttributes: newListing.customAttributes,
-        shipsInternationally: newListing.shipsInternationally,
-        shippingDestinations: newListing.shippingDestinations,
-        shippingCostDescription: newListing.shippingCostDescription,
-        allowsCustomization: newListing.allowsCustomization,
-        status: 'active',
-        tags: newListing.tags
-      });
+      const created = await createListing(newListingData);
+      addToast('success', 'Listing Published', `"${created.title}" is live in the global directory.`);
       setShowCreateListingModal(false);
-      addToast('success', 'Listing Published to Global Marketplace', 'Your offering is now live across all regions with $0 fees.');
-      setActiveView('seller');
-    } catch (err: any) {
-      addToast('error', 'Error Publishing Listing', err.message);
+    } catch {
+      addToast('error', 'Error', 'Failed to publish listing.');
     }
   };
 
-  // Toggle Listing active/paused
-  const handleToggleListingStatus = async (id: string) => {
-    if (!currentUser) return;
-    const target = listings.find(l => l.id === id);
-    if (!target) return;
-    const nextStatus = target.status === 'active' ? 'paused' : 'active';
+  const handleToggleListingStatus = async (listingId: string) => {
+    const item = listings.find(l => l.id === listingId);
+    if (!item) return;
+    const newStatus = item.status === 'active' ? 'paused' : 'active';
     try {
-      await updateListing(id, { status: nextStatus });
-      addToast(
-        'info',
-        nextStatus === 'active' ? 'Listing Activated' : 'Listing Paused',
-        `Listing is now ${nextStatus}.`
-      );
-    } catch (err: any) {
-      addToast('error', 'Failed to update listing', err.message);
+      await updateListing(listingId, { status: newStatus });
+      addToast('info', 'Status Updated', `Listing marked as ${newStatus}.`);
+      if (activeListingForDetail?.id === listingId) {
+        setActiveListingForDetail({ ...activeListingForDetail, status: newStatus });
+      }
+    } catch {
+      addToast('error', 'Error', 'Could not update listing status.');
     }
   };
 
-  // Delete Listing
-  const handleDeleteListing = async (id: string) => {
-    if (!currentUser) return;
+  const handleDeleteListing = async (listingId: string) => {
+    if (!confirm('Are you sure you want to permanently delete this listing?')) return;
     try {
-      await deleteListing(id);
-      addToast('info', 'Listing Deleted', 'Listing permanently removed from global discovery.');
-      if (activeListingForDetail?.id === id) {
+      await deleteListing(listingId);
+      addToast('info', 'Listing Deleted', 'Item removed from marketplace.');
+      if (activeListingForDetail?.id === listingId) {
         setActiveListingForDetail(null);
       }
-    } catch (err: any) {
-      addToast('error', 'Could not delete listing', err.message);
+    } catch {
+      addToast('error', 'Error', 'Could not delete listing.');
     }
   };
 
-  // Create Buyer Request
-  const handleCreateRequest = async (newRequest: BuyerRequest) => {
-    if (!currentUser) {
-      handleOpenAuth('signin');
-      return;
-    }
+  const handleDuplicateListing = async (listing: Listing) => {
+    if (!currentUser) return;
     try {
-      await createBuyerRequest({
-        title: newRequest.title,
-        description: newRequest.description,
-        categoryId: newRequest.categoryId,
-        buyerId: currentUser.id,
-        buyerName: currentUser.name,
-        buyerCountry: currentUser.country,
-        budgetMin: newRequest.budgetMin,
-        budgetMax: newRequest.budgetMax,
-        currency: newRequest.currency,
-        quantity: newRequest.quantity,
-        destinationCountry: newRequest.destinationCountry,
-        deadline: newRequest.deadline,
-        customizationDetails: newRequest.customizationDetails,
-        fulfillmentPreference: newRequest.fulfillmentPreference,
-        status: 'open',
-        visibility: newRequest.visibility
-      });
-      setShowCreateRequestModal(false);
-      addToast('success', 'Request Published to Request Orbit', 'Global sellers can now discover your request and submit proposals.');
-      setActiveView('request-orbit');
-    } catch (err: any) {
-      addToast('error', 'Error Publishing Request', err.message);
-    }
-  };
-
-  // Submit Offer to Request
-  const handleSubmitOffer = async (offer: RequestOffer) => {
-    if (!currentUser) {
-      handleOpenAuth('signin');
-      return;
-    }
-    try {
-      await createOffer({
-        requestId: offer.requestId,
-        buyerId: offer.buyerId,
+      const copyPayload = {
+        title: `${listing.title} (Draft Copy)`,
+        description: listing.description,
+        categoryId: listing.categoryId,
+        listingType: listing.listingType,
+        price: listing.price,
+        currency: listing.currency,
+        condition: listing.condition,
         sellerId: currentUser.id,
         sellerName: currentUser.name,
         sellerCountry: currentUser.country,
-        sellerAvatar: currentUser.avatarUrl,
-        proposedPrice: offer.proposedPrice,
-        currency: offer.currency,
-        description: offer.description,
-        deliverables: offer.deliverables,
-        estimatedDays: offer.estimatedDays,
-        shippingOrFulfillmentDetails: offer.shippingOrFulfillmentDetails,
-        customizationIncluded: offer.customizationIncluded,
-        status: 'pending',
-        validUntil: offer.validUntil
-      });
-      setRequestForOffer(null);
-      addToast('success', 'Proposal Submitted', 'Your seller proposal has been sent directly to the buyer.');
-    } catch (err: any) {
-      addToast('error', 'Error Submitting Proposal', err.message);
+        sellerCity: currentUser.city || '',
+        images: listing.images || [],
+        customAttributes: listing.customAttributes || {},
+        shipsInternationally: listing.shipsInternationally,
+        shippingDestinations: listing.shippingDestinations || ['Worldwide'],
+        shippingEstimateDays: listing.shippingEstimateDays || 5,
+        shippingCostDescription: listing.shippingCostDescription || '',
+        allowsCustomization: listing.allowsCustomization,
+        tags: listing.tags || [],
+        status: 'active' as const
+      };
+      await createListing(copyPayload);
+      addToast('success', 'Listing Duplicated', 'A duplicate draft copy has been created.');
+    } catch {
+      addToast('error', 'Error', 'Failed to duplicate listing.');
     }
   };
 
-  // Close / Fulfill Request
-  const handleCloseRequest = async (id: string, status: 'fulfilled' | 'closed') => {
-    if (!currentUser) return;
+  const handleCreateRequest = async (data: any) => {
     try {
-      await updateBuyerRequest(id, { status });
-      addToast('success', status === 'fulfilled' ? 'Request Marked as Fulfilled' : 'Request Closed');
-    } catch (err: any) {
-      addToast('error', 'Failed to update request', err.message);
+      const created = await createBuyerRequest(data);
+      addToast('success', 'Request Posted to Request Orbit', `"${created.title}" is published for seller proposals.`);
+      setShowCreateRequestModal(false);
+      setActiveView('request-orbit');
+    } catch {
+      addToast('error', 'Error', 'Failed to post buyer request.');
     }
   };
 
-  // Start direct message on listing
+  const handleSubmitOffer = async (offerData: any) => {
+    try {
+      await createOffer(offerData);
+      addToast('success', 'Quote Proposal Submitted', 'Buyer has been notified with your commercial terms.');
+      setRequestForOffer(null);
+    } catch {
+      addToast('error', 'Error', 'Failed to submit quote.');
+    }
+  };
+
+  const handleCloseRequest = async (requestId: string) => {
+    try {
+      await updateBuyerRequest(requestId, { status: 'closed' });
+      addToast('info', 'Request Closed', 'This request is no longer accepting new seller offers.');
+    } catch {
+      addToast('error', 'Error', 'Could not close request.');
+    }
+  };
+
   const handleStartMessageOnListing = async (listing: Listing) => {
     if (!currentUser) {
       handleOpenAuth('signin');
       return;
     }
+    if (currentUser.id === listing.sellerId) {
+      addToast('info', 'Own Listing', 'You are the seller of this listing.');
+      return;
+    }
     try {
-      const conv = await getOrCreateConversation(
-        listing.sellerId,
-        listing.sellerName,
-        {
-          listingId: listing.id,
-          listingTitle: listing.title
-        }
-      );
+      const conv = await getOrCreateConversation(listing.sellerId, listing.sellerName, {
+        listingId: listing.id,
+        listingTitle: listing.title
+      });
       setActiveConversation(conv);
-      setActiveListingForDetail(null);
       setShowMessagingModal(true);
-    } catch (err: any) {
-      addToast('error', 'Could not open conversation', err.message);
+      if (activeListingForDetail) setActiveListingForDetail(null);
+    } catch {
+      addToast('error', 'Error', 'Could not open conversation.');
     }
   };
 
-  // Start message with seller from request
-  const handleStartMessageWithSeller = async (
-    sellerId: string,
-    sellerName: string,
-    requestId: string,
-    requestTitle: string
-  ) => {
+  const handleStartMessageWithSeller = async (sellerId: string, sellerName: string, context?: any) => {
     if (!currentUser) {
       handleOpenAuth('signin');
       return;
     }
     try {
-      const conv = await getOrCreateConversation(
-        sellerId,
-        sellerName,
-        {
-          requestId,
-          requestTitle
-        }
-      );
+      const conv = await getOrCreateConversation(sellerId, sellerName, context);
       setActiveConversation(conv);
       setShowMessagingModal(true);
-    } catch (err: any) {
-      addToast('error', 'Could not open conversation', err.message);
+    } catch {
+      addToast('error', 'Error', 'Could not open conversation.');
     }
   };
 
-  // Report submission
-  const handleSubmitReport = async (reportData: Omit<ReportItem, 'id' | 'createdAt' | 'status'>) => {
+  const handleSaveStore = async (storeData: any): Promise<Storefront> => {
+    const saved = await saveStore(storeData);
+    addToast('success', 'Storefront Saved', `"${saved.storeName}" is live on NOVORA.`);
+    return saved;
+  };
+
+  const handleOpenStore = (store: Storefront) => {
+    setActiveStoreForView(store);
+    setActiveView('store');
+    window.history.pushState({}, '', `?store=${store.storeSlug || store.id}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenUserProfile = (user: UserProfile) => {
+    setActiveProfileForView(user);
+    setActiveView('user-profile');
+    window.history.pushState({}, '', `?profile=${user.username || user.id}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectSeller = async (sellerId: string, sellerName: string) => {
+    // Check if seller has a public store
+    const existing = stores.find(s => s.sellerId === sellerId);
+    if (existing) {
+      handleOpenStore(existing);
+      return;
+    }
+    // Otherwise open their public profile
+    const prof = await fetchUserProfileById(sellerId);
+    if (prof) {
+      handleOpenUserProfile(prof);
+    } else {
+      handleOpenUserProfile({
+        id: sellerId,
+        name: sellerName,
+        username: sellerName.toLowerCase().replace(/\s+/g, ''),
+        email: '',
+        country: 'Global',
+        preferredCurrency: 'USD',
+        joinedDate: new Date().toISOString(),
+        isSeller: true,
+        languages: ['English']
+      });
+    }
+  };
+
+  const handleSubmitReport = async (data: any) => {
     try {
-      await submitReport(reportData);
-      addToast('success', 'Report Submitted for Review', 'Our trust and safety team will inspect the item promptly.');
-    } catch (err: any) {
-      addToast('error', 'Failed to submit report', err.message);
+      await submitReport(data);
+      addToast('success', 'Report Submitted', 'Our moderation team will review this notice promptly.');
+      setReportTarget(null);
+    } catch {
+      addToast('error', 'Error', 'Failed to submit report.');
     }
   };
 
-  // Admin moderation actions
   const handleResolveReport = async (reportId: string, status: 'resolved' | 'dismissed') => {
-    if (!currentUser?.isAdmin) return;
     try {
       await resolveReport(reportId, status);
-      addToast('info', 'Report Updated', `Report marked as ${status}.`);
-    } catch (err: any) {
-      addToast('error', 'Failed to resolve report', err.message);
+      addToast('info', 'Report Updated', `Report status changed to ${status}.`);
+    } catch {
+      addToast('error', 'Error', 'Could not resolve report.');
     }
   };
 
   const handleDeactivateListingFromAdmin = async (listingId: string) => {
-    if (!currentUser?.isAdmin) return;
     try {
       await updateListing(listingId, { status: 'archived' });
-      addToast('info', 'Listing Deactivated', 'Prohibited listing removed from public discovery.');
-    } catch (err: any) {
-      addToast('error', 'Failed to deactivate listing', err.message);
+      addToast('info', 'Listing Archived', 'Item removed from active marketplace visibility.');
+    } catch {
+      addToast('error', 'Error', 'Could not archive listing.');
     }
   };
 
-  // Profile update
-  const handleUpdateProfile = async (updated: UserProfile) => {
+  const handleUpdateProfile = async (updated: Partial<UserProfile>) => {
     if (!currentUser) return;
     try {
-      await syncUserProfile(
-        { uid: currentUser.id, email: currentUser.email } as any,
-        updated
-      );
-      setCurrentUser(prev => prev ? { ...prev, ...updated } : null);
-      addToast('success', 'Profile Updated Successfully');
-    } catch (err: any) {
-      addToast('error', 'Failed to update profile', err.message);
+      const merged = await syncUserProfile({ uid: currentUser.id, email: currentUser.email } as any, updated);
+      setCurrentUser(merged);
+      addToast('success', 'Profile Updated', 'Your settings were saved successfully.');
+    } catch {
+      addToast('error', 'Error', 'Could not update profile.');
     }
   };
 
-  // Navigation helper
   const handleNavigateSection = (sectionId: string) => {
     if (sectionId === 'home') {
       setActiveView('home');
-      return;
-    }
-    if (sectionId === 'request-orbit') {
+      window.history.pushState({}, '', window.location.pathname);
+    } else if (sectionId === 'request-orbit') {
       setActiveView('request-orbit');
-      return;
+    } else if (sectionId === 'seller') {
+      setActiveView('seller');
+    } else if (sectionId === 'buyer') {
+      setActiveView('buyer');
+    } else if (['about', 'how-it-works', 'safety', 'terms', 'seller-guide', 'help'].includes(sectionId)) {
+      setActiveInfoPage(sectionId as any);
+      setActiveView('info');
+    } else {
+      setActiveView('home');
+      setTimeout(() => {
+        const el = document.getElementById(sectionId);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
     }
-    setActiveView('home');
-    setTimeout(() => {
-      const el = document.getElementById(sectionId);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 50);
   };
 
-  const unreadMessagesCount = currentUser
-    ? conversations.reduce((acc, c) => acc + (c.unreadCount?.[currentUser.id] || 0), 0)
-    : 0;
-
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAFAF8] text-[#17191F] selection:bg-[#4057D6] selection:text-white">
+    <div className="min-h-screen bg-[#FDFDFD] text-[#17191F] flex flex-col font-sans selection:bg-[#4057D6] selection:text-white">
       
-      {/* Universal Header (Top Bar Contract: 3 zones, single-line controls) */}
+      {/* Global Header */}
       <Header
         currentUser={currentUser}
+        userStore={userStore}
         favoritesCount={favorites.length}
-        unreadMessagesCount={unreadMessagesCount}
+        unreadMessagesCount={conversations.filter(c => (c.unreadCount?.[currentUser?.id || ''] || 0) > 0).length}
+        unreadNotificationsCount={unreadNotificationsCount}
         currentCountry={currentCountry}
         currentCurrency={currentCurrency}
         onSelectCountry={setCurrentCountry}
@@ -508,34 +565,24 @@ export const App: React.FC = () => {
         onOpenAuth={handleOpenAuth}
         onLogout={handleLogout}
         onOpenCreateListing={() => {
-          if (!currentUser) {
-            handleOpenAuth('signin');
-          } else {
-            setShowCreateListingModal(true);
-          }
+          if (!currentUser) handleOpenAuth('signin');
+          else setShowCreateListingModal(true);
         }}
         onOpenCreateRequest={() => {
-          if (!currentUser) {
-            handleOpenAuth('signin');
-          } else {
-            setShowCreateRequestModal(true);
-          }
+          if (!currentUser) handleOpenAuth('signin');
+          else setShowCreateRequestModal(true);
         }}
         onOpenFindMatch={() => {
           setFindMatchInitialQuery('');
           setShowFindMatchModal(true);
         }}
         onOpenWorkspace={(tab) => {
-          if (!currentUser) {
-            handleOpenAuth('signin');
-          } else {
-            setActiveView(tab);
-          }
+          if (!currentUser) handleOpenAuth('signin');
+          else setActiveView(tab);
         }}
         onOpenMessages={() => {
-          if (!currentUser) {
-            handleOpenAuth('signin');
-          } else {
+          if (!currentUser) handleOpenAuth('signin');
+          else {
             if (conversations.length > 0 && !activeConversation) {
               setActiveConversation(conversations[0]);
             }
@@ -543,106 +590,169 @@ export const App: React.FC = () => {
           }
         }}
         onOpenFavorites={() => {
-          if (!currentUser) {
-            handleOpenAuth('signin');
-          } else {
-            setActiveView('buyer');
-          }
+          if (!currentUser) handleOpenAuth('signin');
+          else setActiveView('buyer');
         }}
+        onOpenNotifications={() => setShowNotificationDrawer(true)}
+        onOpenStore={handleOpenStore}
+        onOpenStoreWizard={() => {
+          if (!currentUser) handleOpenAuth('signin');
+          else setShowStoreWizard(true);
+        }}
+        onOpenUserProfile={(u) => handleOpenUserProfile(u)}
         onNavigateSection={handleNavigateSection}
       />
 
-      {/* Main View Area */}
+      {/* Main View Router */}
       <main className="flex-1">
+        
+        {/* View 1: Marketplace Home */}
         {activeView === 'home' && (
-          <>
-            {/* Signature Hero Section */}
+          <div className="space-y-16">
             <Hero
               listings={listings}
-              onSearchNeed={(query) => {
-                setFindMatchInitialQuery(query);
+              onSearchNeed={(q) => {
+                setFindMatchInitialQuery(q);
                 setShowFindMatchModal(true);
               }}
-              onExploreMarketplace={() => handleNavigateSection('discover')}
+              onExploreMarketplace={() => {
+                const el = document.getElementById('catalog-section');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
               onPostRequest={() => {
-                if (!currentUser) {
-                  handleOpenAuth('signin');
-                } else {
-                  setShowCreateRequestModal(true);
-                }
+                if (!currentUser) handleOpenAuth('signin');
+                else setShowCreateRequestModal(true);
               }}
               onSelectListing={handleSelectListing}
               onSelectCategory={(catId) => {
                 setSelectedCategory(catId);
-                handleNavigateSection('discover');
+                const el = document.getElementById('catalog-section');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
               }}
             />
 
-            {/* Categories Exploration */}
-            <CategoriesGrid
-              listings={listings}
-              onSelectCategory={(catId) => {
-                setSelectedCategory(catId);
-                handleNavigateSection('discover');
-              }}
-            />
+            <div className="max-w-[1440px] mx-auto px-6 space-y-16">
+              {/* Category Grid */}
+              <CategoriesGrid
+                listings={listings}
+                onSelectCategory={(catId) => {
+                  setSelectedCategory(catId);
+                  const el = document.getElementById('catalog-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+              />
 
-            {/* Featured Listings & Filter Experience */}
-            <FeaturedListings
-              listings={listings}
-              favorites={favorites}
-              displayCurrency={currentCurrency}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-              onSelectListing={handleSelectListing}
-              onToggleFavorite={handleToggleFavorite}
-              onOpenCreateListing={() => {
-                if (!currentUser) {
-                  handleOpenAuth('signin');
-                } else {
-                  setShowCreateListingModal(true);
-                }
-              }}
-            />
+              {/* Discovery Showcase (Personalized, Verified Stores, Global Finds) */}
+              <DiscoveryShowcase
+                listings={listings}
+                stores={stores}
+                favorites={favorites}
+                currentUser={currentUser}
+                displayCurrency={currentCurrency}
+                onSelectListing={handleSelectListing}
+                onToggleFavorite={handleToggleFavorite}
+                onViewStore={handleOpenStore}
+                onExploreCategory={(catId) => {
+                  setSelectedCategory(catId);
+                  const el = document.getElementById('catalog-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                onOpenStoreWizard={() => {
+                  if (!currentUser) handleOpenAuth('signin');
+                  else setShowStoreWizard(true);
+                }}
+              />
 
-            {/* Request Orbit Section Preview */}
-            <RequestOrbitPreview
-              requests={requests}
-              offers={offers}
-              onOpenOrbit={() => setActiveView('request-orbit')}
-              onOpenCreateRequest={() => {
-                if (!currentUser) {
-                  handleOpenAuth('signin');
-                } else {
-                  setShowCreateRequestModal(true);
-                }
-              }}
-            />
+              {/* Full Marketplace Catalog with Search & Filters */}
+              <div id="catalog-section" className="pt-6">
+                <FeaturedListings
+                  listings={listings}
+                  favorites={favorites}
+                  displayCurrency={currentCurrency}
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={setSelectedCategory}
+                  onSelectListing={handleSelectListing}
+                  onToggleFavorite={handleToggleFavorite}
+                  onOpenCreateListing={() => {
+                    if (!currentUser) handleOpenAuth('signin');
+                    else setShowCreateListingModal(true);
+                  }}
+                />
+              </div>
 
-            {/* Seller & Creator Spotlight */}
-            <SellerSpotlight
-              sellers={[]}
-              listings={listings}
-              onSelectListing={handleSelectListing}
-              onFilterBySellerCountry={(countryCode) => {
-                setCurrentCountry(countryCode);
-                handleNavigateSection('discover');
-              }}
-              onOpenCreateListing={() => {
-                if (!currentUser) {
-                  handleOpenAuth('signin');
-                } else {
-                  setShowCreateListingModal(true);
-                }
-              }}
-            />
+              {/* Request Orbit Sourcing Board Preview */}
+              <RequestOrbitPreview
+                requests={requests}
+                offers={offers}
+                onOpenOrbit={() => setActiveView('request-orbit')}
+                onOpenCreateRequest={() => {
+                  if (!currentUser) handleOpenAuth('signin');
+                  else setShowCreateRequestModal(true);
+                }}
+              />
 
-            {/* Trust, Safety & Zero-Cost Architecture */}
-            <TrustSafetyBanner />
-          </>
+              {/* Trust & Safety Banner */}
+              <TrustSafetyBanner />
+            </div>
+          </div>
         )}
 
-        {/* View: Request Orbit */}
+        {/* View 2: Public Storefront */}
+        {activeView === 'store' && activeStoreForView && (
+          <PublicStorefront
+            store={activeStoreForView}
+            listings={listings}
+            currentUser={currentUser}
+            favorites={favorites}
+            onSelectListing={handleSelectListing}
+            onToggleFavorite={handleToggleFavorite}
+            onStartMessage={handleStartMessageWithSeller}
+            onReportStore={(st) => {
+              setReportTarget({
+                type: 'user',
+                id: st.sellerId,
+                title: `Storefront: ${st.storeName}`
+              });
+            }}
+            onBackToMarketplace={() => {
+              setActiveView('home');
+              window.history.pushState({}, '', window.location.pathname);
+            }}
+            onEditStore={() => {
+              setShowStoreWizard(true);
+            }}
+            onOpenAuth={handleOpenAuth}
+          />
+        )}
+
+        {/* View 3: Public User Profile */}
+        {activeView === 'user-profile' && activeProfileForView && (
+          <PublicUserProfile
+            user={activeProfileForView}
+            listings={listings}
+            store={stores.find(s => s.sellerId === activeProfileForView.id) || null}
+            currentUser={currentUser}
+            favorites={favorites}
+            onSelectListing={handleSelectListing}
+            onToggleFavorite={handleToggleFavorite}
+            onStartMessage={(sid, sname) => handleStartMessageWithSeller(sid, sname)}
+            onViewStore={handleOpenStore}
+            onReportUser={(u) => {
+              setReportTarget({
+                type: 'user',
+                id: u.id,
+                title: `User Profile: ${u.name}`
+              });
+            }}
+            onBackToMarketplace={() => {
+              setActiveView('home');
+              window.history.pushState({}, '', window.location.pathname);
+            }}
+            onOpenAuth={handleOpenAuth}
+          />
+        )}
+
+        {/* View 4: Request Orbit (Buyer Sourcing Board) */}
         {activeView === 'request-orbit' && (
           <div className="max-w-[1440px] mx-auto px-6 py-10">
             <div className="mb-6 flex items-center gap-2">
@@ -658,18 +768,12 @@ export const App: React.FC = () => {
               offers={offers}
               currentUser={currentUser}
               onOpenCreateRequest={() => {
-                if (!currentUser) {
-                  handleOpenAuth('signin');
-                } else {
-                  setShowCreateRequestModal(true);
-                }
+                if (!currentUser) handleOpenAuth('signin');
+                else setShowCreateRequestModal(true);
               }}
               onOpenSubmitOffer={(req) => {
-                if (!currentUser) {
-                  handleOpenAuth('signin');
-                } else {
-                  setRequestForOffer(req);
-                }
+                if (!currentUser) handleOpenAuth('signin');
+                else setRequestForOffer(req);
               }}
               onStartMessageWithSeller={handleStartMessageWithSeller}
               onCloseRequest={handleCloseRequest}
@@ -678,7 +782,7 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* View: Seller Workspace */}
+        {/* View 5: Seller Control Center */}
         {activeView === 'seller' && (
           <div className="max-w-[1440px] mx-auto px-6 py-10">
             <div className="mb-6 flex items-center gap-2">
@@ -692,28 +796,32 @@ export const App: React.FC = () => {
             <SellerWorkspace
               currentUser={currentUser}
               listings={listings}
+              store={userStore}
+              requests={requests}
+              offers={offers}
+              conversations={conversations}
               onOpenCreateListing={() => {
-                if (!currentUser) {
-                  handleOpenAuth('signin');
-                } else {
-                  setShowCreateListingModal(true);
-                }
+                if (!currentUser) handleOpenAuth('signin');
+                else setShowCreateListingModal(true);
               }}
               onToggleStatus={handleToggleListingStatus}
               onDeleteListing={handleDeleteListing}
+              onDuplicateListing={handleDuplicateListing}
               onSelectListing={handleSelectListing}
-              onOpenMessages={() => {
-                if (conversations.length > 0 && !activeConversation) {
-                  setActiveConversation(conversations[0]);
-                }
+              onOpenStoreWizard={() => setShowStoreWizard(true)}
+              onViewStore={handleOpenStore}
+              onOpenSubmitOffer={(req) => setRequestForOffer(req)}
+              onOpenMessages={(conv) => {
+                if (conv) setActiveConversation(conv);
                 setShowMessagingModal(true);
               }}
+              onUpdateProfile={handleUpdateProfile}
               onOpenAuth={handleOpenAuth}
             />
           </div>
         )}
 
-        {/* View: Buyer Workspace */}
+        {/* View 6: Buyer Sanctuary */}
         {activeView === 'buyer' && (
           <div className="max-w-[1440px] mx-auto px-6 py-10">
             <div className="mb-6 flex items-center gap-2">
@@ -733,26 +841,22 @@ export const App: React.FC = () => {
               conversations={conversations}
               onSelectListing={handleSelectListing}
               onOpenCreateRequest={() => {
-                if (!currentUser) {
-                  handleOpenAuth('signin');
-                } else {
-                  setShowCreateRequestModal(true);
-                }
+                if (!currentUser) handleOpenAuth('signin');
+                else setShowCreateRequestModal(true);
               }}
-              onOpenMessages={() => {
-                if (conversations.length > 0 && !activeConversation) {
-                  setActiveConversation(conversations[0]);
-                }
+              onOpenMessages={(conv) => {
+                if (conv) setActiveConversation(conv);
                 setShowMessagingModal(true);
               }}
               onUpdateProfile={handleUpdateProfile}
               onDeleteAccount={() => handleLogout()}
               onOpenAuth={handleOpenAuth}
+              onToggleFavorite={handleToggleFavorite}
             />
           </div>
         )}
 
-        {/* View: Admin Workspace */}
+        {/* View 7: Admin Workspace */}
         {activeView === 'admin' && (
           <div className="max-w-[1440px] mx-auto px-6 py-10">
             <div className="mb-6 flex items-center gap-2">
@@ -773,9 +877,33 @@ export const App: React.FC = () => {
             />
           </div>
         )}
+
+        {/* View 8: Informational & Policy Pages */}
+        {activeView === 'info' && (
+          <InfoPages
+            page={activeInfoPage}
+            onBack={() => {
+              setActiveView('home');
+              window.history.pushState({}, '', window.location.pathname);
+            }}
+            onOpenStoreWizard={() => {
+              if (!currentUser) handleOpenAuth('signin');
+              else setShowStoreWizard(true);
+            }}
+            onOpenCreateListing={() => {
+              if (!currentUser) handleOpenAuth('signin');
+              else setShowCreateListingModal(true);
+            }}
+            onOpenCreateRequest={() => {
+              if (!currentUser) handleOpenAuth('signin');
+              else setShowCreateRequestModal(true);
+            }}
+          />
+        )}
+
       </main>
 
-      {/* Footer */}
+      {/* Global Footer */}
       <Footer
         onNavigateSection={handleNavigateSection}
         onOpenFindMatch={() => {
@@ -783,19 +911,24 @@ export const App: React.FC = () => {
           setShowFindMatchModal(true);
         }}
         onOpenCreateRequest={() => {
-          if (!currentUser) {
-            handleOpenAuth('signin');
-          } else {
-            setShowCreateRequestModal(true);
-          }
+          if (!currentUser) handleOpenAuth('signin');
+          else setShowCreateRequestModal(true);
+        }}
+        onOpenCreateListing={() => {
+          if (!currentUser) handleOpenAuth('signin');
+          else setShowCreateListingModal(true);
+        }}
+        onOpenStoreWizard={() => {
+          if (!currentUser) handleOpenAuth('signin');
+          else setShowStoreWizard(true);
         }}
         onClearData={() => {
           localStorage.clear();
-          addToast('info', 'Local Cache Cleared', 'Harmless client preferences reset.');
+          addToast('info', 'Local Cache Cleared', 'Harmless client preferences and search history reset.');
         }}
       />
 
-      {/* MODALS */}
+      {/* MODALS & DRAWERS */}
 
       {/* 1. Listing Detail Modal */}
       {activeListingForDetail && (
@@ -816,6 +949,10 @@ export const App: React.FC = () => {
           onToggleStatus={handleToggleListingStatus}
           onDeleteListing={handleDeleteListing}
           onOpenAuth={handleOpenAuth}
+          onViewSeller={(sid, sname) => {
+            setActiveListingForDetail(null);
+            handleSelectSeller(sid, sname);
+          }}
         />
       )}
 
@@ -865,11 +1002,8 @@ export const App: React.FC = () => {
           onToggleFavorite={handleToggleFavorite}
           onOpenCreateRequest={() => {
             setShowFindMatchModal(false);
-            if (!currentUser) {
-              handleOpenAuth('signin');
-            } else {
-              setShowCreateRequestModal(true);
-            }
+            if (!currentUser) handleOpenAuth('signin');
+            else setShowCreateRequestModal(true);
           }}
         />
       )}
@@ -893,7 +1027,47 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* 7. Auth Modal */}
+      {/* 7. Store Setup Wizard */}
+      {showStoreWizard && currentUser && (
+        <StoreSetupWizard
+          currentUser={currentUser}
+          existingStore={userStore}
+          sellerListings={listings.filter(l => l.sellerId === currentUser.id)}
+          onClose={() => setShowStoreWizard(false)}
+          onSave={handleSaveStore}
+          onViewStore={(st) => {
+            setShowStoreWizard(false);
+            handleOpenStore(st);
+          }}
+        />
+      )}
+
+      {/* 8. Notification Center Drawer */}
+      <NotificationDrawer
+        isOpen={showNotificationDrawer}
+        onClose={() => setShowNotificationDrawer(false)}
+        conversations={conversations}
+        offers={offers}
+        requests={requests}
+        userId={currentUser?.id || ''}
+        onNavigate={(view, targetId) => {
+          if (view === 'messages') {
+            const found = conversations.find(c => c.id === targetId);
+            if (found) setActiveConversation(found);
+            setShowMessagingModal(true);
+          } else if (view === 'seller') {
+            setActiveView('seller');
+          } else if (view === 'buyer') {
+            setActiveView('buyer');
+          } else if (view === 'request-orbit') {
+            setActiveView('request-orbit');
+          } else if (view === 'home') {
+            setActiveView('home');
+          }
+        }}
+      />
+
+      {/* 9. Auth Modal */}
       {showAuthModal && (
         <AuthModal
           initialMode={authInitialMode}
@@ -902,7 +1076,7 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* 8. Report Content Modal */}
+      {/* 10. Report Content Modal */}
       {reportTarget && (
         <ReportModal
           targetType={reportTarget.type}

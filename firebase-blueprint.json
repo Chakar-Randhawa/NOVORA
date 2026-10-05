@@ -171,6 +171,36 @@
         "addedAt": { "type": "string" }
       },
       "required": ["listingId", "addedAt"]
+    },
+    "Store": {
+      "title": "Store",
+      "description": "Seller branded public storefront",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "sellerName": { "type": "string", "maxLength": 100 },
+        "storeName": { "type": "string", "maxLength": 100 },
+        "storeSlug": { "type": "string", "maxLength": 50 },
+        "tagline": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 5000 },
+        "story": { "type": "string", "maxLength": 5000 },
+        "logoUrl": { "type": "string" },
+        "bannerUrl": { "type": "string" },
+        "country": { "type": "string", "maxLength": 50 },
+        "city": { "type": "string", "maxLength": 100 },
+        "languages": { "type": "array" },
+        "businessType": { "type": "string" },
+        "categories": { "type": "array" },
+        "featuredListingIds": { "type": "array" },
+        "announcement": { "type": "string", "maxLength": 500 },
+        "policies": { "type": "object" },
+        "status": { "type": "string", "enum": ["active", "draft", "vacation"] },
+        "completenessPercent": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "sellerId", "sellerName", "storeName", "storeSlug", "status", "createdAt"]
     }
   },
   "firestore": {
@@ -185,6 +215,10 @@
     "/listings/{listingId}": {
       "schema": "Listing",
       "description": "Public multi-category offerings"
+    },
+    "/stores/{storeId}": {
+      "schema": "Store",
+      "description": "Seller branded public storefronts"
     },
     "/requests/{requestId}": {
       "schema": "BuyerRequest",

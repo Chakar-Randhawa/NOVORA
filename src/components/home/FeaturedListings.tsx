@@ -44,7 +44,7 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
   const [showFiltersDrawer, setShowFiltersDrawer] = useState(false);
 
   // Active listings only
-  const activeCatalog = listings.filter(item => item.status === 'active');
+  const activeCatalog = listings.filter((item) => item.status === 'active');
 
   // Filter listings
   const filtered = activeCatalog.filter((item) => {
@@ -73,7 +73,7 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
       const matchTitle = item.title.toLowerCase().includes(q);
       const matchDesc = item.description.toLowerCase().includes(q);
       const matchSeller = item.sellerName.toLowerCase().includes(q);
-      const matchTag = item.tags?.some(t => t.toLowerCase().includes(q));
+      const matchTag = item.tags?.some((t) => t.toLowerCase().includes(q));
       if (!matchTitle && !matchDesc && !matchSeller && !matchTag) {
         return false;
       }
@@ -108,24 +108,25 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
     onlyCustomizable;
 
   return (
-    <section id="discover" className="py-16 bg-[#FAFAF8] border-b border-[#E5E7EB]">
-      <div className="max-w-[1440px] mx-auto px-6">
+    <section id="discover" className="py-12 sm:py-16 bg-[#FAFAF8] border-b border-[#E5E7EB]">
+      <div className="novora-container">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-4">
           <div>
             <div className="text-xs font-semibold text-[#4057D6] uppercase tracking-wider mb-1">
               Marketplace Catalog
             </div>
-            <h2 className="text-2xl sm:text-3xl font-semibold text-[#17191F] tracking-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-[#17191F] tracking-tight">
               Explore Discoveries
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
+              type="button"
               onClick={() => setShowFiltersDrawer(!showFiltersDrawer)}
-              className="px-3 py-2 text-xs font-medium bg-white border border-[#E5E7EB] hover:border-[#17191F] rounded-lg transition-colors flex items-center gap-2 text-[#374151] cursor-pointer"
+              className="px-3 py-2 text-xs font-medium bg-white border border-[#E5E7EB] hover:border-[#17191F] rounded-xl transition-colors flex items-center gap-2 text-[#374151] cursor-pointer shadow-2xs"
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
               <span>Filters {hasActiveFilters && '●'}</span>
@@ -135,7 +136,7 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="px-3 py-2 text-xs font-medium bg-white border border-[#E5E7EB] rounded-lg text-[#374151] focus:outline-hidden cursor-pointer"
+              className="px-3 py-2 text-xs font-medium bg-white border border-[#E5E7EB] rounded-xl text-[#374151] focus:outline-hidden cursor-pointer shadow-2xs"
             >
               <option value="newest">Sort: Newest</option>
               <option value="price_low">Sort: Price: Low to High</option>
@@ -145,9 +146,9 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="bg-white rounded-xl border border-[#E5E7EB] p-3 mb-8 space-y-3">
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-3 sm:p-4 mb-8 space-y-3 shadow-2xs">
           
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+          <div className="flex flex-col sm:flex-row gap-2.5 items-stretch">
             {/* Search Input */}
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-[#9CA3AF] absolute left-3 top-3" />
@@ -156,12 +157,13 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search across titles, descriptions, materials, tags..."
-                className="w-full text-xs pl-9 pr-8 py-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] focus:border-[#4057D6] focus:outline-hidden"
+                className="w-full text-xs pl-9 pr-8 py-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#17191F] focus:border-[#4057D6] focus:outline-hidden"
               />
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-2.5 text-[#9CA3AF] hover:text-[#17191F]"
+                  className="absolute right-2.5 top-2.5 text-[#9CA3AF] hover:text-[#17191F] p-1"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -172,10 +174,10 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
             <select
               value={selectedCountry}
               onChange={(e) => setSelectedCountry(e.target.value)}
-              className="text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] focus:outline-hidden cursor-pointer"
+              className="text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#17191F] focus:outline-hidden cursor-pointer sm:w-56"
             >
               <option value="all">All Seller Locations</option>
-              {COUNTRIES.map(c => (
+              {COUNTRIES.map((c) => (
                 <option key={c.code} value={c.code}>
                   {c.flag} {c.name}
                 </option>
@@ -185,13 +187,13 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
 
           {/* Expanded Drawer Filters */}
           {showFiltersDrawer && (
-            <div className="pt-3 border-t border-[#E5E7EB] grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div className="pt-3 border-t border-[#E5E7EB] grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs animate-in fade-in duration-150">
               <div>
                 <label className="block text-[11px] font-medium text-[#646B76] mb-1">Item Condition</label>
                 <select
                   value={selectedCondition}
                   onChange={(e) => setSelectedCondition(e.target.value)}
-                  className="w-full text-xs p-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F]"
+                  className="w-full text-xs p-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#17191F]"
                 >
                   <option value="all">Any Condition</option>
                   <option value="new">Brand New</option>
@@ -227,6 +229,7 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
               <div className="flex items-end justify-end">
                 {hasActiveFilters && (
                   <button
+                    type="button"
                     onClick={clearAllFilters}
                     className="text-xs text-rose-600 hover:underline font-medium cursor-pointer flex items-center gap-1"
                   >
@@ -239,8 +242,9 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
           )}
 
           {/* Category Tabs (Segmented controls) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pt-1 scrollbar-none text-xs">
+          <div className="flex items-center gap-1.5 overflow-x-auto pt-1 pb-1 scrollbar-none text-xs">
             <button
+              type="button"
               onClick={() => onSelectCategory('all')}
               className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors font-medium cursor-pointer ${
                 selectedCategory === 'all'
@@ -250,11 +254,12 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
             >
               All Categories ({activeCatalog.length})
             </button>
-            {CATEGORIES.map(cat => {
-              const count = activeCatalog.filter(l => l.categoryId === cat.id).length;
+            {CATEGORIES.map((cat) => {
+              const count = activeCatalog.filter((l) => l.categoryId === cat.id).length;
               return (
                 <button
                   key={cat.id}
+                  type="button"
                   onClick={() => onSelectCategory(cat.id)}
                   className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-colors font-medium cursor-pointer ${
                     selectedCategory === cat.id
@@ -272,8 +277,8 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
 
         {/* Listings Grid or Intentional Empty States */}
         {activeCatalog.length === 0 ? (
-          // Empty Catalog State: Zero genuine listings exist yet
-          <div className="text-center py-20 px-6 bg-white rounded-2xl border border-dashed border-[#E5E7EB] space-y-4 max-w-2xl mx-auto">
+          // Empty Catalog State
+          <div className="text-center py-16 sm:py-20 px-6 bg-white rounded-2xl border border-dashed border-[#E5E7EB] space-y-4 max-w-xl mx-auto shadow-2xs">
             <div className="w-12 h-12 rounded-2xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center mx-auto">
               <PackageOpen className="w-6 h-6" />
             </div>
@@ -287,8 +292,9 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
             </div>
             <div className="pt-2">
               <button
+                type="button"
                 onClick={onOpenCreateListing}
-                className="px-5 py-2.5 bg-[#17191F] hover:bg-[#27272A] text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+                className="w-full sm:w-auto px-5 py-2.5 bg-[#17191F] hover:bg-[#27272A] text-white text-xs font-medium rounded-xl transition-colors cursor-pointer shadow-xs inline-flex items-center justify-center gap-1.5"
               >
                 <Plus className="w-4 h-4" />
                 <span>Publish the First Listing</span>
@@ -296,8 +302,8 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
             </div>
           </div>
         ) : filtered.length > 0 ? (
-          // Genuine Listings Found
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          // Genuine Listings Found (Fluid 1 to 4 column responsive grid)
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {filtered.map((listing) => (
               <ListingCard
                 key={listing.id}
@@ -311,7 +317,7 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
           </div>
         ) : (
           // Filtered Empty State
-          <div className="text-center py-16 px-6 bg-white rounded-2xl border border-dashed border-[#E5E7EB] space-y-3 max-w-md mx-auto">
+          <div className="text-center py-14 px-6 bg-white rounded-2xl border border-dashed border-[#E5E7EB] space-y-3 max-w-md mx-auto">
             <PackageOpen className="w-8 h-8 text-[#9CA3AF] mx-auto" />
             <h3 className="text-sm font-semibold text-[#17191F]">No matching results</h3>
             <p className="text-xs text-[#646B76] leading-relaxed">
@@ -319,8 +325,9 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
             </p>
             <div className="pt-2">
               <button
+                type="button"
                 onClick={clearAllFilters}
-                className="px-4 py-2 bg-[#17191F] text-white text-xs font-medium rounded-lg hover:bg-[#27272A] transition-colors cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 bg-[#17191F] text-white text-xs font-medium rounded-xl hover:bg-[#27272A] transition-colors cursor-pointer"
               >
                 Clear Filters
               </button>

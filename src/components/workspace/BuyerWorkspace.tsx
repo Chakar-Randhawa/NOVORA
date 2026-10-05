@@ -1,7 +1,27 @@
-import React, { useState } from 'react';
-import { Heart, Compass, MessageSquare, User, Settings, ArrowUpRight, CheckCircle, Trash2 } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import {
+  Heart,
+  Compass,
+  MessageSquare,
+  User,
+  Settings,
+  ArrowUpRight,
+  CheckCircle,
+  XCircle,
+  Trash2,
+  Tag,
+  DollarSign,
+  Clock,
+  Layers,
+  ArrowRight,
+  ExternalLink,
+  ShieldCheck,
+  Eye,
+  Store
+} from 'lucide-react';
 import { Listing, BuyerRequest, RequestOffer, UserProfile, Conversation } from '../../types';
 import { formatPrice, COUNTRIES } from '../../data/countries';
+import { EmptyState } from '../common/DesignTokens';
 
 interface BuyerWorkspaceProps {
   currentUser: UserProfile | null;
@@ -12,10 +32,11 @@ interface BuyerWorkspaceProps {
   conversations: Conversation[];
   onSelectListing: (listing: Listing) => void;
   onOpenCreateRequest: () => void;
-  onOpenMessages: () => void;
+  onOpenMessages: (conv?: Conversation) => void;
   onUpdateProfile: (updated: UserProfile) => void;
   onDeleteAccount: (userId: string) => void;
   onOpenAuth: (mode?: 'signin' | 'register') => void;
+  onToggleFavorite?: (listingId: string) => void;
 }
 
 export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
@@ -30,25 +51,45 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
   onOpenMessages,
   onUpdateProfile,
   onDeleteAccount,
-  onOpenAuth
+  onOpenAuth,
+  onToggleFavorite
 }) => {
-  const [activeTab, setActiveTab] = useState<'favorites' | 'requests' | 'settings'>('favorites');
+  const [activeTab, setActiveTab] = useState<'overview' | 'favorites' | 'requests' | 'quotes' | 'recent' | 'settings'>('overview');
   const [name, setName] = useState(currentUser?.name || '');
   const [bio, setBio] = useState(currentUser?.bio || '');
   const [country, setCountry] = useState(currentUser?.country || 'US');
+  const [currency, setCurrency] = useState(currentUser?.preferredCurrency || 'USD');
   const [isSaved, setIsSaved] = useState(false);
+
+  // Recently viewed listings stored in localStorage
+  const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('novora_recent_viewed');
+      if (raw) {
+        setRecentlyViewedIds(JSON.parse(raw));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const recentlyViewedListings = useMemo(() => {
+    return allListings.filter(l => recentlyViewedIds.includes(l.id));
+  }, [allListings, recentlyViewedIds]);
 
   if (!currentUser) {
     return (
-      <div className="text-center py-20 bg-white rounded-2xl border border-[#E5E7EB] p-8 space-y-4 max-w-md mx-auto">
+      <div className="text-center py-20 bg-white rounded-3xl border border-[#E5E7EB] p-8 space-y-4 max-w-md mx-auto shadow-xs">
         <User className="w-10 h-10 text-[#4057D6] mx-auto" />
-        <h3 className="text-base font-semibold text-[#17191F]">Buyer Sanctuary</h3>
-        <p className="text-xs text-[#646B76]">
-          Please sign in to view your saved wishlist items, active requests, and direct conversations.
+        <h3 className="text-base font-semibold text-[#17191F]">Buyer Workspace Access</h3>
+        <p className="text-xs text-[#646B76] leading-relaxed">
+          Please sign in to view your saved wishlist items, active procurement requests, and received seller quotes.
         </p>
         <button
           onClick={() => onOpenAuth('signin')}
-          className="px-4 py-2 bg-[#17191F] text-white text-xs font-medium rounded-lg hover:bg-[#27272A] transition-colors cursor-pointer"
+          className="px-5 py-2.5 bg-[#17191F] text-white text-xs font-medium rounded-xl hover:bg-[#27272A] transition-colors cursor-pointer shadow-xs"
         >
           Sign In / Register
         </button>
@@ -59,268 +100,583 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
   const favoriteListings = allListings.filter(l => favorites.includes(l.id));
   const myRequests = requests.filter(r => r.buyerId === currentUser.id);
 
+  // Offers received on my requests
+  const myRequestIds = new Set(myRequests.map(r => r.id));
+  const receivedOffers = offers.filter(o => myRequestIds.has(o.requestId));
+
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdateProfile({
       ...currentUser,
-      name,
-      bio,
-      country
+      name: name.trim(),
+      bio: bio.trim(),
+      country,
+      preferredCurrency: currency
     });
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2500);
   };
 
+  const BUYER_NAV_ITEMS = [
+    { id: 'overview', label: 'Overview', icon: User },
+    { id: 'favorites', label: `Saved Items (${favoriteListings.length})`, icon: Heart },
+    { id: 'requests', label: `My Requests (${myRequests.length})`, icon: Compass },
+    { id: 'quotes', label: `Quotes Received (${receivedOffers.length})`, icon: DollarSign, highlight: receivedOffers.length > 0 },
+    { id: 'recent', label: `Recently Viewed (${recentlyViewedListings.length})`, icon: Clock },
+    { id: 'settings', label: 'Preferences & Account', icon: Settings }
+  ];
+
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
       
-      {/* Top Banner */}
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
-        <div>
-          <span className="text-xs font-semibold text-[#4057D6] uppercase tracking-wider block mb-1">
-            Buyer Sanctuary
-          </span>
-          <h2 className="text-2xl font-semibold text-[#17191F] tracking-tight">
-            {currentUser.name}
-          </h2>
-          <p className="text-xs text-[#646B76] mt-1 max-w-lg leading-relaxed">
-            Review your saved artisan objects, active Request Orbit posts, and direct seller communications.
-          </p>
+      {/* Mobile / Tablet Horizontal Navigation (< 1024px) */}
+      <div className="lg:hidden w-full space-y-3">
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-3.5 flex items-center justify-between shadow-2xs gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center font-bold text-xs shrink-0">
+              {currentUser.name.charAt(0)}
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-xs font-semibold text-[#17191F] truncate">{currentUser.name}</h3>
+              <p className="text-[10px] text-[#646B76] truncate">Buyer Dashboard</p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={onOpenCreateRequest}
+            className="px-3 py-1.5 bg-[#17191F] text-white rounded-lg text-xs font-medium flex items-center gap-1 cursor-pointer shadow-xs shrink-0"
+          >
+            <Compass className="w-3.5 h-3.5" />
+            <span>Request</span>
+          </button>
         </div>
 
-        <button
-          onClick={onOpenCreateRequest}
-          className="px-5 py-2.5 rounded-lg bg-[#17191F] hover:bg-[#27272A] text-white text-xs font-medium flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
-        >
-          <Compass className="w-4 h-4" />
-          <span>Post New Request</span>
-        </button>
+        {/* Mobile Horizontal Scrolling Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+          {BUYER_NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActiveTab(item.id as any)}
+                className={`px-3 py-2 rounded-xl font-medium transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 ${
+                  isActive
+                    ? 'bg-[#17191F] text-white shadow-xs'
+                    : 'bg-white border border-[#E5E7EB] text-[#4B5563] hover:text-[#17191F]'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : item.highlight ? 'text-emerald-600' : 'text-[#646B76]'}`} />
+                <span>{item.label}</span>
+                {item.highlight && !isActive && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-[#E5E7EB] pb-px">
-        <button
-          onClick={() => setActiveTab('favorites')}
-          className={`px-4 py-2.5 text-xs font-medium border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
-            activeTab === 'favorites'
-              ? 'border-[#17191F] text-[#17191F] font-semibold'
-              : 'border-transparent text-[#646B76] hover:text-[#17191F]'
-          }`}
-        >
-          <Heart className="w-3.5 h-3.5" />
-          <span>Saved Favorites ({favoriteListings.length})</span>
-        </button>
+      {/* Desktop Sidebar Navigation (>= 1024px) */}
+      <aside className="hidden lg:block w-64 bg-white rounded-3xl border border-[#E5E7EB] p-4 shadow-xs shrink-0 space-y-6">
+        <div>
+          <div className="flex items-center gap-3 px-3 py-2">
+            <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center font-bold text-sm shrink-0">
+              {currentUser.name.charAt(0)}
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-xs font-semibold text-[#17191F] truncate">{currentUser.name}</h3>
+              <p className="text-[11px] text-[#646B76] truncate">Buyer Dashboard</p>
+            </div>
+          </div>
+        </div>
 
-        <button
-          onClick={() => setActiveTab('requests')}
-          className={`px-4 py-2.5 text-xs font-medium border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
-            activeTab === 'requests'
-              ? 'border-[#17191F] text-[#17191F] font-semibold'
-              : 'border-transparent text-[#646B76] hover:text-[#17191F]'
-          }`}
-        >
-          <Compass className="w-3.5 h-3.5" />
-          <span>My Requests ({myRequests.length})</span>
-        </button>
+        <nav className="space-y-1 text-xs">
+          {BUYER_NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setActiveTab(item.id as any)}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium transition-all cursor-pointer ${
+                  isActive
+                    ? 'bg-[#17191F] text-white shadow-2xs'
+                    : 'text-[#4B5563] hover:text-[#17191F] hover:bg-[#F3F4F6]'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : item.highlight ? 'text-emerald-600' : 'text-[#646B76]'}`} />
+                  <span>{item.label}</span>
+                </div>
+                {item.highlight && !isActive && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
-        <button
-          onClick={() => setActiveTab('settings')}
-          className={`px-4 py-2.5 text-xs font-medium border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
-            activeTab === 'settings'
-              ? 'border-[#17191F] text-[#17191F] font-semibold'
-              : 'border-transparent text-[#646B76] hover:text-[#17191F]'
-          }`}
-        >
-          <Settings className="w-3.5 h-3.5" />
-          <span>Profile & Settings</span>
-        </button>
-      </div>
+        <div className="pt-4 border-t border-[#E5E7EB] space-y-2">
+          <button
+            type="button"
+            onClick={onOpenCreateRequest}
+            className="w-full py-2.5 px-3 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
+          >
+            <Compass className="w-3.5 h-3.5" />
+            <span>Post Buyer Request</span>
+          </button>
+        </div>
+      </aside>
 
-      {/* Tab 1: Favorites */}
-      {activeTab === 'favorites' && (
-        <div className="space-y-4">
-          {favoriteListings.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {favoriteListings.map(item => (
-                <div
-                  key={item.id}
-                  onClick={() => onSelectListing(item)}
-                  className="bg-white rounded-xl border border-[#E5E7EB] overflow-hidden hover:border-[#17191F] transition-all cursor-pointer flex flex-col justify-between"
+      {/* Main Workspace Area */}
+      <main className="flex-1 w-full space-y-6 min-w-0">
+        
+        {/* TAB 1: OVERVIEW */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            {/* Header Banner */}
+            <div className="bg-white rounded-3xl border border-[#E5E7EB] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
+              <div>
+                <span className="text-xs font-semibold text-[#4057D6] uppercase tracking-wider block mb-1">
+                  Buyer Sanctuary & Discoveries
+                </span>
+                <h2 className="text-2xl font-bold text-[#17191F] tracking-tight">
+                  Welcome, {currentUser.name}
+                </h2>
+                <p className="text-xs text-[#646B76] mt-1 max-w-lg leading-relaxed">
+                  Track your saved wishlist items, active procurement sourcing posts, and quotes received from independent sellers worldwide.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={onOpenCreateRequest}
+                className="w-full sm:w-auto px-5 py-2.5 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs font-medium flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer active:scale-[0.98]"
+              >
+                <Compass className="w-4 h-4" />
+                <span>Post Request</span>
+              </button>
+            </div>
+
+            {/* Quick Metrics (Fluid 2-col on mobile, 4-col on lg) */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div 
+                onClick={() => setActiveTab('favorites')}
+                className="p-5 bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs cursor-pointer hover:border-[#17191F] transition-all"
+              >
+                <span className="text-[10px] font-semibold text-[#646B76] uppercase tracking-wider block">Saved Items</span>
+                <div className="text-2xl font-bold font-mono text-[#17191F] mt-1.5">{favoriteListings.length}</div>
+                <p className="text-[11px] text-[#646B76] mt-0.5">In your wishlist</p>
+              </div>
+
+              <div 
+                onClick={() => setActiveTab('requests')}
+                className="p-5 bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs cursor-pointer hover:border-[#17191F] transition-all"
+              >
+                <span className="text-[10px] font-semibold text-[#646B76] uppercase tracking-wider block">My Requests</span>
+                <div className="text-2xl font-bold font-mono text-[#17191F] mt-1.5">{myRequests.length}</div>
+                <p className="text-[11px] text-[#646B76] mt-0.5">Active in Request Orbit</p>
+              </div>
+
+              <div 
+                onClick={() => setActiveTab('quotes')}
+                className="p-5 bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs cursor-pointer hover:border-[#17191F] transition-all"
+              >
+                <span className="text-[10px] font-semibold text-[#646B76] uppercase tracking-wider block">Seller Quotes</span>
+                <div className="text-2xl font-bold font-mono text-[#17191F] mt-1.5">{receivedOffers.length}</div>
+                <p className="text-[11px] text-[#646B76] mt-0.5">Proposals received</p>
+              </div>
+
+              <div 
+                onClick={() => onOpenMessages()}
+                className="p-5 bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs cursor-pointer hover:border-[#17191F] transition-all"
+              >
+                <span className="text-[10px] font-semibold text-[#646B76] uppercase tracking-wider block">Active Chats</span>
+                <div className="text-2xl font-bold font-mono text-[#17191F] mt-1.5">{conversations.length}</div>
+                <p className="text-[11px] text-[#646B76] mt-0.5">With makers & sellers</p>
+              </div>
+            </div>
+
+            {/* Recent Saved Items Preview */}
+            <div className="bg-white rounded-3xl border border-[#E5E7EB] p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-[#17191F]">Wishlist Highlights</h3>
+                <button
+                  onClick={() => setActiveTab('favorites')}
+                  className="text-xs text-[#4057D6] hover:underline font-medium cursor-pointer"
                 >
-                  <div className="aspect-4/3 bg-[#F9FAFB] overflow-hidden">
-                    {item.images && item.images[0] ? (
-                      <img src={item.images[0]} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full bg-[#E5E7EB]" />
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h4 className="text-sm font-medium text-[#17191F] line-clamp-1 mb-1">
-                      {item.title}
-                    </h4>
-                    <p className="text-xs text-[#646B76] mb-2">{item.sellerName} · {item.sellerCountry}</p>
-                    <div className="flex items-center justify-between pt-2 border-t border-[#F3F4F6]">
-                      <span className="text-sm font-semibold font-mono text-[#17191F]">
-                        {formatPrice(item.price, item.currency)}
-                      </span>
-                      <span className="text-xs text-[#4057D6] font-medium flex items-center gap-0.5">
-                        <span>View</span>
-                        <ArrowUpRight className="w-3 h-3" />
-                      </span>
+                  View All ({favoriteListings.length}) →
+                </button>
+              </div>
+
+              {favoriteListings.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {favoriteListings.slice(0, 3).map((l) => (
+                    <div
+                      key={l.id}
+                      onClick={() => onSelectListing(l)}
+                      className="p-3 bg-[#F9FAFB] rounded-2xl border border-[#E5E7EB] flex items-center gap-3 cursor-pointer hover:border-[#17191F] transition-all"
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-[#E5E7EB] overflow-hidden shrink-0">
+                        {l.images && l.images[0] && (
+                          <img src={l.images[0]} alt="" className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold text-[#17191F] truncate">{l.title}</p>
+                        <p className="text-[11px] font-mono text-[#4057D6] font-medium">{formatPrice(l.price, l.currency)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState
+                  icon={Heart}
+                  title="Your wishlist is empty"
+                  description="Save items as you browse to keep track of artisan goods you love."
+                />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: SAVED LISTINGS */}
+        {activeTab === 'favorites' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-[#17191F]">Your Saved Wishlist</h3>
+                <p className="text-xs text-[#646B76]">Items you've bookmarked for later consideration.</p>
+              </div>
+              <span className="text-xs text-[#646B76]">{favoriteListings.length} items</span>
+            </div>
+
+            {favoriteListings.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {favoriteListings.map((listing) => (
+                  <div
+                    key={listing.id}
+                    onClick={() => onSelectListing(listing)}
+                    className="group bg-white rounded-2xl border border-[#E5E7EB] overflow-hidden hover:border-[#17191F] transition-all cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 hover:shadow-md"
+                  >
+                    <div className="aspect-4/3 w-full bg-[#F3F4F6] relative overflow-hidden">
+                      {listing.images && listing.images[0] ? (
+                        <img src={listing.images[0]} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-[#E5E7EB]" />
+                      )}
+                      {onToggleFavorite && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleFavorite(listing.id);
+                          }}
+                          className="absolute top-3 right-3 p-2 bg-rose-50 text-rose-500 rounded-full shadow-xs hover:bg-rose-100 transition-colors"
+                          title="Remove from favorites"
+                        >
+                          <Heart className="w-3.5 h-3.5 fill-current" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="p-4 space-y-2">
+                      <h4 className="text-xs sm:text-sm font-semibold text-[#17191F] truncate group-hover:text-[#4057D6] transition-colors">
+                        {listing.title}
+                      </h4>
+                      <p className="text-xs text-[#646B76] line-clamp-2 leading-relaxed">
+                        {listing.description}
+                      </p>
+                      <div className="pt-2 border-t border-[#F3F4F6] flex items-center justify-between text-xs">
+                        <span className="font-mono font-semibold text-[#17191F]">
+                          {formatPrice(listing.price, listing.currency)}
+                        </span>
+                        <span className="text-[11px] text-[#646B76]">
+                          {listing.sellerName}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="p-16 text-center bg-white rounded-xl border border-dashed border-[#E5E7EB]">
-              <Heart className="w-8 h-8 text-[#9CA3AF] mx-auto mb-2" />
-              <h4 className="text-sm font-semibold text-[#17191F]">No saved listings yet</h4>
-              <p className="text-xs text-[#646B76] mt-1">Explore the catalog and tap the heart icon on any listing to save it here.</p>
-            </div>
-          )}
-        </div>
-      )}
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                icon={Heart}
+                title="Save something worth coming back to"
+                description="Explore the global marketplace catalog or search for custom commissions to save your favorites."
+              />
+            )}
+          </div>
+        )}
 
-      {/* Tab 2: Requests */}
-      {activeTab === 'requests' && (
-        <div className="space-y-4">
-          {myRequests.length > 0 ? (
-            <div className="space-y-3">
-              {myRequests.map(req => {
-                const reqOffers = offers.filter(o => o.requestId === req.id);
-                return (
+        {/* TAB 3: MY REQUESTS */}
+        {activeTab === 'requests' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-[#17191F]">My Active Buyer Requests</h3>
+                <p className="text-xs text-[#646B76]">Requirements you've posted to Request Orbit for seller quotes.</p>
+              </div>
+              <button
+                onClick={onOpenCreateRequest}
+                className="px-4 py-2 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              >
+                <Compass className="w-3.5 h-3.5" />
+                <span>Post New Request</span>
+              </button>
+            </div>
+
+            {myRequests.length > 0 ? (
+              <div className="space-y-4">
+                {myRequests.map((req) => (
                   <div
                     key={req.id}
-                    className="p-5 bg-white rounded-xl border border-[#E5E7EB] space-y-3"
+                    className="p-5 bg-white rounded-2xl border border-[#E5E7EB] hover:border-[#17191F] transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-2 text-[11px] text-[#646B76] mb-1">
-                          <span>Status: {req.status === 'open' ? '● Open for Proposals' : '✓ Fulfilled'}</span>
-                          <span>·</span>
-                          <span>Posted {new Date(req.createdAt).toLocaleDateString()}</span>
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                          req.status === 'open' ? 'bg-emerald-50 text-emerald-700' : 'bg-[#F3F4F6] text-[#646B76]'
+                        }`}>
+                          {req.status?.toUpperCase()}
+                        </span>
+                        <span className="text-[11px] text-[#646B76]">{req.categoryId}</span>
+                      </div>
+                      <h4 className="text-sm font-semibold text-[#17191F]">{req.title}</h4>
+                      <p className="text-xs text-[#646B76] line-clamp-2 leading-relaxed">{req.description}</p>
+                      <div className="flex items-center gap-3 text-xs font-mono pt-1 text-[#17191F]">
+                        <span>Budget: ${req.budgetMin} – ${req.budgetMax} {req.currency}</span>
+                        <span>·</span>
+                        <span>{req.offersCount || 0} quotes received</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setActiveTab('quotes')}
+                      className="px-4 py-2 bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#17191F] rounded-xl text-xs font-medium transition-colors cursor-pointer shrink-0"
+                    >
+                      View Proposals ({req.offersCount || 0})
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                icon={Compass}
+                title="No active buyer requests"
+                description="Can't find an exact item? Post what you need to Request Orbit to receive direct seller quotes."
+                actionText="Post What You Need"
+                onAction={onOpenCreateRequest}
+              />
+            )}
+          </div>
+        )}
+
+        {/* TAB 4: QUOTES RECEIVED */}
+        {activeTab === 'quotes' && (
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-base font-semibold text-[#17191F]">Seller Proposals & Quotes</h3>
+              <p className="text-xs text-[#646B76]">Confidential commercial quotes submitted by verified sellers.</p>
+            </div>
+
+            {receivedOffers.length > 0 ? (
+              <div className="space-y-4">
+                {receivedOffers.map((o) => (
+                  <div
+                    key={o.id}
+                    className="p-6 bg-white rounded-2xl border border-[#E5E7EB] space-y-4 shadow-2xs hover:border-[#17191F] transition-all"
+                  >
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center font-bold text-sm">
+                          {o.sellerName.charAt(0)}
                         </div>
-                        <h4 className="text-sm font-semibold text-[#17191F]">{req.title}</h4>
+                        <div>
+                          <h4 className="text-xs sm:text-sm font-semibold text-[#17191F]">{o.sellerName}</h4>
+                          <p className="text-[11px] text-[#646B76]">{o.sellerCountry} · Est. {o.estimatedDays} days</p>
+                        </div>
                       </div>
 
                       <div className="text-right">
-                        <span className="text-xs font-mono font-semibold text-[#17191F]">
-                          Budget: {req.currency} {req.budgetMin}–{req.budgetMax}
+                        <span className="text-lg font-bold font-mono text-[#17191F] block">
+                          ${o.proposedPrice} {o.currency}
                         </span>
-                        <span className="block text-[11px] text-[#4057D6] font-medium">
-                          {reqOffers.length} {reqOffers.length === 1 ? 'Proposal' : 'Proposals'}
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize ${
+                          o.status === 'accepted' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                        }`}>
+                          {o.status}
                         </span>
                       </div>
                     </div>
 
-                    <p className="text-xs text-[#646B76] leading-relaxed">
-                      {req.description}
+                    <p className="text-xs text-[#4B5563] leading-relaxed bg-[#FAFAF8] p-3 rounded-xl border border-[#E5E7EB]">
+                      {o.description}
                     </p>
+
+                    <div className="pt-2 flex items-center justify-between gap-3 text-xs">
+                      <span className="text-[11px] text-[#9CA3AF]">
+                        Submitted {new Date(o.createdAt).toLocaleDateString()}
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => onOpenMessages()}
+                          className="px-3 py-1.5 bg-[#17191F] hover:bg-[#27272A] text-white rounded-lg font-medium transition-colors cursor-pointer"
+                        >
+                          Message Seller
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="p-16 text-center bg-white rounded-xl border border-dashed border-[#E5E7EB]">
-              <Compass className="w-8 h-8 text-[#9CA3AF] mx-auto mb-2" />
-              <h4 className="text-sm font-semibold text-[#17191F]">You haven't posted any buyer requests yet</h4>
-              <p className="text-xs text-[#646B76] mt-1">Broadcast your requirements to receive direct quotes from international sellers.</p>
-              <div className="pt-3">
-                <button
-                  onClick={onOpenCreateRequest}
-                  className="px-4 py-2 bg-[#17191F] text-white text-xs font-medium rounded-lg hover:bg-[#27272A] transition-colors cursor-pointer"
-                >
-                  Post Your First Request
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Tab 3: Profile Settings */}
-      {activeTab === 'settings' && (
-        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6 max-w-xl space-y-6 shadow-xs">
-          <div>
-            <h3 className="text-base font-semibold text-[#17191F]">Profile & Region Preferences</h3>
-            <p className="text-xs text-[#646B76] mt-0.5">Control your public display details and country formatting</p>
-          </div>
-
-          {isSaved && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-lg flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-emerald-600" />
-              <span>Profile preferences successfully updated!</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSaveSettings} className="space-y-4">
-            <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">Full Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] focus:border-[#4057D6] focus:outline-hidden"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">Bio / Profile Description</label>
-              <textarea
-                rows={3}
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] focus:border-[#4057D6] focus:outline-hidden"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">Country / Region</label>
-              <select
-                value={country}
-                onChange={(e) => setCountry(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] focus:outline-hidden cursor-pointer"
-              >
-                {COUNTRIES.map(c => (
-                  <option key={c.code} value={c.code}>
-                    {c.flag} {c.name} ({c.code})
-                  </option>
                 ))}
-              </select>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="submit"
-                className="px-5 py-2.5 text-xs font-medium text-white bg-[#17191F] hover:bg-[#27272A] rounded-lg transition-colors cursor-pointer shadow-xs"
-              >
-                Save Preferences
-              </button>
-            </div>
-          </form>
-
-          {/* Account Deletion */}
-          <div className="pt-6 border-t border-[#E5E7EB] space-y-2">
-            <h4 className="text-xs font-semibold text-rose-700">Delete Account</h4>
-            <p className="text-xs text-[#646B76]">
-              Permanently delete your profile and sign out. This action cannot be undone.
-            </p>
-            <button
-              onClick={() => {
-                if (confirm('Are you sure you want to permanently delete your account? All your local session data will be removed.')) {
-                  onDeleteAccount(currentUser.id);
-                }
-              }}
-              className="px-4 py-2 bg-rose-50 text-rose-700 border border-rose-200 text-xs font-medium rounded-lg hover:bg-rose-100 transition-colors cursor-pointer inline-flex items-center gap-1.5"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>Delete My Account</span>
-            </button>
+              </div>
+            ) : (
+              <EmptyState
+                icon={DollarSign}
+                title="No seller quotes received yet"
+                description="When sellers review your buyer requests, their commercial quotes will appear here."
+              />
+            )}
           </div>
-        </div>
-      )}
+        )}
 
+        {/* TAB 5: RECENTLY VIEWED */}
+        {activeTab === 'recent' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-semibold text-[#17191F]">Recently Viewed Items</h3>
+                <p className="text-xs text-[#646B76]">Items you've recently inspected during your discovery sessions.</p>
+              </div>
+              <span className="text-xs text-[#646B76]">{recentlyViewedListings.length} items</span>
+            </div>
+
+            {recentlyViewedListings.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recentlyViewedListings.map((listing) => (
+                  <div
+                    key={listing.id}
+                    onClick={() => onSelectListing(listing)}
+                    className="group bg-white rounded-2xl border border-[#E5E7EB] overflow-hidden hover:border-[#17191F] transition-all cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 hover:shadow-md"
+                  >
+                    <div className="aspect-4/3 w-full bg-[#F3F4F6] relative overflow-hidden">
+                      {listing.images && listing.images[0] ? (
+                        <img src={listing.images[0]} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-[#E5E7EB]" />
+                      )}
+                    </div>
+                    <div className="p-4 space-y-2">
+                      <h4 className="text-xs sm:text-sm font-semibold text-[#17191F] truncate group-hover:text-[#4057D6] transition-colors">
+                        {listing.title}
+                      </h4>
+                      <div className="pt-2 border-t border-[#F3F4F6] flex items-center justify-between text-xs">
+                        <span className="font-mono font-semibold text-[#17191F]">
+                          {formatPrice(listing.price, listing.currency)}
+                        </span>
+                        <span className="text-[11px] text-[#646B76]">{listing.sellerName}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                icon={Clock}
+                title="No viewing history"
+                description="As you explore listings in the marketplace, your recently viewed items will appear here."
+              />
+            )}
+          </div>
+        )}
+
+        {/* TAB 6: SETTINGS & ACCOUNT */}
+        {activeTab === 'settings' && (
+          <div className="max-w-2xl bg-white rounded-3xl border border-[#E5E7EB] p-6 sm:p-8 space-y-6 shadow-xs">
+            <div>
+              <h3 className="text-base font-semibold text-[#17191F]">Buyer Account Preferences</h3>
+              <p className="text-xs text-[#646B76]">Manage your location, preferred currency, and public display name.</p>
+            </div>
+
+            <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
+              <div>
+                <label className="font-medium text-[#374151] block mb-1">Display Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div>
+                <label className="font-medium text-[#374151] block mb-1">About / Bio</label>
+                <textarea
+                  rows={3}
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="Tell sellers about your interests or project requirements..."
+                  className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="font-medium text-[#374151] block mb-1">Country</label>
+                  <select
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden cursor-pointer"
+                  >
+                    {COUNTRIES.map(c => (
+                      <option key={c.code} value={c.code}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-medium text-[#374151] block mb-1">Preferred Currency</label>
+                  <select
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
+                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden cursor-pointer"
+                  >
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="JPY">JPY (¥)</option>
+                    <option value="CAD">CAD ($)</option>
+                    <option value="AUD">AUD ($)</option>
+                    <option value="CHF">CHF</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center gap-3">
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl font-medium transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
+                >
+                  Save Changes
+                </button>
+                {isSaved && (
+                  <span className="text-emerald-700 font-medium flex items-center gap-1 text-xs">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    <span>Saved!</span>
+                  </span>
+                )}
+              </div>
+            </form>
+          </div>
+        )}
+
+      </main>
     </div>
   );
 };

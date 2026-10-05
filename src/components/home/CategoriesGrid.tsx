@@ -35,15 +35,15 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
   onSelectCategory
 }) => {
   return (
-    <section id="categories" className="py-16 bg-white border-b border-[#E5E7EB]">
-      <div className="max-w-[1440px] mx-auto px-6">
+    <section id="categories" className="py-12 sm:py-16 bg-white border-b border-[#E5E7EB]">
+      <div className="novora-container">
         
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
           <div>
             <div className="text-xs font-semibold text-[#4057D6] uppercase tracking-wider mb-1">
               Marketplace Taxonomy
             </div>
-            <h2 className="text-2xl sm:text-3xl font-semibold text-[#17191F] tracking-tight">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-[#17191F] tracking-tight">
               Browse by Category
             </h2>
           </div>
@@ -52,19 +52,19 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
           </p>
         </div>
 
-        {/* Categories Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Categories Grid: fluid 1 col on xs, 2 on sm, 4 on lg */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
           {CATEGORIES.map((cat) => {
-            const actualCount = listings.filter(l => l.categoryId === cat.id && l.status === 'active').length;
+            const actualCount = listings.filter((l) => l.categoryId === cat.id && l.status === 'active').length;
 
             return (
               <div
                 key={cat.id}
                 onClick={() => onSelectCategory(cat.id)}
-                className="group p-5 rounded-xl border border-[#E5E7EB] bg-[#FAFAF8] hover:bg-white hover:border-[#17191F] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between"
+                className="group p-4 sm:p-5 rounded-2xl border border-[#E5E7EB] bg-[#FAFAF8] hover:bg-white hover:border-[#17191F] hover:shadow-xs transition-all cursor-pointer flex flex-col justify-between"
               >
                 <div>
-                  <div className="w-9 h-9 rounded-lg bg-white border border-[#E5E7EB] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 rounded-xl bg-white border border-[#E5E7EB] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-2xs">
                     {ICON_MAP[cat.icon] || <Layers className="w-4 h-4 text-[#17191F]" />}
                   </div>
 

@@ -12,8 +12,10 @@ import {
 } from 'firebase/auth';
 import {
   getFirestore,
+  initializeFirestore,
   doc,
   getDoc,
+  getDocs,
   getDocFromServer,
   setDoc,
   updateDoc,
@@ -36,14 +38,21 @@ import {
   UserProfile,
   Conversation,
   Message,
-  ReportItem
+  ReportItem,
+  Storefront
 } from '../types';
 
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// CRITICAL: Initialize Firestore with the exact database ID from config
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+// CRITICAL: Initialize Firestore with the exact database ID from config.
+// In browser environments (especially sandboxed iframes or proxies), force long-polling to prevent
+// WebSocket failures that produce code=unavailable "Could not reach Cloud Firestore backend".
+export const db = typeof window !== 'undefined'
+  ? initializeFirestore(app, {
+      experimentalForceLongPolling: true,
+    }, firebaseConfig.firestoreDatabaseId)
+  : getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 
 export const googleProvider = new GoogleAuthProvider();
@@ -56,9 +65,15 @@ export async function testConnection(): Promise<boolean> {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
     return true;
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.error('Please check your Firebase configuration.');
+  } catch (error: any) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('the client is offline') ||
+       error.message.includes('unavailable') ||
+       error.message.includes('The operation could not be completed') ||
+       (error as any).code === 'unavailable')
+    ) {
+      console.warn('Firestore is connecting or operating in offline mode.');
       return false;
     }
     // "permission-denied" or "not-found" is normal for non-existent test document
@@ -114,6 +129,17 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   };
   console.error('Firestore Error: ', JSON.stringify(errInfo));
   throw new Error(JSON.stringify(errInfo));
+}
+
+// Graceful listener error handler for real-time streams
+export function handleSnapshotError(err: unknown, path: string, operationType: OperationType = OperationType.LIST) {
+  const code = (err as any)?.code;
+  const msg = err instanceof Error ? err.message : String(err);
+  if (code === 'permission-denied' || msg.includes('insufficient permissions')) {
+    handleFirestoreError(err, operationType, path);
+  } else {
+    console.warn(`[Firestore Realtime] ${path} connection notice (${code || 'offline'}): ${msg}`);
+  }
 }
 
 // ============================================================================
@@ -284,7 +310,7 @@ export function subscribeToListings(callback: (listings: Listing[]) => void): Un
       callback(items);
     },
     (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'listings');
+      handleSnapshotError(err, 'listings', OperationType.LIST);
     }
   );
 }
@@ -371,7 +397,7 @@ export function subscribeToRequests(callback: (requests: BuyerRequest[]) => void
       callback(items);
     },
     (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'requests');
+      handleSnapshotError(err, 'requests', OperationType.LIST);
     }
   );
 }
@@ -439,7 +465,7 @@ export function subscribeToUserOffers(
         callback(items);
       },
       (err) => {
-        handleFirestoreError(err, OperationType.LIST, 'offers');
+        handleSnapshotError(err, 'offers', OperationType.LIST);
       }
     );
   }
@@ -468,7 +494,7 @@ export function subscribeToUserOffers(
       emitCombined();
     },
     (err) => {
-      handleFirestoreError(err, OperationType.LIST, `offers/buyer`);
+      handleSnapshotError(err, 'offers/buyer', OperationType.LIST);
     }
   );
 
@@ -482,7 +508,7 @@ export function subscribeToUserOffers(
       emitCombined();
     },
     (err) => {
-      handleFirestoreError(err, OperationType.LIST, `offers/seller`);
+      handleSnapshotError(err, 'offers/seller', OperationType.LIST);
     }
   );
 
@@ -554,7 +580,7 @@ export function subscribeToConversations(userId: string, callback: (convos: Conv
       callback(items);
     },
     (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'conversations');
+      handleSnapshotError(err, 'conversations', OperationType.LIST);
     }
   );
 }
@@ -573,7 +599,7 @@ export function subscribeToMessages(conversationId: string, callback: (msgs: Mes
       callback(items);
     },
     (err) => {
-      handleFirestoreError(err, OperationType.LIST, `conversations/${conversationId}/messages`);
+      handleSnapshotError(err, `conversations/${conversationId}/messages`, OperationType.LIST);
     }
   );
 }
@@ -598,14 +624,9 @@ export async function getOrCreateConversation(
 
   try {
     let existingConvo: Conversation | null = null;
-    const snap = await new Promise<any>((resolve, reject) => {
-      const unsub = onSnapshot(q, (s) => {
-        unsub();
-        resolve(s);
-      }, reject);
-    });
+    const snap = await getDocs(q);
 
-    snap.forEach((d: any) => {
+    snap.forEach((d) => {
       const data = d.data() as Conversation;
       if (data.participantIds.includes(otherUserId)) {
         if (!context?.listingId || data.listingId === context.listingId) {
@@ -692,7 +713,7 @@ export function subscribeToFavorites(userId: string, callback: (listingIds: stri
       callback(ids);
     },
     (err) => {
-      handleFirestoreError(err, OperationType.LIST, `users/${userId}/favorites`);
+      handleSnapshotError(err, `users/${userId}/favorites`, OperationType.LIST);
     }
   );
 }
@@ -755,7 +776,7 @@ export function subscribeToReports(callback: (reports: ReportItem[]) => void): U
       callback(items);
     },
     (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'reports');
+      handleSnapshotError(err, 'reports', OperationType.LIST);
     }
   );
 }
@@ -786,5 +807,144 @@ export async function resolveReport(reportId: string, status: 'resolved' | 'dism
     await updateDoc(docRef, { status });
   } catch (err) {
     handleFirestoreError(err, OperationType.UPDATE, `reports/${reportId}`);
+  }
+}
+
+// ============================================================================
+// Seller Storefronts & Shop System
+// ============================================================================
+
+export function subscribeToStores(callback: (stores: Storefront[]) => void): Unsubscribe {
+  const storesCol = collection(db, 'stores');
+  const q = query(storesCol, limit(50));
+
+  return onSnapshot(
+    q,
+    (snapshot) => {
+      const items: Storefront[] = [];
+      snapshot.forEach((d) => {
+        items.push({ id: d.id, ...(d.data() as Omit<Storefront, 'id'>) });
+      });
+      callback(items);
+    },
+    (err) => {
+      handleSnapshotError(err, 'stores', OperationType.LIST);
+    }
+  );
+}
+
+export function subscribeToStoreBySeller(sellerId: string, callback: (store: Storefront | null) => void): Unsubscribe {
+  const storeRef = doc(db, 'stores', sellerId);
+  return onSnapshot(
+    storeRef,
+    (snap) => {
+      if (snap.exists()) {
+        callback({ id: snap.id, ...(snap.data() as Omit<Storefront, 'id'>) });
+      } else {
+        callback(null);
+      }
+    },
+    (err) => {
+      handleSnapshotError(err, `stores/${sellerId}`, OperationType.GET);
+    }
+  );
+}
+
+export async function fetchStoreBySlug(slug: string): Promise<Storefront | null> {
+  try {
+    const storesCol = collection(db, 'stores');
+    const q = query(storesCol, where('storeSlug', '==', slug.toLowerCase()), limit(1));
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      const d = snap.docs[0];
+      return { id: d.id, ...(d.data() as Omit<Storefront, 'id'>) };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchStoreBySellerId(sellerId: string): Promise<Storefront | null> {
+  try {
+    const storeRef = doc(db, 'stores', sellerId);
+    const snap = await getDoc(storeRef);
+    if (snap.exists()) {
+      return { id: snap.id, ...(snap.data() as Omit<Storefront, 'id'>) };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveStore(storeData: Partial<Storefront> & { sellerId: string; storeName: string; storeSlug: string }): Promise<Storefront> {
+  if (!auth.currentUser) throw new Error('Authentication required');
+  const storeId = storeData.id || auth.currentUser.uid;
+  const storeRef = doc(db, 'stores', storeId);
+
+  const now = new Date().toISOString();
+  const snap = await getDoc(storeRef);
+
+  const fullData: Storefront = {
+    id: storeId,
+    sellerId: auth.currentUser.uid,
+    sellerName: auth.currentUser.displayName || storeData.sellerName || 'Artisan Seller',
+    storeName: storeData.storeName.trim(),
+    storeSlug: storeData.storeSlug.trim().toLowerCase(),
+    tagline: storeData.tagline || '',
+    description: storeData.description || '',
+    story: storeData.story || '',
+    logoUrl: storeData.logoUrl || '',
+    bannerUrl: storeData.bannerUrl || '',
+    country: storeData.country || 'Worldwide',
+    city: storeData.city || '',
+    languages: storeData.languages || ['English'],
+    businessType: storeData.businessType || 'independent_maker',
+    categories: storeData.categories || [],
+    featuredListingIds: storeData.featuredListingIds || [],
+    announcement: storeData.announcement || '',
+    policies: storeData.policies || {
+      shippingPolicy: 'Standard international shipping with tracking provided.',
+      returnsPolicy: '14-day return window for unopened and unaltered items.',
+      refundsPolicy: 'Full refund upon return receipt or order cancellation prior to dispatch.',
+      customOrdersPolicy: 'Custom orders are welcome. Please contact seller for turnaround times.',
+      communicationPolicy: 'Seller responds within 24 business hours.'
+    },
+    status: storeData.status || 'active',
+    completenessPercent: storeData.completenessPercent || 80,
+    createdAt: snap.exists() ? (snap.data().createdAt || now) : now,
+    updatedAt: now
+  };
+
+  try {
+    await setDoc(storeRef, fullData, { merge: true });
+    // Also sync store slug & storeName to user profile
+    const userRef = doc(db, 'users', auth.currentUser.uid);
+    await updateDoc(userRef, {
+      hasStore: true,
+      storeId: storeId,
+      storeSlug: fullData.storeSlug,
+      storeName: fullData.storeName
+    }).catch(() => {
+      // non-blocking if user doc does not yet exist
+    });
+
+    return fullData;
+  } catch (err) {
+    handleFirestoreError(err, OperationType.WRITE, `stores/${storeId}`);
+  }
+}
+
+export async function fetchUserProfileById(userId: string): Promise<UserProfile | null> {
+  try {
+    const userRef = doc(db, 'users', userId);
+    const snap = await getDoc(userRef);
+    if (snap.exists()) {
+      return { id: snap.id, ...(snap.data() as Omit<UserProfile, 'id'>) };
+    }
+    return null;
+  } catch {
+    return null;
   }
 }

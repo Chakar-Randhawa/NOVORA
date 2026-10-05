@@ -55,7 +55,79 @@ export interface UserProfile {
   sellerTagline?: string;
   languages: string[];
   responseTimeHours?: number;
+  hasStore?: boolean;
+  storeSlug?: string;
+  storeId?: string;
+  storeName?: string;
 }
+
+export interface StoreCategory {
+  id: string;
+  name: string;
+  description?: string;
+  listingCount?: number;
+}
+
+export interface StorePolicies {
+  shippingPolicy?: string;
+  returnsPolicy?: string;
+  refundsPolicy?: string;
+  customOrdersPolicy?: string;
+  digitalDeliveryPolicy?: string;
+  communicationPolicy?: string;
+}
+
+export interface Storefront {
+  id: string;
+  sellerId: string;
+  sellerName: string;
+  storeName: string;
+  storeSlug: string;
+  tagline: string;
+  description: string;
+  story?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+  country: string;
+  city?: string;
+  languages?: string[];
+  businessType?: 'independent_maker' | 'artisan_studio' | 'boutique' | 'digital_creator' | 'service_agency' | 'other';
+  categories: StoreCategory[];
+  featuredListingIds: string[];
+  announcement?: string;
+  policies: StorePolicies;
+  status: 'active' | 'draft' | 'vacation';
+  completenessPercent: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AppNotification {
+  id: string;
+  userId: string;
+  type: 'message' | 'offer' | 'request' | 'favorite' | 'store' | 'system';
+  title: string;
+  message: string;
+  link?: string;
+  targetView?: 'home' | 'seller' | 'buyer' | 'request-orbit' | 'messages' | 'store';
+  targetId?: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export type MainViewMode =
+  | 'home'
+  | 'seller'
+  | 'buyer'
+  | 'admin'
+  | 'request-orbit'
+  | 'store'
+  | 'user-profile'
+  | 'store-setup'
+  | 'help'
+  | 'about'
+  | 'safety'
+  | 'terms';
 
 export interface Listing {
   id: string;

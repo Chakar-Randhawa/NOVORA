@@ -96,17 +96,17 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         </div>
 
         {/* Footer: Price & Seller Action */}
-        <div className="pt-3 border-t border-[#F3F4F6] flex items-baseline justify-between">
-          <div className="flex flex-col">
-            <span className="text-base font-semibold text-[#17191F] tabular-nums font-mono">
+        <div className="pt-3 border-t border-[#F3F4F6] flex items-baseline justify-between gap-2">
+          <div className="flex flex-col min-w-0">
+            <span className="text-base font-semibold text-[#17191F] tabular-nums font-mono truncate">
               {formattedAmount}
             </span>
-            <span className="text-[11px] text-[#646B76]">
+            <span className="text-[11px] text-[#646B76] truncate" title={`by ${listing.sellerName}`}>
               by {listing.sellerName}
             </span>
           </div>
 
-          <div className="text-xs font-medium text-[#4057D6] group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
+          <div className="text-xs font-medium text-[#4057D6] group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5 shrink-0">
             <span>Details</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </div>

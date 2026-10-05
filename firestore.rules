@@ -64,8 +64,7 @@ service cloud.firestore {
 
     // 3. Listings Collection (Public marketplace catalog)
     match /listings/{listingId} {
-      allow get: if true;
-      allow list: if true;
+      allow read: if true;
       allow create: if isSignedIn()
         && incoming().sellerId == request.auth.uid
         && incoming().title is string && incoming().title.size() <= 200
@@ -77,10 +76,21 @@ service cloud.firestore {
       allow delete: if (isSignedIn() && existing().sellerId == request.auth.uid) || isAdmin();
     }
 
+    // 3b. Stores Collection (Public seller storefronts)
+    match /stores/{storeId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+        && incoming().sellerId == request.auth.uid
+        && incoming().storeName is string && incoming().storeName.size() <= 100
+        && incoming().storeSlug is string && incoming().storeSlug.size() <= 50;
+      allow update: if (isSignedIn() && existing().sellerId == request.auth.uid && incoming().sellerId == existing().sellerId)
+        || isAdmin();
+      allow delete: if (isSignedIn() && existing().sellerId == request.auth.uid) || isAdmin();
+    }
+
     // 4. Buyer Requests (Request Orbit public sourcing board)
     match /requests/{requestId} {
-      allow get: if true;
-      allow list: if true;
+      allow read: if true;
       allow create: if isSignedIn()
         && incoming().buyerId == request.auth.uid
         && incoming().title is string && incoming().title.size() <= 200;

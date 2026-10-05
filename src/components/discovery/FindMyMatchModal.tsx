@@ -9,7 +9,8 @@ import {
   DollarSign,
   MapPin,
   Tag,
-  ArrowUpRight
+  ArrowUpRight,
+  History
 } from 'lucide-react';
 import { Listing, MatchResult } from '../../types';
 import { parseNaturalNeed, matchNeedToListings, ParsedNeed } from '../../services/discoveryEngine';
@@ -33,6 +34,33 @@ const SAMPLE_PROMPTS = [
   'Technical translation for engineering whitepaper under 300 EUR'
 ];
 
+const RECENT_SEARCHES_KEY = 'novora_recent_matches';
+const MAX_RECENT_SEARCHES = 5;
+
+const loadRecentSearches = (): string[] => {
+  try {
+    const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed
+        .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+        .slice(0, MAX_RECENT_SEARCHES);
+    }
+  } catch (err) {
+    console.warn('Failed to load recent searches from localStorage:', err);
+  }
+  return [];
+};
+
+const saveRecentSearches = (searches: string[]) => {
+  try {
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches.slice(0, MAX_RECENT_SEARCHES)));
+  } catch (err) {
+    console.warn('Failed to save recent searches to localStorage:', err);
+  }
+};
+
 export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
   listings,
   favorites,
@@ -47,6 +75,7 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
   const [parsedNeed, setParsedNeed] = useState<ParsedNeed | null>(null);
   const [results, setResults] = useState<MatchResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => loadRecentSearches());
 
   // Close on Escape
   useEffect(() => {
@@ -64,12 +93,42 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
   }, [initialQuery]);
 
   const handleSearch = (searchQuery: string) => {
-    if (!searchQuery.trim()) return;
-    const parsed = parseNaturalNeed(searchQuery);
+    const trimmed = searchQuery.trim();
+    if (!trimmed) return;
+
+    // Update recent searches: deduplicate, move to front, cap at 5
+    setRecentSearches((prev) => {
+      const updated = [
+        trimmed,
+        ...prev.filter((s) => s.toLowerCase() !== trimmed.toLowerCase())
+      ].slice(0, MAX_RECENT_SEARCHES);
+      saveRecentSearches(updated);
+      return updated;
+    });
+
+    const parsed = parseNaturalNeed(trimmed);
     setParsedNeed(parsed);
     const matched = matchNeedToListings(parsed, listings);
     setResults(matched);
     setHasSearched(true);
+  };
+
+  const handleRemoveRecentSearch = (e: React.MouseEvent, targetQuery: string) => {
+    e.stopPropagation();
+    setRecentSearches((prev) => {
+      const updated = prev.filter((s) => s.toLowerCase() !== targetQuery.toLowerCase());
+      saveRecentSearches(updated);
+      return updated;
+    });
+  };
+
+  const handleClearAllRecentSearches = () => {
+    setRecentSearches([]);
+    try {
+      localStorage.removeItem(RECENT_SEARCHES_KEY);
+    } catch {
+      // ignore
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -105,7 +164,7 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
           </button>
         </div>
 
-        {/* Input & Examples Section */}
+        {/* Input, Recent Searches & Examples Section */}
         <div className="p-6 border-b border-[#E5E7EB] bg-white">
           <form onSubmit={handleSubmit} className="relative">
             <input
@@ -124,8 +183,49 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
             </button>
           </form>
 
+          {/* Recent Searches (stored in localStorage, last 5) */}
+          {recentSearches.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs">
+              <div className="flex items-center gap-1 text-[#646B76] font-medium text-[11px] mr-0.5">
+                <History className="w-3 h-3 text-[#4057D6]" />
+                <span>Recent:</span>
+              </div>
+              {recentSearches.map((item, i) => (
+                <div
+                  key={i}
+                  onClick={() => {
+                    setQuery(item);
+                    handleSearch(item);
+                  }}
+                  className="group inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F9FAFB] hover:bg-[#EEF2FF] hover:border-[#C7D2FE] border border-[#E5E7EB] rounded-lg text-[#1F2937] hover:text-[#4057D6] transition-all text-[11px] cursor-pointer shadow-2xs"
+                  title={`Search for "${item}"`}
+                >
+                  <span className="truncate max-w-[160px] sm:max-w-[220px]">
+                    {item}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => handleRemoveRecentSearch(e, item)}
+                    className="text-[#9CA3AF] hover:text-[#EF4444] p-0.5 rounded-full hover:bg-white/80 transition-colors cursor-pointer"
+                    title="Remove from history"
+                    aria-label={`Remove search ${item}`}
+                  >
+                    <X className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={handleClearAllRecentSearches}
+                className="text-[11px] text-[#9CA3AF] hover:text-[#646B76] underline underline-offset-2 ml-1 px-1 py-0.5 transition-colors cursor-pointer"
+              >
+                Clear
+              </button>
+            </div>
+          )}
+
           {/* Sample Prompts */}
-          <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 text-xs text-[#646B76]">
+          <div className="mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 text-xs text-[#646B76]">
             <span className="shrink-0 font-medium text-[11px] text-[#646B76]">Examples:</span>
             {SAMPLE_PROMPTS.map((prompt, i) => (
               <button
