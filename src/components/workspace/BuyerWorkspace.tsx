@@ -33,6 +33,8 @@ interface BuyerWorkspaceProps {
   onSelectListing: (listing: Listing) => void;
   onOpenCreateRequest: () => void;
   onOpenMessages: (conv?: Conversation) => void;
+  onUpdateOfferStatus?: (offerId: string, status: 'accepted' | 'declined') => void;
+  onStartMessageWithSeller?: (sellerId: string, sellerName: string, context?: any) => void;
   onUpdateProfile: (updated: UserProfile) => void;
   onDeleteAccount: (userId: string) => void;
   onOpenAuth: (mode?: 'signin' | 'register') => void;
@@ -49,6 +51,8 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
   onSelectListing,
   onOpenCreateRequest,
   onOpenMessages,
+  onUpdateOfferStatus,
+  onStartMessageWithSeller,
   onUpdateProfile,
   onDeleteAccount,
   onOpenAuth,
@@ -486,55 +490,123 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
 
             {receivedOffers.length > 0 ? (
               <div className="space-y-4">
-                {receivedOffers.map((o) => (
-                  <div
-                    key={o.id}
-                    className="p-6 bg-white rounded-2xl border border-[#E5E7EB] space-y-4 shadow-2xs hover:border-[#17191F] transition-all"
-                  >
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center font-bold text-sm">
-                          {o.sellerName.charAt(0)}
+                {receivedOffers.map((o) => {
+                  const targetReq = requests.find(r => r.id === o.requestId);
+
+                  return (
+                    <div
+                      key={o.id}
+                      className="p-6 bg-white rounded-2xl border border-[#E5E7EB] space-y-4 shadow-2xs hover:border-[#17191F] transition-all"
+                    >
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center font-bold text-sm">
+                            {o.sellerName.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-xs sm:text-sm font-semibold text-[#17191F]">{o.sellerName}</h4>
+                              <span className="text-[11px] text-[#646B76]">({o.sellerCountry})</span>
+                            </div>
+                            {targetReq && (
+                              <p className="text-[11px] text-[#4057D6] font-medium truncate max-w-sm">
+                                For Request: "{targetReq.title}"
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <h4 className="text-xs sm:text-sm font-semibold text-[#17191F]">{o.sellerName}</h4>
-                          <p className="text-[11px] text-[#646B76]">{o.sellerCountry} · Est. {o.estimatedDays} days</p>
+
+                        <div className="text-right">
+                          <span className="text-lg font-bold font-mono text-[#17191F] block">
+                            ${o.proposedPrice} {o.currency}
+                          </span>
+                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold capitalize ${
+                            o.status === 'accepted'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : o.status === 'declined'
+                              ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                              : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}>
+                            {o.status}
+                          </span>
                         </div>
                       </div>
 
-                      <div className="text-right">
-                        <span className="text-lg font-bold font-mono text-[#17191F] block">
-                          ${o.proposedPrice} {o.currency}
+                      <div className="space-y-2 bg-[#FAFAF8] p-3.5 rounded-xl border border-[#E5E7EB] text-xs">
+                        <p className="text-[#374151] leading-relaxed">
+                          {o.description}
+                        </p>
+                        {o.deliverables && (
+                          <p className="text-[#646B76] text-[11px]">
+                            <strong>Deliverables:</strong> {o.deliverables}
+                          </p>
+                        )}
+                        {o.shippingOrFulfillmentDetails && (
+                          <p className="text-[#646B76] text-[11px]">
+                            <strong>Fulfillment / Shipping:</strong> {o.shippingOrFulfillmentDetails}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-4 text-[11px] text-[#646B76] pt-1 border-t border-[#E5E7EB]">
+                          <span>Est. Completion: <strong>{o.estimatedDays} days</strong></span>
+                          <span>·</span>
+                          <span>Valid Until: {new Date(o.validUntil).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                        <span className="text-[11px] text-[#9CA3AF]">
+                          Submitted {new Date(o.createdAt).toLocaleDateString()}
                         </span>
-                        <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize ${
-                          o.status === 'accepted' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
-                        }`}>
-                          {o.status}
-                        </span>
+
+                        <div className="flex items-center gap-2">
+                          {o.status === 'pending' && onUpdateOfferStatus && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`Accept commercial offer of $${o.proposedPrice} ${o.currency} from ${o.sellerName}?`)) {
+                                    onUpdateOfferStatus(o.id, 'accepted');
+                                  }
+                                }}
+                                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
+                              >
+                                Accept Quote
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (confirm(`Decline quote from ${o.sellerName}?`)) {
+                                    onUpdateOfferStatus(o.id, 'declined');
+                                  }
+                                }}
+                                className="px-3 py-1.5 bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] text-[#646B76] rounded-lg font-medium transition-colors cursor-pointer"
+                              >
+                                Decline
+                              </button>
+                            </>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (onStartMessageWithSeller) {
+                                onStartMessageWithSeller(o.sellerId, o.sellerName, {
+                                  requestId: o.requestId,
+                                  requestTitle: targetReq?.title
+                                });
+                              } else {
+                                onOpenMessages();
+                              }
+                            }}
+                            className="px-3 py-1.5 bg-[#17191F] hover:bg-[#27272A] text-white rounded-lg font-medium transition-colors cursor-pointer active:scale-[0.98]"
+                          >
+                            Message Seller
+                          </button>
+                        </div>
                       </div>
                     </div>
-
-                    <p className="text-xs text-[#4B5563] leading-relaxed bg-[#FAFAF8] p-3 rounded-xl border border-[#E5E7EB]">
-                      {o.description}
-                    </p>
-
-                    <div className="pt-2 flex items-center justify-between gap-3 text-xs">
-                      <span className="text-[11px] text-[#9CA3AF]">
-                        Submitted {new Date(o.createdAt).toLocaleDateString()}
-                      </span>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => onOpenMessages()}
-                          className="px-3 py-1.5 bg-[#17191F] hover:bg-[#27272A] text-white rounded-lg font-medium transition-colors cursor-pointer"
-                        >
-                          Message Seller
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <EmptyState
@@ -554,7 +626,21 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
                 <h3 className="text-base font-semibold text-[#17191F]">Recently Viewed Items</h3>
                 <p className="text-xs text-[#646B76]">Items you've recently inspected during your discovery sessions.</p>
               </div>
-              <span className="text-xs text-[#646B76]">{recentlyViewedListings.length} items</span>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-[#646B76]">{recentlyViewedListings.length} items</span>
+                {recentlyViewedListings.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      localStorage.removeItem('novora_recent_viewed');
+                      setRecentlyViewedIds([]);
+                    }}
+                    className="text-xs text-rose-600 hover:underline cursor-pointer"
+                  >
+                    Clear History
+                  </button>
+                )}
+              </div>
             </div>
 
             {recentlyViewedListings.length > 0 ? (

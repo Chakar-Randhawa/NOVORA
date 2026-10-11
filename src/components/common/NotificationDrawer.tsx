@@ -103,8 +103,8 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
         className="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity" 
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col border-l border-[#E5E7EB]">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-4 sm:pl-10">
+        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col border-l border-[#E5E7EB] novora-animate-drawer">
           
           {/* Header */}
           <div className="p-4 sm:p-5 border-b border-[#E5E7EB] flex items-center justify-between bg-[#FAFAF8]">

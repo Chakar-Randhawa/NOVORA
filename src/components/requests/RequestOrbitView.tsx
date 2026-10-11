@@ -42,6 +42,7 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(
     requests.length > 0 ? requests[0].id : null
   );
+  const [mobileTab, setMobileTab] = useState<'list' | 'detail'>('list');
 
   const filteredRequests = requests.filter(r => {
     if (selectedCategoryId !== 'all' && r.categoryId !== selectedCategoryId) return false;
@@ -137,8 +138,8 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          {/* Left Column: Request Cards (5 cols) */}
-          <div className="lg:col-span-5 space-y-3">
+          {/* Left Column: Request Cards (5 cols on lg, toggled on mobile) */}
+          <div className={`${mobileTab === 'detail' ? 'hidden lg:block' : 'block'} lg:col-span-5 space-y-3`}>
             {filteredRequests.length > 0 ? (
               filteredRequests.map(req => {
                 const isSelected = activeRequest?.id === req.id;
@@ -149,7 +150,10 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                 return (
                   <div
                     key={req.id}
-                    onClick={() => setSelectedRequestId(req.id)}
+                    onClick={() => {
+                      setSelectedRequestId(req.id);
+                      setMobileTab('detail');
+                    }}
                     className={`p-4 rounded-xl border transition-all cursor-pointer ${
                       isSelected
                         ? 'bg-white border-[#17191F] shadow-xs'
@@ -192,8 +196,19 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
             )}
           </div>
 
-          {/* Right Column: Detailed Request View and Offers (7 cols) */}
-          <div className="lg:col-span-7 bg-white rounded-2xl border border-[#E5E7EB] p-6 space-y-6 shadow-xs">
+          {/* Right Column: Detailed Request View and Offers (7 cols on lg, toggled on mobile) */}
+          <div className={`${mobileTab === 'list' ? 'hidden lg:block' : 'block'} lg:col-span-7 bg-white rounded-2xl border border-[#E5E7EB] p-4 sm:p-6 space-y-6 shadow-xs`}>
+            {/* Mobile Back Button */}
+            <div className="lg:hidden pb-3 border-b border-[#E5E7EB]">
+              <button
+                type="button"
+                onClick={() => setMobileTab('list')}
+                className="text-xs font-semibold text-[#4057D6] flex items-center gap-1.5 py-1 px-2.5 bg-[#EEF2FF] rounded-lg cursor-pointer"
+              >
+                <span>← Back to All Requests</span>
+              </button>
+            </div>
+
             {activeRequest ? (
               <>
                 {/* Header */}

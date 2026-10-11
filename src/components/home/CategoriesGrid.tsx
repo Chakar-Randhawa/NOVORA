@@ -52,8 +52,8 @@ export const CategoriesGrid: React.FC<CategoriesGridProps> = ({
           </p>
         </div>
 
-        {/* Categories Grid: fluid 1 col on xs, 2 on sm, 4 on lg */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+        {/* Categories Grid: fluid responsive intrinsic auto-fill */}
+        <div className="novora-card-grid">
           {CATEGORIES.map((cat) => {
             const actualCount = listings.filter((l) => l.categoryId === cat.id && l.status === 'active').length;
 

@@ -295,7 +295,7 @@ export const PublicUserProfile: React.FC<PublicUserProfileProps> = ({
                 </div>
 
                 {userListings.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="novora-card-grid">
                     {userListings.map((listing) => (
                       <div
                         key={listing.id}
@@ -359,7 +359,7 @@ export const PublicUserProfile: React.FC<PublicUserProfileProps> = ({
           {activeTab === 'listings' && (
             <div className="space-y-6">
               {userListings.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="novora-card-grid">
                   {userListings.map((listing) => (
                     <div
                       key={listing.id}
@@ -407,7 +407,7 @@ export const PublicUserProfile: React.FC<PublicUserProfileProps> = ({
           {activeTab === 'services' && (
             <div className="space-y-6">
               {serviceListings.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="novora-card-grid">
                   {serviceListings.map((listing) => (
                     <div
                       key={listing.id}

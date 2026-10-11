@@ -23,7 +23,8 @@ import {
   ShieldCheck,
   AlertCircle,
   Tag,
-  DollarSign
+  DollarSign,
+  Edit3
 } from 'lucide-react';
 import { Listing, UserProfile, Storefront, BuyerRequest, RequestOffer, Conversation } from '../../types';
 import { formatPrice } from '../../data/countries';
@@ -38,6 +39,7 @@ interface SellerWorkspaceProps {
   offers: RequestOffer[];
   conversations: Conversation[];
   onOpenCreateListing: () => void;
+  onEditListing?: (listing: Listing) => void;
   onToggleStatus: (id: string) => void;
   onDeleteListing: (id: string) => void;
   onDuplicateListing?: (listing: Listing) => void;
@@ -58,6 +60,7 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
   offers,
   conversations,
   onOpenCreateListing,
+  onEditListing,
   onToggleStatus,
   onDeleteListing,
   onDuplicateListing,
@@ -615,6 +618,18 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
 
                       {/* Actions */}
                       <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end pt-2 sm:pt-0">
+                        {onEditListing && (
+                          <button
+                            type="button"
+                            onClick={() => onEditListing(listing)}
+                            className="px-3 py-1.5 rounded-lg border border-[#E5E7EB] hover:bg-[#F3F4F6] text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer text-[#17191F]"
+                            title="Edit Listing"
+                          >
+                            <Edit3 className="w-3 h-3 text-[#4057D6]" />
+                            <span>Edit</span>
+                          </button>
+                        )}
+
                         <button
                           type="button"
                           onClick={() => onToggleStatus(listing.id)}

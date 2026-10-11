@@ -30,6 +30,7 @@ interface ListingDetailModalProps {
   onToggleFavorite: (id: string) => void;
   onStartMessage: (listing: Listing) => void;
   onReport: (listing: Listing) => void;
+  onEditListing?: (listing: Listing) => void;
   onToggleStatus?: (id: string) => void;
   onDeleteListing?: (id: string) => void;
   onOpenAuth: (mode?: 'signin' | 'register') => void;
@@ -44,6 +45,7 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({
   onToggleFavorite,
   onStartMessage,
   onReport,
+  onEditListing,
   onToggleStatus,
   onDeleteListing,
   onOpenAuth,
@@ -180,6 +182,19 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({
                 <div className="p-3 bg-[#F9FAFB] rounded-xl border border-[#E5E7EB] space-y-2">
                   <span className="text-xs font-semibold text-[#17191F] block">Listing Owner Actions</span>
                   <div className="flex gap-2">
+                    {onEditListing && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          onEditListing(listing);
+                        }}
+                        className="flex-1 py-2 text-xs font-medium border border-[#E5E7EB] bg-white text-[#17191F] hover:bg-[#F3F4F6] rounded-lg flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-[#4057D6]" />
+                        <span>Edit</span>
+                      </button>
+                    )}
                     {onToggleStatus && (
                       <button
                         type="button"
@@ -342,6 +357,19 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({
                     Listing Management (Owner)
                   </span>
                   <div className="flex gap-2">
+                    {onEditListing && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onClose();
+                          onEditListing(listing);
+                        }}
+                        className="flex-1 py-2 text-xs font-medium border border-[#E5E7EB] bg-white hover:bg-[#F3F4F6] text-[#17191F] rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-[#4057D6]" />
+                        <span>Edit Listing</span>
+                      </button>
+                    )}
                     {onToggleStatus && (
                       <button
                         type="button"

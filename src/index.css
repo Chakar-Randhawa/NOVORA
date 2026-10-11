@@ -138,7 +138,7 @@
   border-radius: 0.75rem;
 }
 
-/* Responsive button group: reflows from horizontal to vertical on narrow viewports */
+/* Fluid responsive button group: reflows from horizontal to vertical on narrow viewports */
 .novora-btn-group {
   display: flex;
   flex-wrap: wrap;
@@ -174,6 +174,113 @@
 /* Tabular figures for pricing and metrics */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================ */
+/* NOVORA Premium Motion System Tokens & Transitions                           */
+/* ============================================================================ */
+
+:root {
+  --ease-out-quad: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 220ms;
+  --duration-smooth: 320ms;
+}
+
+/* Modal and dialog entrances */
+@keyframes novora-modal-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.97) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes novora-backdrop-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Drawer slide-in */
+@keyframes novora-drawer-right {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Toast slide-in */
+@keyframes novora-toast-in {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Skeleton shimmer */
+@keyframes novora-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.novora-animate-modal {
+  animation: novora-modal-enter var(--duration-normal) var(--ease-out-quad) forwards;
+}
+
+.novora-animate-backdrop {
+  animation: novora-backdrop-fade var(--duration-fast) ease-out forwards;
+}
+
+.novora-animate-drawer {
+  animation: novora-drawer-right var(--duration-smooth) var(--ease-out-quad) forwards;
+}
+
+.novora-animate-toast {
+  animation: novora-toast-in var(--duration-normal) var(--ease-out-quad) forwards;
+}
+
+/* Skeleton loader utility */
+.novora-skeleton {
+  background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 37%, #F3F4F6 63%);
+  background-size: 400% 100%;
+  animation: novora-shimmer 1.5s ease infinite;
+  border-radius: 0.75rem;
+}
+
+/* Interactive Card & Button Motion */
+.novora-interactive-card {
+  transition: transform var(--duration-normal) var(--ease-out-quad), box-shadow var(--duration-normal) var(--ease-out-quad), border-color var(--duration-fast);
+}
+
+.novora-interactive-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+.novora-interactive-btn {
+  transition: transform var(--duration-fast) ease, background-color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+}
+
+.novora-interactive-btn:active {
+  transform: scale(0.98);
 }
 
 /* Reduced motion preference */

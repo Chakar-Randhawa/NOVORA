@@ -39,8 +39,8 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl max-w-md w-full border border-[#E4E4E7] shadow-2xl p-6 relative animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/40 backdrop-blur-xs novora-animate-backdrop">
+      <div className="bg-white rounded-2xl max-w-md w-full border border-[#E4E4E7] shadow-2xl p-4 sm:p-6 relative novora-animate-modal">
         
         <button
           onClick={onClose}

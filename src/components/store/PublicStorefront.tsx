@@ -290,7 +290,7 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="novora-card-grid">
                   {featuredListings.map((listing) => (
                     <div
                       key={listing.id}
@@ -376,7 +376,7 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
               </div>
 
               {sellerListings.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="novora-card-grid">
                   {sellerListings.slice(0, 6).map((listing) => (
                     <div
                       key={listing.id}
@@ -484,7 +484,7 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
 
             {/* Grid */}
             {filteredListings.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="novora-card-grid">
                 {filteredListings.map((listing) => (
                   <div
                     key={listing.id}

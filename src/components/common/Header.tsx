@@ -171,7 +171,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* ================================================================= */}
         {/* Zone 2: Priority-Based Adaptive Desktop Navigation (>= 1024px)    */}
         {/* ================================================================= */}
-        <nav className="hidden lg:flex items-center gap-5 xl:gap-7 text-xs xl:text-sm font-medium text-[#646B76] shrink-0">
+        <nav className="hidden lg:flex items-center gap-3.5 xl:gap-6 text-xs xl:text-sm font-medium text-[#646B76] min-w-0">
           {/* Highest Priority Items (Always visible on lg+) */}
           <button
             type="button"
@@ -181,10 +181,11 @@ export const Header: React.FC<HeaderProps> = ({
             Discover
           </button>
 
+          {/* Categories: Visible on xl+ (1280px+), folded into More on lg (1024-1279px) */}
           <button
             type="button"
             onClick={() => onNavigateSection('categories')}
-            className="hover:text-[#17191F] transition-colors py-1.5 cursor-pointer whitespace-nowrap"
+            className="hidden xl:inline-block hover:text-[#17191F] transition-colors py-1.5 cursor-pointer whitespace-nowrap"
           >
             Categories
           </button>
@@ -199,7 +200,7 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {/* Medium Priority Item (Visible on 2xl+, or folded into More on medium) */}
-          <div className="hidden 2xl:flex items-center gap-6">
+          <div className="hidden 2xl:flex items-center gap-5">
             {userStore ? (
               <button
                 type="button"
@@ -251,6 +252,19 @@ export const Header: React.FC<HeaderProps> = ({
 
             {showMoreNavDropdown && (
               <div className="absolute left-0 mt-2 w-56 bg-white border border-[#E5E7EB] rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                {/* Categories when folded on lg (1024-1279px) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowMoreNavDropdown(false);
+                    onNavigateSection('categories');
+                  }}
+                  className="xl:hidden w-full text-left px-4 py-2.5 text-xs text-[#17191F] hover:bg-[#F3F4F6] flex items-center gap-2 font-medium cursor-pointer"
+                >
+                  <Layers className="w-3.5 h-3.5 text-[#4057D6]" />
+                  <span>All Categories</span>
+                </button>
+
                 {userStore ? (
                   <button
                     type="button"
@@ -335,18 +349,18 @@ export const Header: React.FC<HeaderProps> = ({
         {/* ================================================================= */}
         {/* Zone 3: Utility Controls & User Authentication                    */}
         {/* ================================================================= */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 xl:gap-2.5 shrink-0">
           
-          {/* Find My Match Action Button (Adaptive: text on sm+, icon on mobile) */}
+          {/* Find My Match Action Button (Adaptive: icon on < xl, text on xl+) */}
           <button
             type="button"
             onClick={onOpenFindMatch}
-            className="flex items-center gap-1.5 text-xs font-medium px-2.5 sm:px-3 py-1.5 text-[#4057D6] bg-[#EEF2FF] hover:bg-[#E0E7FF] rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+            className="flex items-center gap-1.5 text-xs font-medium px-2 sm:px-2.5 xl:px-3 py-1.5 text-[#4057D6] bg-[#EEF2FF] hover:bg-[#E0E7FF] rounded-lg transition-colors whitespace-nowrap cursor-pointer shrink-0"
             title="Need-Based Discovery Match Engine"
             aria-label="Find My Match"
           >
             <Compass className="w-3.5 h-3.5 text-[#4057D6] shrink-0" />
-            <span className="hidden sm:inline">Find My Match</span>
+            <span className="hidden xl:inline">Find My Match</span>
           </button>
 
           {/* Country & Currency Selector (Responsive popover with boundary protection) */}

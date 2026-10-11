@@ -28,7 +28,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   return (
     <article
       onClick={() => onSelect(listing)}
-      className="group relative bg-white rounded-xl border border-[#E5E7EB] overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm cursor-pointer flex flex-col h-full"
+      className="group relative bg-white rounded-xl border border-[#E5E7EB] overflow-hidden novora-interactive-card cursor-pointer flex flex-col h-full"
     >
       {/* Lead with imagery */}
       <div className="relative aspect-4/3 bg-[#F9FAFB] overflow-hidden">

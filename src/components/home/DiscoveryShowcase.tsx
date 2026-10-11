@@ -95,7 +95,7 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+          <div className="novora-card-grid">
             {personalizedListings.map((listing) => (
               <div
                 key={listing.id}
@@ -164,7 +164,7 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="novora-store-grid">
             {activeStores.map((s) => (
               <div
                 key={s.id}
@@ -238,7 +238,7 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+          <div className="novora-card-grid">
             {globalFinds.map((listing) => (
               <div
                 key={listing.id}

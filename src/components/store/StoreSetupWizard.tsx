@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Store,
   ArrowRight,
@@ -13,9 +13,17 @@ import {
   Trash2,
   X,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Search,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Save,
+  RotateCcw
 } from 'lucide-react';
 import { Storefront, StoreCategory, StorePolicies, Listing, UserProfile } from '../../types';
+import { fetchStoreBySlug } from '../../services/firebase';
+import { COUNTRIES } from '../../data/countries';
 
 interface StoreSetupWizardProps {
   currentUser: UserProfile;
@@ -36,9 +44,17 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [publishedStore, setPublishedStore] = useState<Storefront | null>(null);
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const [copiedLink, setCopiedLink] = useState(false);
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [draftRestoredBanner, setDraftRestoredBanner] = useState(false);
+
+  // Slug Availability State
+  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>('idle');
+  const [slugMessage, setSlugMessage] = useState<string>('');
+  const slugDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Form State
   const [storeName, setStoreName] = useState(existingStore?.storeName || `${currentUser.name}'s Studio`);
@@ -50,14 +66,14 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
   const [logoUrl, setLogoUrl] = useState(existingStore?.logoUrl || currentUser.avatarUrl || '');
   const [bannerUrl, setBannerUrl] = useState(existingStore?.bannerUrl || '');
 
-  // Step 2: About
+  // Step 2: About & Maker Story
   const [story, setStory] = useState(existingStore?.story || '');
   const [country, setCountry] = useState(existingStore?.country || currentUser.country || 'US');
   const [city, setCity] = useState(existingStore?.city || currentUser.city || '');
   const [businessType, setBusinessType] = useState<Storefront['businessType']>(existingStore?.businessType || 'independent_maker');
   const [languagesStr, setLanguagesStr] = useState(existingStore?.languages?.join(', ') || currentUser.languages?.join(', ') || 'English');
 
-  // Step 3: Custom Categories
+  // Step 3: Custom Collections / Categories
   const [categories, setCategories] = useState<StoreCategory[]>(
     existingStore?.categories || [
       { id: 'cat_new', name: 'New Arrivals', description: 'Freshly created pieces' },
@@ -82,13 +98,127 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
   const [featuredListingIds, setFeaturedListingIds] = useState<string[]>(
     existingStore?.featuredListingIds || sellerListings.slice(0, 3).map(l => l.id)
   );
+  const [featuredSearch, setFeaturedSearch] = useState('');
+
+  // Draft key
+  const draftKey = `novora_store_draft_${currentUser.id}`;
+
+  // Check for saved local draft on mount
+  useEffect(() => {
+    try {
+      const savedRaw = localStorage.getItem(draftKey);
+      if (savedRaw && !existingStore) {
+        const d = JSON.parse(savedRaw);
+        if (d.storeName) setStoreName(d.storeName);
+        if (d.storeSlug) setStoreSlug(d.storeSlug);
+        if (d.tagline) setTagline(d.tagline);
+        if (d.description) setDescription(d.description);
+        if (d.logoUrl) setLogoUrl(d.logoUrl);
+        if (d.bannerUrl) setBannerUrl(d.bannerUrl);
+        if (d.story) setStory(d.story);
+        if (d.country) setCountry(d.country);
+        if (d.city) setCity(d.city);
+        if (d.businessType) setBusinessType(d.businessType);
+        if (d.categories) setCategories(d.categories);
+        if (d.policies) setPolicies(d.policies);
+        if (d.announcement) setAnnouncement(d.announcement);
+        if (d.featuredListingIds) setFeaturedListingIds(d.featuredListingIds);
+        setDraftRestoredBanner(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, [draftKey, existingStore]);
+
+  // Debounced Slug Availability Checking
+  useEffect(() => {
+    const clean = storeSlug.trim().toLowerCase();
+    if (!clean) {
+      setSlugStatus('invalid');
+      setSlugMessage('Slug cannot be empty');
+      return;
+    }
+    if (clean.length < 3) {
+      setSlugStatus('invalid');
+      setSlugMessage('Slug must be at least 3 characters');
+      return;
+    }
+    if (!/^[a-z0-9-]+$/.test(clean)) {
+      setSlugStatus('invalid');
+      setSlugMessage('Slug may only contain letters, numbers, and hyphens');
+      return;
+    }
+
+    // If existing store matches this slug, it's valid
+    if (existingStore && existingStore.storeSlug === clean) {
+      setSlugStatus('available');
+      setSlugMessage('Current registered store handle');
+      return;
+    }
+
+    setSlugStatus('checking');
+    setSlugMessage('Verifying URL availability...');
+
+    if (slugDebounceRef.current) clearTimeout(slugDebounceRef.current);
+    slugDebounceRef.current = setTimeout(async () => {
+      try {
+        const found = await fetchStoreBySlug(clean);
+        if (found && found.sellerId !== currentUser.id) {
+          setSlugStatus('taken');
+          setSlugMessage(`novora.com/?store=${clean} is already claimed by another seller`);
+        } else {
+          setSlugStatus('available');
+          setSlugMessage(`novora.com/?store=${clean} is available!`);
+        }
+      } catch {
+        // If network issue, default to available
+        setSlugStatus('available');
+        setSlugMessage(`novora.com/?store=${clean} ready`);
+      }
+    }, 450);
+
+    return () => {
+      if (slugDebounceRef.current) clearTimeout(slugDebounceRef.current);
+    };
+  }, [storeSlug, currentUser.id, existingStore]);
+
+  // Save draft to localStorage whenever fields change
+  const saveDraftToStorage = () => {
+    try {
+      const payload = {
+        storeName,
+        storeSlug,
+        tagline,
+        description,
+        logoUrl,
+        bannerUrl,
+        story,
+        country,
+        city,
+        businessType,
+        categories,
+        policies,
+        announcement,
+        featuredListingIds,
+        savedAt: new Date().toISOString()
+      };
+      localStorage.setItem(draftKey, JSON.stringify(payload));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleStepChange = (newStep: number) => {
+    saveDraftToStorage();
+    setCurrentStep(newStep);
+  };
 
   // Calculate genuine completeness percentage based on filled fields
   const completenessPercent = useMemo(() => {
     let score = 0;
     const totalChecks = 10;
     if (storeName.trim().length > 2) score++;
-    if (storeSlug.trim().length > 2) score++;
+    if (storeSlug.trim().length >= 3 && slugStatus === 'available') score++;
     if (tagline.trim().length > 5) score++;
     if (description.trim().length > 10) score++;
     if (logoUrl.trim().length > 5) score++;
@@ -98,7 +228,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
     if (policies.shippingPolicy && policies.shippingPolicy.length > 10) score++;
     if (announcement.trim().length > 5) score++;
     return Math.round((score / totalChecks) * 100);
-  }, [storeName, storeSlug, tagline, description, logoUrl, bannerUrl, story, categories, policies, announcement]);
+  }, [storeName, storeSlug, slugStatus, tagline, description, logoUrl, bannerUrl, story, categories, policies, announcement]);
 
   const handleAddCategory = () => {
     if (!newCatName.trim()) return;
@@ -122,11 +252,20 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
 
   const handlePublish = async () => {
     if (!storeName.trim() || !storeSlug.trim()) {
-      alert('Please provide a store name and web slug.');
+      setSaveError('Please provide a store name and handle slug.');
+      return;
+    }
+    if (slugStatus === 'taken') {
+      setSaveError('The requested store URL is taken. Please select an available slug.');
+      return;
+    }
+    if (slugStatus === 'invalid') {
+      setSaveError('Please enter a valid store slug (letters, numbers, hyphens).');
       return;
     }
 
     setIsSaving(true);
+    setSaveError(null);
     try {
       const payload: Partial<Storefront> & { sellerId: string; storeName: string; storeSlug: string } = {
         id: existingStore?.id || currentUser.id,
@@ -153,9 +292,10 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
 
       const result = await onSave(payload);
       setPublishedStore(result);
+      localStorage.removeItem(draftKey);
       setCurrentStep(7); // Show success screen
-    } catch (err) {
-      alert('Failed to publish store. Please try again.');
+    } catch (err: any) {
+      setSaveError(err?.message || 'Failed to publish store. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -170,6 +310,21 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
     });
   };
 
+  const handleCloseAttempt = () => {
+    if (currentStep < 7 && (storeName !== `${currentUser.name}'s Studio` || description || story)) {
+      saveDraftToStorage();
+      setShowExitConfirm(true);
+    } else {
+      onClose();
+    }
+  };
+
+  const filteredSellerListings = useMemo(() => {
+    if (!featuredSearch.trim()) return sellerListings;
+    const q = featuredSearch.toLowerCase();
+    return sellerListings.filter(l => l.title.toLowerCase().includes(q) || l.description.toLowerCase().includes(q));
+  }, [sellerListings, featuredSearch]);
+
   const STEPS = [
     { num: 1, title: 'Store Identity' },
     { num: 2, title: 'About & Maker' },
@@ -181,8 +336,8 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-4xl w-full border border-[#E5E7EB] shadow-2xl relative overflow-hidden my-auto max-h-[94vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs overflow-y-auto novora-animate-backdrop">
+      <div className="bg-white rounded-3xl max-w-4xl w-full border border-[#E5E7EB] shadow-2xl relative overflow-hidden my-auto max-h-[94vh] flex flex-col novora-animate-modal">
         
         {/* Wizard Header */}
         <div className="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between shrink-0 bg-[#FAFAF8]">
@@ -202,13 +357,48 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-1.5 text-[#646B76] hover:text-[#17191F] hover:bg-[#E5E7EB] rounded-lg transition-colors cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {currentStep < 7 && (
+              <button
+                type="button"
+                onClick={() => {
+                  saveDraftToStorage();
+                  alert('Draft saved to browser storage.');
+                }}
+                className="px-2.5 py-1.5 text-xs text-[#646B76] hover:text-[#17191F] hover:bg-[#E5E7EB] rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                title="Save draft"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Save Draft</span>
+              </button>
+            )}
+            <button
+              onClick={handleCloseAttempt}
+              className="p-1.5 text-[#646B76] hover:text-[#17191F] hover:bg-[#E5E7EB] rounded-lg transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
+
+        {/* Draft Restored Banner */}
+        {draftRestoredBanner && currentStep === 1 && (
+          <div className="bg-blue-50 border-b border-blue-100 px-6 py-2 flex items-center justify-between text-xs text-blue-900">
+            <span className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+              <span>Restored your saved setup draft from previous session.</span>
+            </span>
+            <button
+              onClick={() => {
+                localStorage.removeItem(draftKey);
+                setDraftRestoredBanner(false);
+              }}
+              className="text-[11px] text-blue-700 hover:underline cursor-pointer ml-3 shrink-0"
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {/* Step Progress Bar */}
         {currentStep < 7 && (
@@ -216,7 +406,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
             {STEPS.slice(0, 6).map((s) => (
               <div
                 key={s.num}
-                onClick={() => setCurrentStep(s.num)}
+                onClick={() => handleStepChange(s.num)}
                 className={`flex items-center gap-1.5 cursor-pointer transition-colors whitespace-nowrap px-2 py-1 rounded-md ${
                   currentStep === s.num
                     ? 'font-bold text-[#4057D6] bg-white shadow-2xs'
@@ -243,6 +433,13 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
         {/* Form Body */}
         <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
           
+          {saveError && (
+            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2.5 text-xs text-rose-800">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{saveError}</span>
+            </div>
+          )}
+
           {/* STEP 1: IDENTITY */}
           {currentStep === 1 && (
             <div className="space-y-5 max-w-2xl">
@@ -264,7 +461,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                       }
                     }}
                     placeholder="e.g. Nordic Leather Studio"
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                   />
                 </div>
 
@@ -282,6 +479,34 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                       className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-r-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden font-mono text-xs"
                     />
                   </div>
+
+                  {/* Slug availability indicator */}
+                  <div className="mt-1.5 flex items-center gap-1.5 text-[11px]">
+                    {slugStatus === 'checking' && (
+                      <span className="text-[#646B76] flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin text-[#4057D6]" />
+                        <span>{slugMessage}</span>
+                      </span>
+                    )}
+                    {slugStatus === 'available' && (
+                      <span className="text-emerald-700 font-medium flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{slugMessage}</span>
+                      </span>
+                    )}
+                    {slugStatus === 'taken' && (
+                      <span className="text-rose-700 font-medium flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+                        <span>{slugMessage}</span>
+                      </span>
+                    )}
+                    {slugStatus === 'invalid' && (
+                      <span className="text-amber-700 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                        <span>{slugMessage}</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -291,7 +516,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                     value={tagline}
                     onChange={(e) => setTagline(e.target.value)}
                     placeholder="e.g. Hand-stitched full-grain accessories made in Stockholm."
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                   />
                 </div>
 
@@ -302,7 +527,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Brief introduction for buyers discovering your shop..."
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                   />
                 </div>
 
@@ -314,7 +539,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                       value={logoUrl}
                       onChange={(e) => setLogoUrl(e.target.value)}
                       placeholder="https://images.unsplash.com/..."
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                     />
                   </div>
                   <div>
@@ -324,7 +549,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                       value={bannerUrl}
                       onChange={(e) => setBannerUrl(e.target.value)}
                       placeholder="https://images.unsplash.com/..."
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                     />
                   </div>
                 </div>
@@ -348,7 +573,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                     value={story}
                     onChange={(e) => setStory(e.target.value)}
                     placeholder="Tell your story. When did you start? What materials do you source? Why should buyers choose your work?"
-                    className="w-full p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden leading-relaxed"
+                    className="w-full p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden leading-relaxed text-xs"
                   />
                 </div>
 
@@ -358,48 +583,51 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                     <select
                       value={businessType}
                       onChange={(e) => setBusinessType(e.target.value as any)}
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden cursor-pointer"
+                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                     >
-                      <option value="independent_maker">Independent Artisan / Maker</option>
-                      <option value="artisan_studio">Craft Studio / Workshop</option>
+                      <option value="independent_maker">Independent Maker / Artisan</option>
+                      <option value="artisan_studio">Artisan Studio / Workshop</option>
                       <option value="boutique">Curated Boutique</option>
                       <option value="digital_creator">Digital Creator / Designer</option>
-                      <option value="service_agency">Specialist / Service Agency</option>
-                      <option value="other">Other Independent Enterprise</option>
+                      <option value="service_agency">Service Specialist</option>
+                      <option value="other">Other</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="font-medium text-[#374151] block mb-1">Languages Spoken</label>
-                    <input
-                      type="text"
-                      value={languagesStr}
-                      onChange={(e) => setLanguagesStr(e.target.value)}
-                      placeholder="English, French, Spanish..."
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
-                    />
+                    <label className="font-medium text-[#374151] block mb-1">Country / Territory</label>
+                    <select
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                    >
+                      {COUNTRIES.map(c => (
+                        <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="font-medium text-[#374151] block mb-1">Workshop City</label>
+                    <label className="font-medium text-[#374151] block mb-1">City or Workshop Location</label>
                     <input
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      placeholder="e.g. Kyoto"
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                      placeholder="e.g. Stockholm, Sweden"
+                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                     />
                   </div>
+
                   <div>
-                    <label className="font-medium text-[#374151] block mb-1">Country</label>
+                    <label className="font-medium text-[#374151] block mb-1">Languages Spoken (comma separated)</label>
                     <input
                       type="text"
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      placeholder="e.g. Japan"
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                      value={languagesStr}
+                      onChange={(e) => setLanguagesStr(e.target.value)}
+                      placeholder="English, Swedish, German"
+                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                     />
                   </div>
                 </div>
@@ -407,48 +635,55 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
             </div>
           )}
 
-          {/* STEP 3: CUSTOM CATEGORIES */}
+          {/* STEP 3: COLLECTIONS */}
           {currentStep === 3 && (
             <div className="space-y-5 max-w-2xl text-xs">
               <div>
-                <h3 className="text-base font-semibold text-[#17191F]">Store Collections & Sections</h3>
-                <p className="text-xs text-[#646B76] mt-0.5">Create your own branded collections to organize your listings inside your storefront.</p>
+                <h3 className="text-base font-semibold text-[#17191F]">Storefront Collections & Categories</h3>
+                <p className="text-xs text-[#646B76] mt-0.5">Organize your offerings into custom sections on your public storefront.</p>
               </div>
 
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newCatName}
-                  onChange={(e) => setNewCatName(e.target.value)}
-                  placeholder="New collection name (e.g. Summer Ceramics, Limited Editions)"
-                  className="flex-1 p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddCategory}
-                  className="px-4 py-2 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add Collection</span>
-                </button>
-              </div>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newCatName}
+                    onChange={(e) => setNewCatName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddCategory(); } }}
+                    placeholder="Add collection title (e.g. Hand-Stitched Wallets)..."
+                    className="flex-1 p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddCategory}
+                    className="px-4 py-2 bg-[#17191F] text-white rounded-xl font-medium hover:bg-[#27272A] transition-colors flex items-center gap-1.5 cursor-pointer text-xs"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add</span>
+                  </button>
+                </div>
 
-              <div className="space-y-2 pt-2">
-                {categories.map((cat) => (
-                  <div key={cat.id} className="p-3 bg-[#FAFAF8] rounded-xl border border-[#E5E7EB] flex items-center justify-between">
-                    <div>
-                      <span className="font-semibold text-[#17191F] text-xs">{cat.name}</span>
-                      {cat.description && <p className="text-[11px] text-[#646B76]">{cat.description}</p>}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveCategory(cat.id)}
-                      className="p-1.5 text-[#9CA3AF] hover:text-[#EF4444] transition-colors cursor-pointer"
+                <div className="space-y-2 pt-2">
+                  {categories.map((c) => (
+                    <div
+                      key={c.id}
+                      className="p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl flex items-center justify-between"
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-[#17191F]">{c.name}</span>
+                        {c.description && <span className="text-[11px] text-[#646B76]">· {c.description}</span>}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveCategory(c.id)}
+                        className="p-1 text-[#9CA3AF] hover:text-rose-600 transition-colors cursor-pointer"
+                        title="Remove category"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -457,48 +692,48 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
           {currentStep === 4 && (
             <div className="space-y-5 max-w-2xl text-xs">
               <div>
-                <h3 className="text-base font-semibold text-[#17191F]">Store Fulfillment & Return Policies</h3>
-                <p className="text-xs text-[#646B76] mt-0.5">Clear policies foster trust with international buyers and prevent disputes.</p>
+                <h3 className="text-base font-semibold text-[#17191F]">Store Policies & Terms</h3>
+                <p className="text-xs text-[#646B76] mt-0.5">Transparent guidelines build high buyer trust for international orders.</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Shipping & Packaging</label>
+                  <label className="font-medium text-[#374151] block mb-1">Shipping & Dispatch Terms *</label>
                   <textarea
                     rows={2}
-                    value={policies.shippingPolicy}
+                    value={policies.shippingPolicy || ''}
                     onChange={(e) => setPolicies({ ...policies, shippingPolicy: e.target.value })}
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                   />
                 </div>
 
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Returns & Exchanges Policy</label>
+                  <label className="font-medium text-[#374151] block mb-1">Return Window & Eligibility</label>
                   <textarea
                     rows={2}
-                    value={policies.returnsPolicy}
+                    value={policies.returnsPolicy || ''}
                     onChange={(e) => setPolicies({ ...policies, returnsPolicy: e.target.value })}
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                   />
                 </div>
 
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Refunds & Cancellations</label>
+                  <label className="font-medium text-[#374151] block mb-1">Refund Protocol</label>
                   <textarea
                     rows={2}
-                    value={policies.refundsPolicy}
+                    value={policies.refundsPolicy || ''}
                     onChange={(e) => setPolicies({ ...policies, refundsPolicy: e.target.value })}
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                   />
                 </div>
 
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Custom Commissions / Made-to-Order Terms</label>
+                  <label className="font-medium text-[#374151] block mb-1">Custom / Bespoke Commission Policy</label>
                   <textarea
                     rows={2}
-                    value={policies.customOrdersPolicy}
+                    value={policies.customOrdersPolicy || ''}
                     onChange={(e) => setPolicies({ ...policies, customOrdersPolicy: e.target.value })}
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                   />
                 </div>
               </div>
@@ -520,15 +755,32 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                   value={announcement}
                   onChange={(e) => setAnnouncement(e.target.value)}
                   placeholder="e.g. Free shipping on all international orders over $100 this week!"
-                  className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                  className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
                 />
               </div>
 
               <div>
-                <label className="font-medium text-[#374151] block mb-2">Select Featured Items ({featuredListingIds.length} selected)</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="font-medium text-[#374151]">
+                    Select Featured Items ({featuredListingIds.length} selected)
+                  </label>
+                  {sellerListings.length > 4 && (
+                    <div className="relative w-48">
+                      <Search className="w-3 h-3 absolute left-2.5 top-2.5 text-[#9CA3AF]" />
+                      <input
+                        type="text"
+                        value={featuredSearch}
+                        onChange={(e) => setFeaturedSearch(e.target.value)}
+                        placeholder="Filter listings..."
+                        className="w-full pl-7 pr-2 py-1 text-[11px] bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg focus:outline-hidden"
+                      />
+                    </div>
+                  )}
+                </div>
+
                 {sellerListings.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto p-1">
-                    {sellerListings.map((l) => {
+                    {filteredSellerListings.map((l) => {
                       const isSelected = featuredListingIds.includes(l.id);
                       return (
                         <div
@@ -541,13 +793,15 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                           }`}
                         >
                           <div className="w-12 h-12 rounded-lg bg-[#F3F4F6] overflow-hidden shrink-0">
-                            {l.images && l.images[0] && (
+                            {l.images && l.images[0] ? (
                               <img src={l.images[0]} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full bg-[#E5E7EB]" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-xs text-[#17191F] truncate">{l.title}</p>
-                            <p className="text-[11px] text-[#646B76]">${l.price}</p>
+                            <p className="text-[11px] text-[#646B76] font-mono">${l.price} {l.currency}</p>
                           </div>
                           <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 ${
                             isSelected ? 'bg-[#4057D6] text-white' : 'border border-[#D1D5DB]'
@@ -559,9 +813,10 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                     })}
                   </div>
                 ) : (
-                  <p className="text-[#646B76] p-4 bg-[#FAFAF8] rounded-xl border border-[#E5E7EB]">
-                    You haven't created any listings yet. You can still publish your storefront and feature items later!
-                  </p>
+                  <div className="text-[#646B76] p-5 bg-[#FAFAF8] rounded-xl border border-[#E5E7EB] text-center space-y-1">
+                    <p className="font-medium text-[#17191F]">No listings published yet</p>
+                    <p className="text-[11px]">You can complete and publish your storefront now, then pin listings after creating them in your Seller Studio.</p>
+                  </div>
                 )}
               </div>
             </div>
@@ -572,8 +827,8 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-[#17191F]">Live Storefront Mockup Preview</h3>
-                  <p className="text-xs text-[#646B76]">Preview your store layout before publishing to the global directory.</p>
+                  <h3 className="text-base font-semibold text-[#17191F]">Live Storefront Simulator Preview</h3>
+                  <p className="text-xs text-[#646B76]">Preview your store layout before publishing to the global marketplace.</p>
                 </div>
 
                 <div className="flex items-center gap-1 bg-[#F3F4F6] p-1 rounded-xl">
@@ -605,21 +860,52 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                 <div className={`bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden transition-all ${
                   previewDevice === 'mobile' ? 'w-[375px]' : 'w-full'
                 }`}>
-                  {/* Mock Store Header */}
-                  <div className="h-32 bg-linear-to-r from-[#17191F] to-[#2A303C] p-4 flex flex-col justify-end text-white">
-                    <span className="text-[10px] font-mono text-white/60">Independent Maker</span>
-                    <h4 className="text-base font-bold">{storeName || 'My Store'}</h4>
+                  {/* Banner */}
+                  <div className="h-32 sm:h-40 bg-[#17191F] relative overflow-hidden">
+                    {bannerUrl ? (
+                      <img src={bannerUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-linear-to-r from-[#17191F] via-[#2A303C] to-[#1E293B]" />
+                    )}
                   </div>
-                  <div className="p-4 space-y-3">
-                    <p className="text-xs text-[#4B5563]">{tagline || 'Crafted with care.'}</p>
+
+                  {/* Header info */}
+                  <div className="p-4 sm:p-6 space-y-4">
+                    <div className="flex items-start gap-4 -mt-10 sm:-mt-12">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border-2 border-white shadow-md overflow-hidden shrink-0">
+                        {logoUrl ? (
+                          <img src={logoUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-[#EEF2FF] text-[#4057D6] font-bold text-xl flex items-center justify-center">
+                            {storeName.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <div className="pt-8 sm:pt-10 min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-base sm:text-lg font-bold text-[#17191F] truncate">{storeName}</h4>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Verified
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#646B76]">{tagline}</p>
+                      </div>
+                    </div>
+
                     {announcement && (
-                      <div className="p-2 bg-amber-50 border border-amber-200 rounded-lg text-[11px] text-amber-800">
-                        {announcement}
+                      <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center gap-2">
+                        <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                        <span>{announcement}</span>
                       </div>
                     )}
-                    <div className="pt-2 border-t border-[#F3F4F6] flex items-center justify-between text-xs text-[#646B76]">
+
+                    <div className="text-xs text-[#4B5563] leading-relaxed">
+                      {description}
+                    </div>
+
+                    <div className="pt-3 border-t border-[#F3F4F6] flex items-center justify-between text-xs text-[#646B76]">
                       <span>{city ? `${city}, ` : ''}{country}</span>
-                      <span className="text-[#4057D6]">@{storeSlug}</span>
+                      <span className="text-[#4057D6] font-mono">novora.com/?store={storeSlug}</span>
                     </div>
                   </div>
                 </div>
@@ -629,7 +915,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
 
           {/* STEP 7: PUBLISHED SUCCESS */}
           {currentStep === 7 && publishedStore && (
-            <div className="text-center py-10 px-4 space-y-5 max-w-lg mx-auto">
+            <div className="text-center py-10 px-4 space-y-5 max-w-lg mx-auto novora-animate-modal">
               <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto shadow-sm">
                 <Check className="w-8 h-8" />
               </div>
@@ -647,7 +933,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="px-3 py-1.5 bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] rounded-lg font-sans font-medium flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                  className="px-3 py-1.5 bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] rounded-lg font-sans font-medium flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 active:scale-[0.98]"
                 >
                   {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copiedLink ? 'Copied' : 'Copy'}</span>
@@ -658,7 +944,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                 <button
                   type="button"
                   onClick={() => onViewStore(publishedStore)}
-                  className="px-5 py-2.5 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs sm:text-sm font-medium flex items-center gap-2 transition-all shadow-xs cursor-pointer"
+                  className="px-5 py-2.5 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs sm:text-sm font-medium flex items-center gap-2 transition-all shadow-xs cursor-pointer active:scale-[0.98]"
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span>View Public Storefront</span>
@@ -666,7 +952,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2.5 bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] text-[#374151] rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer"
+                  className="px-5 py-2.5 bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] text-[#374151] rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer active:scale-[0.98]"
                 >
                   Done
                 </button>
@@ -678,11 +964,11 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
 
         {/* Wizard Footer Controls */}
         {currentStep < 7 && (
-          <div className="px-6 py-4 border-t border-[#E5E7EB] bg-[#FAFAF8] flex items-center justify-between shrink-0">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-[#E5E7EB] bg-[#FAFAF8] flex items-center justify-between shrink-0">
             <button
               type="button"
               disabled={currentStep === 1}
-              onClick={() => setCurrentStep(prev => prev - 1)}
+              onClick={() => handleStepChange(currentStep - 1)}
               className="px-4 py-2 text-xs font-medium text-[#646B76] hover:text-[#17191F] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -692,8 +978,9 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
             {currentStep < 6 ? (
               <button
                 type="button"
-                onClick={() => setCurrentStep(prev => prev + 1)}
-                className="px-5 py-2 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
+                disabled={currentStep === 1 && (slugStatus === 'taken' || slugStatus === 'checking')}
+                onClick={() => handleStepChange(currentStep + 1)}
+                className="px-5 py-2 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>Continue</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -701,14 +988,54 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
             ) : (
               <button
                 type="button"
-                disabled={isSaving}
+                disabled={isSaving || slugStatus === 'taken'}
                 onClick={handlePublish}
-                className="px-6 py-2 bg-[#4057D6] hover:bg-[#3446B8] text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
+                className="px-6 py-2 bg-[#4057D6] hover:bg-[#3446B8] text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span>{isSaving ? 'Publishing...' : 'Publish Storefront'}</span>
-                <Sparkles className="w-3.5 h-3.5" />
+                {isSaving ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Publishing to NOVORA...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Publish Storefront</span>
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </>
+                )}
               </button>
             )}
+          </div>
+        )}
+
+        {/* Unsaved Changes Exit Confirmation Dialog */}
+        {showExitConfirm && (
+          <div className="absolute inset-0 z-60 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-[#E5E7EB] text-center">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+              <h4 className="text-sm font-semibold text-[#17191F]">Unsaved Store Changes</h4>
+              <p className="text-xs text-[#646B76] leading-relaxed">
+                Your in-progress store configuration has been safely saved to your local browser draft.
+              </p>
+              <div className="pt-2 flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowExitConfirm(false)}
+                  className="px-3.5 py-2 text-xs font-medium bg-[#F3F4F6] text-[#374151] rounded-xl hover:bg-[#E5E7EB] transition-colors cursor-pointer"
+                >
+                  Keep Editing
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-3.5 py-2 text-xs font-medium bg-[#17191F] text-white rounded-xl hover:bg-[#27272A] transition-colors cursor-pointer"
+                >
+                  Exit Wizard
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

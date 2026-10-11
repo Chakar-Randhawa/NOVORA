@@ -143,8 +143,8 @@ export const MessagingModal: React.FC<MessagingModalProps> = ({
     : 'User';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-xs overflow-hidden">
-      <div className="bg-white rounded-2xl max-w-4xl w-full h-[92vh] sm:h-[85vh] border border-[#E5E7EB] shadow-2xl flex overflow-hidden relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-xs overflow-hidden novora-animate-backdrop">
+      <div className="bg-white rounded-2xl max-w-4xl w-full h-[92vh] sm:h-[85vh] border border-[#E5E7EB] shadow-2xl flex overflow-hidden relative novora-animate-modal">
         
         {/* ================================================================= */}
         {/* Left Column: Conversations List                                   */}
@@ -210,9 +210,9 @@ export const MessagingModal: React.FC<MessagingModalProps> = ({
                       <p className="text-xs text-[#646B76] truncate mt-0.5">
                         {conv.lastMessageText || 'Direct inquiry thread'}
                       </p>
-                      {conv.context?.listingTitle && (
+                      {(conv.listingTitle || conv.requestTitle) && (
                         <span className="text-[10px] text-[#4057D6] font-medium truncate block mt-0.5">
-                          Ref: {conv.context.listingTitle}
+                          Ref: {conv.listingTitle || conv.requestTitle}
                         </span>
                       )}
                     </div>
@@ -269,8 +269,10 @@ export const MessagingModal: React.FC<MessagingModalProps> = ({
                     <div className="flex items-center gap-1.5 text-[10px] text-[#646B76]">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
                       <span className="truncate">
-                        {activeConversation.context?.listingTitle
-                          ? `Item: ${activeConversation.context.listingTitle}`
+                        {activeConversation.listingTitle
+                          ? `Item: ${activeConversation.listingTitle}`
+                          : activeConversation.requestTitle
+                          ? `Req: ${activeConversation.requestTitle}`
                           : 'Direct Channel'}
                       </span>
                     </div>

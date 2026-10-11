@@ -302,8 +302,8 @@ export const FeaturedListings: React.FC<FeaturedListingsProps> = ({
             </div>
           </div>
         ) : filtered.length > 0 ? (
-          // Genuine Listings Found (Fluid 1 to 4 column responsive grid)
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          // Genuine Listings Found (Fluid intrinsic responsive grid)
+          <div className="novora-card-grid">
             {filtered.map((listing) => (
               <ListingCard
                 key={listing.id}

@@ -24,6 +24,7 @@ import {
   updateBuyerRequest,
   subscribeToUserOffers,
   createOffer,
+  updateOfferStatus,
   subscribeToFavorites,
   toggleFavorite,
   subscribeToConversations,
@@ -95,6 +96,7 @@ export const App: React.FC = () => {
   // Modals & Drawers
   const [activeListingForDetail, setActiveListingForDetail] = useState<Listing | null>(null);
   const [showCreateListingModal, setShowCreateListingModal] = useState(false);
+  const [listingToEdit, setListingToEdit] = useState<Listing | null>(null);
   const [showCreateRequestModal, setShowCreateRequestModal] = useState(false);
   const [requestForOffer, setRequestForOffer] = useState<BuyerRequest | null>(null);
   const [showFindMatchModal, setShowFindMatchModal] = useState(false);
@@ -310,8 +312,40 @@ export const App: React.FC = () => {
       const created = await createListing(newListingData);
       addToast('success', 'Listing Published', `"${created.title}" is live in the global directory.`);
       setShowCreateListingModal(false);
+      setListingToEdit(null);
     } catch {
       addToast('error', 'Error', 'Failed to publish listing.');
+    }
+  };
+
+  const handleOpenEditListing = (listing: Listing) => {
+    setListingToEdit(listing);
+    setShowCreateListingModal(true);
+  };
+
+  const handleUpdateListing = async (id: string, updates: Partial<Listing>) => {
+    try {
+      await updateListing(id, updates);
+      addToast('success', 'Offering Updated', 'Listing changes have been saved to the marketplace.');
+      if (activeListingForDetail?.id === id) {
+        setActiveListingForDetail(prev => prev ? { ...prev, ...updates } : null);
+      }
+      setListingToEdit(null);
+    } catch {
+      addToast('error', 'Error', 'Failed to update listing.');
+    }
+  };
+
+  const handleUpdateOfferStatus = async (offerId: string, status: 'accepted' | 'declined') => {
+    try {
+      await updateOfferStatus(offerId, status);
+      if (status === 'accepted') {
+        addToast('success', 'Commercial Offer Accepted', 'Direct terms accepted. You can message the seller to proceed with fulfillment.');
+      } else {
+        addToast('info', 'Offer Declined', 'Seller offer has been declined.');
+      }
+    } catch {
+      addToast('error', 'Error', 'Failed to update offer status.');
     }
   };
 
@@ -565,6 +599,7 @@ export const App: React.FC = () => {
         onOpenAuth={handleOpenAuth}
         onLogout={handleLogout}
         onOpenCreateListing={() => {
+          setListingToEdit(null);
           if (!currentUser) handleOpenAuth('signin');
           else setShowCreateListingModal(true);
         }}
@@ -631,7 +666,7 @@ export const App: React.FC = () => {
               }}
             />
 
-            <div className="max-w-[1440px] mx-auto px-6 space-y-16">
+            <div className="novora-container space-y-16">
               {/* Category Grid */}
               <CategoriesGrid
                 listings={listings}
@@ -754,7 +789,7 @@ export const App: React.FC = () => {
 
         {/* View 4: Request Orbit (Buyer Sourcing Board) */}
         {activeView === 'request-orbit' && (
-          <div className="max-w-[1440px] mx-auto px-6 py-10">
+          <div className="novora-container py-8 sm:py-10">
             <div className="mb-6 flex items-center gap-2">
               <button
                 onClick={() => setActiveView('home')}
@@ -784,7 +819,7 @@ export const App: React.FC = () => {
 
         {/* View 5: Seller Control Center */}
         {activeView === 'seller' && (
-          <div className="max-w-[1440px] mx-auto px-6 py-10">
+          <div className="novora-container py-8 sm:py-10">
             <div className="mb-6 flex items-center gap-2">
               <button
                 onClick={() => setActiveView('home')}
@@ -801,9 +836,11 @@ export const App: React.FC = () => {
               offers={offers}
               conversations={conversations}
               onOpenCreateListing={() => {
+                setListingToEdit(null);
                 if (!currentUser) handleOpenAuth('signin');
                 else setShowCreateListingModal(true);
               }}
+              onEditListing={handleOpenEditListing}
               onToggleStatus={handleToggleListingStatus}
               onDeleteListing={handleDeleteListing}
               onDuplicateListing={handleDuplicateListing}
@@ -823,7 +860,7 @@ export const App: React.FC = () => {
 
         {/* View 6: Buyer Sanctuary */}
         {activeView === 'buyer' && (
-          <div className="max-w-[1440px] mx-auto px-6 py-10">
+          <div className="novora-container py-8 sm:py-10">
             <div className="mb-6 flex items-center gap-2">
               <button
                 onClick={() => setActiveView('home')}
@@ -848,6 +885,8 @@ export const App: React.FC = () => {
                 if (conv) setActiveConversation(conv);
                 setShowMessagingModal(true);
               }}
+              onUpdateOfferStatus={handleUpdateOfferStatus}
+              onStartMessageWithSeller={handleStartMessageWithSeller}
               onUpdateProfile={handleUpdateProfile}
               onDeleteAccount={() => handleLogout()}
               onOpenAuth={handleOpenAuth}
@@ -858,7 +897,7 @@ export const App: React.FC = () => {
 
         {/* View 7: Admin Workspace */}
         {activeView === 'admin' && (
-          <div className="max-w-[1440px] mx-auto px-6 py-10">
+          <div className="novora-container py-8 sm:py-10">
             <div className="mb-6 flex items-center gap-2">
               <button
                 onClick={() => setActiveView('home')}
@@ -948,6 +987,7 @@ export const App: React.FC = () => {
           }}
           onToggleStatus={handleToggleListingStatus}
           onDeleteListing={handleDeleteListing}
+          onEditListing={handleOpenEditListing}
           onOpenAuth={handleOpenAuth}
           onViewSeller={(sid, sname) => {
             setActiveListingForDetail(null);
@@ -956,12 +996,17 @@ export const App: React.FC = () => {
         />
       )}
 
-      {/* 2. Create Listing Modal */}
+      {/* 2. Create / Edit Listing Modal */}
       {showCreateListingModal && (
         <CreateListingModal
           currentUser={currentUser}
-          onClose={() => setShowCreateListingModal(false)}
+          initialListing={listingToEdit}
+          onClose={() => {
+            setShowCreateListingModal(false);
+            setListingToEdit(null);
+          }}
           onSubmit={handleCreateListing}
+          onUpdateListing={handleUpdateListing}
           onOpenAuth={handleOpenAuth}
         />
       )}

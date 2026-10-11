@@ -58,7 +58,7 @@ export const Hero: React.FC<HeroProps> = ({
               <span className="truncate">Global Multi-Category Discovery Marketplace</span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-[#17191F] leading-[1.14] text-balance">
+            <h1 className="text-fluid-hero font-semibold tracking-tight text-[#17191F] text-balance">
               Find What You Need. Discover What You Didn't Know Existed.
             </h1>
 

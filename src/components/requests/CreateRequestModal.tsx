@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sparkles, Shield, AlertCircle, Plus } from 'lucide-react';
+import { X, Sparkles, Shield, AlertCircle, Plus, Loader2 } from 'lucide-react';
 import { BuyerRequest, UserProfile } from '../../types';
 import { CATEGORIES } from '../../data/categories';
 import { COUNTRIES, CURRENCIES } from '../../data/countries';
@@ -29,6 +29,7 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
   const [customizationDetails, setCustomizationDetails] = useState('');
   const [fulfillmentPreference, setFulfillmentPreference] = useState<'shipping' | 'digital' | 'remote_service' | 'local_pickup'>('shipping');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Close on Escape
   useEffect(() => {
@@ -74,7 +75,7 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
@@ -113,15 +114,20 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
       visibility: 'public'
     };
 
-    onSubmit(newRequest);
+    setIsSubmitting(true);
+    try {
+      await onSubmit(newRequest);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-2xl w-full border border-[#E5E7EB] shadow-2xl relative overflow-hidden my-auto max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto novora-animate-backdrop">
+      <div className="bg-white rounded-2xl max-w-2xl w-full border border-[#E5E7EB] shadow-2xl relative overflow-hidden my-auto max-h-[92vh] flex flex-col novora-animate-modal">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between shrink-0 bg-[#FAFAF8]">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[#E5E7EB] flex items-center justify-between shrink-0 bg-[#FAFAF8]">
           <div>
             <h2 className="text-base font-semibold text-[#17191F]">Post to Request Orbit</h2>
             <p className="text-xs text-[#646B76]">
@@ -137,7 +143,7 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-4">
           
           {errorMsg && (
             <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-lg flex items-center gap-2">
@@ -317,24 +323,33 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
           </div>
 
           {/* Actions */}
-          <div className="pt-4 border-t border-[#E5E7EB] flex items-center justify-between">
-            <span className="text-xs text-[#646B76]">
+          <div className="pt-4 border-t border-[#E5E7EB] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <span className="text-xs text-[#646B76] text-center sm:text-left">
               Publicly visible to verified artisans & suppliers worldwide
             </span>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-end gap-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-medium text-[#646B76] hover:text-[#17191F] rounded-lg transition-colors cursor-pointer"
+                disabled={isSubmitting}
+                className="flex-1 sm:flex-none px-4 py-2 text-xs font-medium text-[#646B76] hover:text-[#17191F] rounded-lg transition-colors cursor-pointer text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2.5 text-xs font-medium text-white bg-[#17191F] hover:bg-[#27272A] rounded-lg transition-colors shadow-xs cursor-pointer"
+                disabled={isSubmitting}
+                className="flex-1 sm:flex-none px-5 py-2.5 text-xs font-medium text-white bg-[#17191F] hover:bg-[#27272A] rounded-lg transition-colors shadow-xs cursor-pointer text-center flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-50"
               >
-                Publish Request
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Publishing...</span>
+                  </>
+                ) : (
+                  <span>Publish Request</span>
+                )}
               </button>
             </div>
           </div>
