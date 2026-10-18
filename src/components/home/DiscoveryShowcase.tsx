@@ -84,12 +84,12 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#4057D6]" />
-                <span className="text-[11px] font-mono text-[#4057D6] font-semibold uppercase tracking-wider">
+                <Sparkles className="w-4 h-4 text-[#C5A572]" />
+                <span className="text-[11px] font-mono text-[#8E6D38] font-semibold uppercase tracking-wider">
                   Personalized For You
                 </span>
               </div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#17191F] tracking-tight">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#14243A] tracking-tight">
                 Recommended Based On Your Wishlist
               </h2>
             </div>
@@ -100,13 +100,13 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
               <div
                 key={listing.id}
                 onClick={() => onSelectListing(listing)}
-                className="group bg-white rounded-2xl border border-[#E5E7EB] overflow-hidden hover:border-[#17191F] transition-all cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 hover:shadow-xs"
+                className="group bg-white rounded-2xl border border-[#E2DFD8] overflow-hidden hover:border-[#14243A] transition-all cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 hover:shadow-xs"
               >
-                <div className="aspect-4/3 w-full bg-[#F3F4F6] relative overflow-hidden">
+                <div className="aspect-4/3 w-full bg-[#EFECE5] relative overflow-hidden">
                   {listing.images && listing.images[0] ? (
                     <img src={listing.images[0]} alt="" className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300" />
                   ) : (
-                    <div className="w-full h-full bg-[#E5E7EB]" />
+                    <div className="w-full h-full bg-[#EFECE5]" />
                   )}
                   <button
                     type="button"
@@ -114,21 +114,21 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
                       e.stopPropagation();
                       onToggleFavorite(listing.id);
                     }}
-                    className="absolute top-2.5 right-2.5 p-2 bg-white/80 hover:bg-white text-[#646B76] rounded-full shadow-xs backdrop-blur-xs transition-colors cursor-pointer"
+                    className="absolute top-2.5 right-2.5 p-2 bg-white/80 hover:bg-white text-[#5A6578] hover:text-[#14243A] rounded-full shadow-xs backdrop-blur-xs transition-colors cursor-pointer"
                     aria-label="Save to favorites"
                   >
                     <Heart className="w-3.5 h-3.5 fill-current" />
                   </button>
                 </div>
                 <div className="p-4 space-y-2">
-                  <h3 className="text-xs sm:text-sm font-semibold text-[#17191F] truncate group-hover:text-[#4057D6] transition-colors">
+                  <h3 className="text-xs sm:text-sm font-semibold text-[#14243A] truncate group-hover:text-[#283548] transition-colors">
                     {listing.title}
                   </h3>
-                  <div className="pt-2 border-t border-[#F3F4F6] flex items-center justify-between text-xs">
-                    <span className="font-mono font-bold text-[#17191F] tabular-nums">
+                  <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between text-xs">
+                    <span className="font-mono font-bold text-[#14243A] tabular-nums">
                       {formatPrice(listing.price, listing.currency)}
                     </span>
-                    <span className="text-[11px] text-[#646B76]">{listing.sellerCountry}</span>
+                    <span className="text-[11px] text-[#5A6578]">{listing.sellerCountry}</span>
                   </div>
                 </div>
               </div>
@@ -148,7 +148,7 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
                   Featured Independent Workshops
                 </span>
               </div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#17191F] tracking-tight">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#14243A] tracking-tight">
                 Curated Artisan Storefronts
               </h2>
             </div>
@@ -156,10 +156,10 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
               <button
                 type="button"
                 onClick={onOpenStoreWizard}
-                className="text-xs text-[#4057D6] hover:underline font-medium flex items-center gap-1 cursor-pointer"
+                className="text-xs text-[#14243A] hover:text-[#8E6D38] font-medium flex items-center gap-1 cursor-pointer transition-colors"
               >
                 <span>Launch Your Storefront</span>
-                <ArrowRight className="w-3 h-3" />
+                <ArrowRight className="w-3 h-3 text-[#C5A572]" />
               </button>
             )}
           </div>
@@ -169,23 +169,23 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
               <div
                 key={s.id}
                 onClick={() => onViewStore(s)}
-                className="group bg-white rounded-3xl border border-[#E5E7EB] overflow-hidden hover:border-[#17191F] transition-all cursor-pointer shadow-2xs hover:shadow-xs flex flex-col justify-between"
+                className="group bg-white rounded-3xl border border-[#E2DFD8] overflow-hidden hover:border-[#14243A] transition-all cursor-pointer shadow-2xs hover:shadow-xs flex flex-col justify-between"
               >
-                {/* Store Mini Banner */}
-                <div className="h-28 w-full bg-linear-to-r from-[#17191F] to-[#2A303C] relative overflow-hidden">
+                {/* Store Mini Banner in Midnight Navy and Slate */}
+                <div className="h-28 w-full bg-linear-to-r from-[#14243A] to-[#283548] relative overflow-hidden">
                   {s.bannerUrl ? (
                     <img src={s.bannerUrl} alt="" className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white/30 text-xs font-mono">
+                    <div className="w-full h-full flex items-center justify-center text-white/40 text-xs font-mono">
                       Independent Workshop
                     </div>
                   )}
                   {/* Logo overlay */}
-                  <div className="absolute -bottom-5 left-4 w-12 h-12 rounded-xl bg-white p-1 border border-[#E5E7EB] shadow-xs">
+                  <div className="absolute -bottom-5 left-4 w-12 h-12 rounded-xl bg-white p-1 border border-[#E2DFD8] shadow-xs">
                     {s.logoUrl ? (
                       <img src={s.logoUrl} alt="" className="w-full h-full object-cover rounded-lg" />
                     ) : (
-                      <div className="w-full h-full bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center font-bold text-sm rounded-lg">
+                      <div className="w-full h-full bg-[#F7F3EB] text-[#14243A] flex items-center justify-center font-bold text-sm rounded-lg border border-[#E8DAC2]">
                         {s.storeName.charAt(0)}
                       </div>
                     )}
@@ -194,24 +194,24 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
 
                 <div className="p-4 sm:p-5 pt-8 space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-sm font-bold text-[#17191F] group-hover:text-[#4057D6] transition-colors truncate">
+                    <h3 className="text-sm font-bold text-[#14243A] group-hover:text-[#283548] transition-colors truncate">
                       {s.storeName}
                     </h3>
                     <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0">
                       Verified
                     </span>
                   </div>
-                  <p className="text-xs text-[#646B76] line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-[#5A6578] line-clamp-2 leading-relaxed">
                     {s.tagline || s.description || 'Independent creator on NOVORA.'}
                   </p>
-                  <div className="pt-2 border-t border-[#F3F4F6] flex items-center justify-between text-xs text-[#9CA3AF]">
+                  <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between text-xs text-[#8A94A6]">
                     <span className="flex items-center gap-1 truncate max-w-[150px]">
                       <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
                       <span className="truncate">{s.city ? `${s.city}, ` : ''}{s.country}</span>
                     </span>
-                    <span className="text-[#4057D6] font-medium flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform shrink-0">
+                    <span className="text-[#14243A] group-hover:text-[#8E6D38] font-medium flex items-center gap-0.5 group-hover:translate-x-0.5 transition-all shrink-0">
                       <span>Visit Store</span>
-                      <ArrowRight className="w-3 h-3" />
+                      <ArrowRight className="w-3 h-3 text-[#C5A572]" />
                     </span>
                   </div>
                 </div>
@@ -227,12 +227,12 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-[#4057D6]" />
-                <span className="text-[11px] font-mono text-[#4057D6] font-semibold uppercase tracking-wider">
+                <Globe className="w-4 h-4 text-[#C5A572]" />
+                <span className="text-[11px] font-mono text-[#8E6D38] font-semibold uppercase tracking-wider">
                   Origin Diversity
                 </span>
               </div>
-              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#17191F] tracking-tight">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-[#14243A] tracking-tight">
                 Global Finds & Cross-Border Craft
               </h2>
             </div>
@@ -243,16 +243,16 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
               <div
                 key={listing.id}
                 onClick={() => onSelectListing(listing)}
-                className="group bg-white rounded-2xl border border-[#E5E7EB] overflow-hidden hover:border-[#17191F] transition-all cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 hover:shadow-xs"
+                className="group bg-white rounded-2xl border border-[#E2DFD8] overflow-hidden hover:border-[#14243A] transition-all cursor-pointer flex flex-col justify-between hover:-translate-y-0.5 hover:shadow-xs"
               >
-                <div className="aspect-4/3 w-full bg-[#F3F4F6] relative overflow-hidden">
+                <div className="aspect-4/3 w-full bg-[#EFECE5] relative overflow-hidden">
                   {listing.images && listing.images[0] ? (
                     <img src={listing.images[0]} alt="" className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300" />
                   ) : (
-                    <div className="w-full h-full bg-[#E5E7EB]" />
+                    <div className="w-full h-full bg-[#EFECE5]" />
                   )}
-                  <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 bg-black/70 backdrop-blur-xs text-white text-[10px] font-medium rounded-md flex items-center gap-1 shadow-xs">
-                    <MapPin className="w-2.5 h-2.5 text-rose-400" />
+                  <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 bg-[#14243A]/85 backdrop-blur-xs text-white text-[10px] font-medium rounded-md flex items-center gap-1 shadow-xs">
+                    <MapPin className="w-2.5 h-2.5 text-[#C5A572]" />
                     <span>{listing.sellerCountry}</span>
                   </span>
                   <button
@@ -261,21 +261,21 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
                       e.stopPropagation();
                       onToggleFavorite(listing.id);
                     }}
-                    className="absolute top-2.5 right-2.5 p-2 rounded-full shadow-xs backdrop-blur-xs transition-colors cursor-pointer bg-white/80 hover:bg-white text-[#646B76]"
+                    className="absolute top-2.5 right-2.5 p-2 rounded-full shadow-xs backdrop-blur-xs transition-colors cursor-pointer bg-white/80 hover:bg-white text-[#5A6578] hover:text-[#14243A]"
                     aria-label="Save to favorites"
                   >
                     <Heart className="w-3.5 h-3.5 fill-current" />
                   </button>
                 </div>
                 <div className="p-4 space-y-2">
-                  <h3 className="text-xs sm:text-sm font-semibold text-[#17191F] truncate group-hover:text-[#4057D6] transition-colors">
+                  <h3 className="text-xs sm:text-sm font-semibold text-[#14243A] truncate group-hover:text-[#283548] transition-colors">
                     {listing.title}
                   </h3>
-                  <div className="pt-2 border-t border-[#F3F4F6] flex items-center justify-between text-xs">
-                    <span className="font-mono font-bold text-[#17191F] tabular-nums">
+                  <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between text-xs">
+                    <span className="font-mono font-bold text-[#14243A] tabular-nums">
                       {formatPrice(listing.price, listing.currency)}
                     </span>
-                    <span className="text-[11px] text-[#646B76]">{listing.sellerName}</span>
+                    <span className="text-[11px] text-[#5A6578]">{listing.sellerName}</span>
                   </div>
                 </div>
               </div>

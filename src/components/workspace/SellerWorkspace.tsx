@@ -24,7 +24,9 @@ import {
   AlertCircle,
   Tag,
   DollarSign,
-  Edit3
+  Edit3,
+  Loader2,
+  CheckCircle
 } from 'lucide-react';
 import { Listing, UserProfile, Storefront, BuyerRequest, RequestOffer, Conversation } from '../../types';
 import { formatPrice } from '../../data/countries';
@@ -82,18 +84,20 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
   const [sellerTagline, setSellerTagline] = useState(currentUser?.sellerTagline || '');
   const [sellerBio, setSellerBio] = useState(currentUser?.bio || '');
   const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
+  const [settingsSuccess, setSettingsSuccess] = useState<string | null>(null);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
 
   if (!currentUser) {
     return (
-      <div className="text-center py-20 bg-white rounded-3xl border border-[#E5E7EB] p-8 space-y-4 max-w-md mx-auto shadow-xs">
-        <Store className="w-10 h-10 text-[#4057D6] mx-auto" />
-        <h3 className="text-base font-semibold text-[#17191F]">Seller Studio Access</h3>
-        <p className="text-xs text-[#646B76] leading-relaxed">
+      <div className="text-center py-20 bg-white rounded-3xl border border-[#E2DFD8] p-8 space-y-4 max-w-md mx-auto shadow-xs">
+        <Store className="w-10 h-10 text-[#C5A572] mx-auto" />
+        <h3 className="text-base font-semibold text-[#14243A]">Seller Studio Access</h3>
+        <p className="text-xs text-[#5A6578] leading-relaxed">
           Please sign in or create an artisan seller account to manage your listings, storefront, and buyer proposals.
         </p>
         <button
           onClick={() => onOpenAuth('signin')}
-          className="px-5 py-2.5 bg-[#17191F] text-white text-xs font-medium rounded-xl hover:bg-[#27272A] transition-colors cursor-pointer shadow-xs"
+          className="px-5 py-2.5 bg-[#14243A] text-white text-xs font-medium rounded-xl hover:bg-[#0E1B2D] transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
         >
           Sign In / Register
         </button>
@@ -147,15 +151,18 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUpdatingSettings(true);
+    setSettingsSuccess(null);
+    setSettingsError(null);
     try {
       await onUpdateProfile({
         sellerTagline: sellerTagline.trim(),
         bio: sellerBio.trim(),
         isSeller: true
       });
-      alert('Seller settings updated successfully!');
+      setSettingsSuccess('Seller profile settings updated successfully.');
+      setTimeout(() => setSettingsSuccess(null), 3500);
     } catch {
-      alert('Failed to update settings.');
+      setSettingsError('Failed to update seller settings. Please try again.');
     } finally {
       setIsUpdatingSettings(false);
     }
@@ -177,14 +184,14 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
       {/* Mobile / Tablet Horizontal Navigation (< 1024px) */}
       <div className="lg:hidden w-full space-y-3">
         {/* Mobile Header Bar */}
-        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-3.5 flex items-center justify-between shadow-2xs gap-3">
+        <div className="bg-white rounded-2xl border border-[#E2DFD8] p-3.5 flex items-center justify-between shadow-2xs gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[#F7F3EB] text-[#8E6D38] border border-[#E8DAC2] flex items-center justify-center font-bold text-xs shrink-0">
               {currentUser.name.charAt(0)}
             </div>
             <div className="min-w-0">
-              <h3 className="text-xs font-semibold text-[#17191F] truncate">{currentUser.name}</h3>
-              <p className="text-[10px] text-[#646B76] truncate">Seller Control Center</p>
+              <h3 className="text-xs font-semibold text-[#14243A] truncate">{currentUser.name}</h3>
+              <p className="text-[10px] text-[#5A6578] truncate">Seller Control Center</p>
             </div>
           </div>
 
@@ -192,18 +199,18 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
             <button
               type="button"
               onClick={onOpenCreateListing}
-              className="px-3 py-1.5 bg-[#4057D6] text-white rounded-lg text-xs font-medium flex items-center gap-1 cursor-pointer shadow-xs"
+              className="px-3 py-1.5 bg-[#14243A] text-white rounded-lg text-xs font-medium flex items-center gap-1 cursor-pointer shadow-xs active:scale-[0.98]"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-3.5 h-3.5 text-[#C5A572]" />
               <span>Listing</span>
             </button>
             {store && (
               <button
                 type="button"
                 onClick={() => onViewStore(store)}
-                className="px-2.5 py-1.5 bg-[#FAFAF8] border border-[#E5E7EB] text-[#17191F] rounded-lg text-xs font-medium flex items-center gap-1 cursor-pointer"
+                className="px-2.5 py-1.5 bg-[#F7F5F0] border border-[#E2DFD8] text-[#14243A] rounded-lg text-xs font-medium flex items-center gap-1 cursor-pointer"
               >
-                <Store className="w-3.5 h-3.5 text-[#4057D6]" />
+                <Store className="w-3.5 h-3.5 text-[#C5A572]" />
                 <span className="hidden sm:inline">Store</span>
               </button>
             )}
@@ -222,14 +229,14 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                 onClick={() => setActiveTab(item.id as any)}
                 className={`px-3 py-2 rounded-xl font-medium transition-all whitespace-nowrap flex items-center gap-1.5 cursor-pointer shrink-0 ${
                   isActive
-                    ? 'bg-[#17191F] text-white shadow-xs'
-                    : 'bg-white border border-[#E5E7EB] text-[#4B5563] hover:text-[#17191F]'
+                    ? 'bg-[#14243A] text-white shadow-xs'
+                    : 'bg-white border border-[#E2DFD8] text-[#5A6578] hover:text-[#14243A]'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : item.highlight ? 'text-[#4057D6]' : 'text-[#646B76]'}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#C5A572]' : item.highlight ? 'text-[#8E6D38]' : 'text-[#5A6578]'}`} />
                 <span>{item.label}</span>
                 {item.highlight && !isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#4057D6]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#C5A572]" />
                 )}
               </button>
             );
@@ -238,15 +245,15 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
       </div>
 
       {/* Desktop Sidebar Navigation (>= 1024px) */}
-      <aside className="hidden lg:block w-64 bg-white rounded-3xl border border-[#E5E7EB] p-4 shadow-xs shrink-0 space-y-6">
+      <aside className="hidden lg:block w-64 bg-white rounded-3xl border border-[#E2DFD8] p-4 shadow-xs shrink-0 space-y-6">
         <div>
           <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-10 h-10 rounded-xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center font-bold text-sm shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#F7F3EB] text-[#8E6D38] border border-[#E8DAC2] flex items-center justify-center font-bold text-sm shrink-0">
               {currentUser.name.charAt(0)}
             </div>
             <div className="min-w-0">
-              <h3 className="text-xs font-semibold text-[#17191F] truncate">{currentUser.name}</h3>
-              <p className="text-[11px] text-[#646B76] truncate">Seller Control Center</p>
+              <h3 className="text-xs font-semibold text-[#14243A] truncate">{currentUser.name}</h3>
+              <p className="text-[11px] text-[#5A6578] truncate">Seller Control Center</p>
             </div>
           </div>
         </div>
@@ -262,29 +269,29 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                 onClick={() => setActiveTab(item.id as any)}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-[#17191F] text-white shadow-2xs'
-                    : 'text-[#4B5563] hover:text-[#17191F] hover:bg-[#F3F4F6]'
+                    ? 'bg-[#14243A] text-white shadow-2xs'
+                    : 'text-[#5A6578] hover:text-[#14243A] hover:bg-[#F7F5F0]'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : item.highlight ? 'text-[#4057D6]' : 'text-[#646B76]'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-[#C5A572]' : item.highlight ? 'text-[#8E6D38]' : 'text-[#5A6578]'}`} />
                   <span>{item.label}</span>
                 </div>
                 {item.highlight && !isActive && (
-                  <span className="w-2 h-2 rounded-full bg-[#4057D6]" />
+                  <span className="w-2 h-2 rounded-full bg-[#C5A572]" />
                 )}
               </button>
             );
           })}
         </nav>
 
-        <div className="pt-4 border-t border-[#E5E7EB] space-y-2">
+        <div className="pt-4 border-t border-[#E2DFD8] space-y-2">
           <button
             type="button"
             onClick={onOpenCreateListing}
-            className="w-full py-2.5 px-3 bg-[#4057D6] hover:bg-[#3446B8] text-white rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
+            className="w-full py-2.5 px-3 bg-[#14243A] hover:bg-[#0E1B2D] text-white rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 text-[#C5A572]" />
             <span>Create New Listing</span>
           </button>
 
@@ -292,9 +299,9 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
             <button
               type="button"
               onClick={() => onViewStore(store)}
-              className="w-full py-2 px-3 bg-white border border-[#E5E7EB] hover:bg-[#F9FAFB] text-[#17191F] rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+              className="w-full py-2 px-3 bg-white border border-[#E2DFD8] hover:bg-[#F7F5F0] text-[#14243A] rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
             >
-              <ExternalLink className="w-3.5 h-3.5 text-[#4057D6]" />
+              <ExternalLink className="w-3.5 h-3.5 text-[#C5A572]" />
               <span>View Live Store</span>
             </button>
           )}
@@ -308,15 +315,15 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Header Banner */}
-            <div className="bg-white rounded-3xl border border-[#E5E7EB] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
+            <div className="bg-white rounded-3xl border border-[#E2DFD8] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
               <div>
-                <span className="text-xs font-semibold text-[#4057D6] uppercase tracking-wider block mb-1">
+                <span className="text-xs font-semibold text-[#8E6D38] uppercase tracking-wider block mb-1">
                   Artisan Workspace & Hub
                 </span>
-                <h2 className="text-2xl font-bold text-[#17191F] tracking-tight">
+                <h2 className="text-2xl font-bold text-[#14243A] tracking-tight">
                   Welcome, {currentUser.name}
                 </h2>
-                <p className="text-xs text-[#646B76] mt-1 max-w-lg leading-relaxed">
+                <p className="text-xs text-[#5A6578] mt-1 max-w-lg leading-relaxed">
                   Manage inventory, quote procurement leads, and customize your dedicated storefront without platform listing fees.
                 </p>
               </div>
@@ -324,25 +331,25 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
               <div className="flex items-center gap-2.5">
                 <button
                   onClick={onOpenCreateListing}
-                  className="px-4 py-2.5 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs font-medium flex items-center gap-2 shadow-xs transition-colors cursor-pointer active:scale-[0.98]"
+                  className="px-4 py-2.5 bg-[#14243A] hover:bg-[#0E1B2D] text-white rounded-xl text-xs font-medium flex items-center gap-2 shadow-xs transition-colors cursor-pointer active:scale-[0.98]"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-4 h-4 text-[#C5A572]" />
                   <span>Add Listing</span>
                 </button>
                 {!store ? (
                   <button
                     onClick={onOpenStoreWizard}
-                    className="px-4 py-2.5 bg-[#4057D6] hover:bg-[#3446B8] text-white rounded-xl text-xs font-medium flex items-center gap-2 shadow-xs transition-colors cursor-pointer active:scale-[0.98]"
+                    className="px-4 py-2.5 bg-[#14243A] hover:bg-[#0E1B2D] text-white rounded-xl text-xs font-medium flex items-center gap-2 shadow-xs transition-colors cursor-pointer active:scale-[0.98] border border-[#C5A572]/40"
                   >
-                    <Store className="w-4 h-4" />
+                    <Store className="w-4 h-4 text-[#C5A572]" />
                     <span>Set Up Storefront</span>
                   </button>
                 ) : (
                   <button
                     onClick={() => onViewStore(store)}
-                    className="px-4 py-2.5 bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] text-[#17191F] rounded-xl text-xs font-medium flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+                    className="px-4 py-2.5 bg-white border border-[#E2DFD8] hover:bg-[#F7F5F0] text-[#14243A] rounded-xl text-xs font-medium flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
                   >
-                    <Store className="w-4 h-4 text-[#4057D6]" />
+                    <Store className="w-4 h-4 text-[#C5A572]" />
                     <span>Storefront</span>
                   </button>
                 )}
@@ -350,8 +357,8 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
             </div>
 
             {/* Action Center (Real prompts only) */}
-            <div className="p-6 bg-[#FAFAF8] rounded-3xl border border-[#E5E7EB] space-y-4">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-[#646B76] font-semibold block">
+            <div className="p-6 bg-[#F7F5F0] rounded-3xl border border-[#E2DFD8] space-y-4">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-[#5A6578] font-semibold block">
                 Seller Action Center
               </span>
 
@@ -359,33 +366,33 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                 {!store && (
                   <div
                     onClick={onOpenStoreWizard}
-                    className="p-4 bg-white rounded-2xl border border-[#C7D2FE] flex items-center justify-between gap-3 cursor-pointer hover:shadow-md transition-all"
+                    className="p-4 bg-white rounded-2xl border border-[#E8DAC2] flex items-center justify-between gap-3 cursor-pointer hover:shadow-md transition-all hover:border-[#C5A572]"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center shrink-0">
-                        <Store className="w-4 h-4" />
+                      <div className="w-9 h-9 rounded-xl bg-[#F7F3EB] text-[#8E6D38] border border-[#E8DAC2] flex items-center justify-center shrink-0">
+                        <Store className="w-4 h-4 text-[#C5A572]" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-semibold text-[#17191F]">Launch Your Branded Store</h4>
-                        <p className="text-[11px] text-[#646B76]">Get a unique web slug and workshop page.</p>
+                        <h4 className="text-xs font-semibold text-[#14243A]">Launch Your Branded Store</h4>
+                        <p className="text-[11px] text-[#5A6578]">Get a unique web slug and workshop page.</p>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-[#4057D6] shrink-0" />
+                    <ArrowRight className="w-4 h-4 text-[#8E6D38] shrink-0" />
                   </div>
                 )}
 
                 {sellerListings.length === 0 && (
                   <div
                     onClick={onOpenCreateListing}
-                    className="p-4 bg-white rounded-2xl border border-[#E5E7EB] flex items-center justify-between gap-3 cursor-pointer hover:shadow-md transition-all"
+                    className="p-4 bg-white rounded-2xl border border-[#E2DFD8] flex items-center justify-between gap-3 cursor-pointer hover:shadow-md transition-all hover:border-[#14243A]"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
                         <Plus className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-semibold text-[#17191F]">Publish First Listing</h4>
-                        <p className="text-[11px] text-[#646B76]">Add a physical or digital product to catalog.</p>
+                        <h4 className="text-xs font-semibold text-[#14243A]">Publish First Listing</h4>
+                        <p className="text-[11px] text-[#5A6578]">Add a physical or digital product to catalog.</p>
                       </div>
                     </div>
                     <ArrowRight className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -395,17 +402,17 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                 {openBuyerRequests.length > 0 && (
                   <div
                     onClick={() => setActiveTab('requests')}
-                    className="p-4 bg-white rounded-2xl border border-[#E5E7EB] flex items-center justify-between gap-3 cursor-pointer hover:shadow-md transition-all"
+                    className="p-4 bg-white rounded-2xl border border-[#E2DFD8] flex items-center justify-between gap-3 cursor-pointer hover:shadow-md transition-all hover:border-[#14243A]"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
                         <Tag className="w-4 h-4" />
                       </div>
                       <div>
-                        <h4 className="text-xs font-semibold text-[#17191F]">
+                        <h4 className="text-xs font-semibold text-[#14243A]">
                           {openBuyerRequests.length} Buyer Requests Need Quotes
                         </h4>
-                        <p className="text-[11px] text-[#646B76]">Quote on direct buyer procurement orders.</p>
+                        <p className="text-[11px] text-[#5A6578]">Quote on direct buyer procurement orders.</p>
                       </div>
                     </div>
                     <ArrowRight className="w-4 h-4 text-amber-600 shrink-0" />
@@ -414,64 +421,64 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
 
                 <div
                   onClick={() => onOpenMessages()}
-                  className="p-4 bg-white rounded-2xl border border-[#E5E7EB] flex items-center justify-between gap-3 cursor-pointer hover:shadow-md transition-all"
+                  className="p-4 bg-white rounded-2xl border border-[#E2DFD8] flex items-center justify-between gap-3 cursor-pointer hover:shadow-md transition-all hover:border-[#14243A]"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-[#F3F4F6] text-[#4B5563] flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-[#F7F5F0] text-[#5A6578] flex items-center justify-center shrink-0">
                       <MessageSquare className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-semibold text-[#17191F]">Buyer Inquiries & Chat</h4>
-                      <p className="text-[11px] text-[#646B76]">{conversations.length} active discussion threads.</p>
+                      <h4 className="text-xs font-semibold text-[#14243A]">Buyer Inquiries & Chat</h4>
+                      <p className="text-[11px] text-[#5A6578]">{conversations.length} active discussion threads.</p>
                     </div>
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#646B76] shrink-0" />
+                  <ArrowRight className="w-4 h-4 text-[#5A6578] shrink-0" />
                 </div>
               </div>
             </div>
 
             {/* Authentic Activity Indicators */}
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-              <div className="p-5 bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs">
-                <span className="text-[10px] font-semibold text-[#646B76] uppercase tracking-wider block">
+              <div className="p-5 bg-white rounded-2xl border border-[#E2DFD8] shadow-2xs">
+                <span className="text-[10px] font-semibold text-[#5A6578] uppercase tracking-wider block">
                   Active Listings
                 </span>
-                <div className="text-2xl font-bold font-mono text-[#17191F] mt-1.5">{activeCount}</div>
-                <p className="text-[11px] text-[#646B76] mt-0.5">{pausedCount} paused</p>
+                <div className="text-2xl font-bold font-mono text-[#14243A] mt-1.5">{activeCount}</div>
+                <p className="text-[11px] text-[#5A6578] mt-0.5">{pausedCount} paused</p>
               </div>
 
-              <div className="p-5 bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs">
-                <span className="text-[10px] font-semibold text-[#646B76] uppercase tracking-wider block">
+              <div className="p-5 bg-white rounded-2xl border border-[#E2DFD8] shadow-2xs">
+                <span className="text-[10px] font-semibold text-[#5A6578] uppercase tracking-wider block">
                   Real Listing Views
                 </span>
-                <div className="text-2xl font-bold font-mono text-[#17191F] mt-1.5">{totalViews}</div>
-                <p className="text-[11px] text-[#646B76] mt-0.5">Live visitor metrics</p>
+                <div className="text-2xl font-bold font-mono text-[#14243A] mt-1.5">{totalViews}</div>
+                <p className="text-[11px] text-[#5A6578] mt-0.5">Live visitor metrics</p>
               </div>
 
-              <div className="p-5 bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs">
-                <span className="text-[10px] font-semibold text-[#646B76] uppercase tracking-wider block">
+              <div className="p-5 bg-white rounded-2xl border border-[#E2DFD8] shadow-2xs">
+                <span className="text-[10px] font-semibold text-[#5A6578] uppercase tracking-wider block">
                   Buyer Wishlists
                 </span>
-                <div className="text-2xl font-bold font-mono text-[#17191F] mt-1.5">{totalFavorites}</div>
-                <p className="text-[11px] text-[#646B76] mt-0.5">Items saved by buyers</p>
+                <div className="text-2xl font-bold font-mono text-[#14243A] mt-1.5">{totalFavorites}</div>
+                <p className="text-[11px] text-[#5A6578] mt-0.5">Items saved by buyers</p>
               </div>
 
-              <div className="p-5 bg-white rounded-2xl border border-[#E5E7EB] shadow-2xs">
-                <span className="text-[10px] font-semibold text-[#646B76] uppercase tracking-wider block">
+              <div className="p-5 bg-white rounded-2xl border border-[#E2DFD8] shadow-2xs">
+                <span className="text-[10px] font-semibold text-[#5A6578] uppercase tracking-wider block">
                   Quotes Submitted
                 </span>
-                <div className="text-2xl font-bold font-mono text-[#17191F] mt-1.5">{sellerOffers.length}</div>
-                <p className="text-[11px] text-[#646B76] mt-0.5">To buyer requests</p>
+                <div className="text-2xl font-bold font-mono text-[#14243A] mt-1.5">{sellerOffers.length}</div>
+                <p className="text-[11px] text-[#5A6578] mt-0.5">To buyer requests</p>
               </div>
             </div>
 
             {/* Recent Inventory Preview */}
-            <div className="bg-white rounded-3xl border border-[#E5E7EB] p-6 shadow-xs space-y-4">
+            <div className="bg-white rounded-3xl border border-[#E2DFD8] p-6 shadow-xs space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-[#17191F]">Recent Published Items</h3>
+                <h3 className="text-sm font-semibold text-[#14243A]">Recent Published Items</h3>
                 <button
                   onClick={() => setActiveTab('listings')}
-                  className="text-xs text-[#4057D6] hover:underline font-medium cursor-pointer"
+                  className="text-xs text-[#8E6D38] hover:underline font-medium cursor-pointer"
                 >
                   Manage All ({sellerListings.length}) →
                 </button>
@@ -483,16 +490,16 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                     <div
                       key={l.id}
                       onClick={() => onSelectListing(l)}
-                      className="p-3 bg-[#F9FAFB] rounded-2xl border border-[#E5E7EB] flex items-center gap-3 cursor-pointer hover:border-[#17191F] transition-all"
+                      className="p-3 bg-[#F7F5F0] rounded-2xl border border-[#E2DFD8] flex items-center gap-3 cursor-pointer hover:border-[#14243A] transition-all"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-[#E5E7EB] overflow-hidden shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-[#E2DFD8] overflow-hidden shrink-0">
                         {l.images && l.images[0] && (
                           <img src={l.images[0]} alt="" className="w-full h-full object-cover" />
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-[#17191F] truncate">{l.title}</p>
-                        <p className="text-[11px] font-mono text-[#4057D6] font-medium">{formatPrice(l.price, l.currency)}</p>
+                        <p className="text-xs font-semibold text-[#14243A] truncate">{l.title}</p>
+                        <p className="text-[11px] font-mono text-[#8E6D38] font-medium">{formatPrice(l.price, l.currency)}</p>
                       </div>
                     </div>
                   ))}
@@ -514,15 +521,15 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
         {activeTab === 'listings' && (
           <div className="space-y-6">
             {/* Filter Bar */}
-            <div className="p-4 bg-white rounded-3xl border border-[#E5E7EB] flex flex-col sm:flex-row gap-3 items-center justify-between shadow-2xs">
+            <div className="p-4 bg-white rounded-3xl border border-[#E2DFD8] flex flex-col sm:flex-row gap-3 items-center justify-between shadow-2xs">
               <div className="relative w-full sm:w-64">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-[#9CA3AF]" />
+                <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-[#5A6578]" />
                 <input
                   type="text"
                   value={listingSearch}
                   onChange={(e) => setListingSearch(e.target.value)}
                   placeholder="Search listings..."
-                  className="w-full text-xs pl-8 pr-3 py-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                  className="w-full text-xs pl-8 pr-3 py-2 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
                 />
               </div>
 
@@ -531,7 +538,7 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                 <select
                   value={listingStatusFilter}
                   onChange={(e) => setListingStatusFilter(e.target.value as any)}
-                  className="p-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-xs cursor-pointer focus:outline-hidden"
+                  className="p-2 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl text-xs cursor-pointer focus:outline-hidden"
                 >
                   <option value="all">All Statuses</option>
                   <option value="active">Active Only</option>
@@ -543,7 +550,7 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                 <select
                   value={listingCategoryFilter}
                   onChange={(e) => setListingCategoryFilter(e.target.value)}
-                  className="p-2 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-xs cursor-pointer focus:outline-hidden"
+                  className="p-2 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl text-xs cursor-pointer focus:outline-hidden"
                 >
                   <option value="all">All Categories</option>
                   {CATEGORIES.map(c => (
@@ -553,9 +560,9 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
 
                 <button
                   onClick={onOpenCreateListing}
-                  className="px-3.5 py-2 bg-[#17191F] text-white rounded-xl font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs ml-auto sm:ml-0"
+                  className="px-3.5 py-2 bg-[#14243A] text-white rounded-xl font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs ml-auto sm:ml-0 hover:bg-[#0E1B2D] active:scale-[0.98]"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-3.5 h-3.5 text-[#C5A572]" />
                   <span>New Listing</span>
                 </button>
               </div>
@@ -563,19 +570,19 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
 
             {/* Listings Table */}
             {filteredListings.length > 0 ? (
-              <div className="bg-white rounded-3xl border border-[#E5E7EB] overflow-hidden shadow-xs">
-                <div className="divide-y divide-[#E5E7EB]">
+              <div className="bg-white rounded-3xl border border-[#E2DFD8] overflow-hidden shadow-xs">
+                <div className="divide-y divide-[#E2DFD8]">
                   {filteredListings.map((listing) => (
                     <div
                       key={listing.id}
-                      className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-[#F9FAFB] transition-colors"
+                      className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-[#F7F5F0] transition-colors"
                     >
                       <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-16 h-16 rounded-xl bg-[#F3F4F6] overflow-hidden shrink-0 border border-[#E5E7EB]">
+                        <div className="w-16 h-16 rounded-xl bg-[#F7F5F0] overflow-hidden shrink-0 border border-[#E2DFD8]">
                           {listing.images && listing.images[0] ? (
                             <img src={listing.images[0]} alt="" className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full bg-[#E5E7EB]" />
+                            <div className="w-full h-full bg-[#E2DFD8]" />
                           )}
                         </div>
 
@@ -588,24 +595,24 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                             }`}>
                               {listing.status === 'active' ? 'Active' : 'Paused'}
                             </span>
-                            <span className="text-[11px] text-[#646B76] capitalize">
+                            <span className="text-[11px] text-[#5A6578] capitalize">
                               {listing.categoryId}
                             </span>
                           </div>
 
                           <h4 
                             onClick={() => onSelectListing(listing)}
-                            className="text-xs sm:text-sm font-semibold text-[#17191F] truncate hover:text-[#4057D6] cursor-pointer"
+                            className="text-xs sm:text-sm font-semibold text-[#14243A] truncate hover:text-[#8E6D38] cursor-pointer"
                           >
                             {listing.title}
                           </h4>
 
-                          <div className="flex items-center gap-4 text-xs font-mono text-[#646B76]">
-                            <span className="font-semibold text-[#17191F]">
+                          <div className="flex items-center gap-4 text-xs font-mono text-[#5A6578]">
+                            <span className="font-semibold text-[#14243A]">
                               {formatPrice(listing.price, listing.currency)}
                             </span>
                             <span className="flex items-center gap-1 text-[11px]">
-                              <Eye className="w-3 h-3 text-[#9CA3AF]" />
+                              <Eye className="w-3 h-3 text-[#5A6578]" />
                               <span>{listing.viewsCount || 0}</span>
                             </span>
                             <span className="flex items-center gap-1 text-[11px]">
@@ -622,10 +629,10 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                           <button
                             type="button"
                             onClick={() => onEditListing(listing)}
-                            className="px-3 py-1.5 rounded-lg border border-[#E5E7EB] hover:bg-[#F3F4F6] text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer text-[#17191F]"
+                            className="px-3 py-1.5 rounded-lg border border-[#E2DFD8] hover:bg-[#F7F5F0] text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer text-[#14243A]"
                             title="Edit Listing"
                           >
-                            <Edit3 className="w-3 h-3 text-[#4057D6]" />
+                            <Edit3 className="w-3 h-3 text-[#C5A572]" />
                             <span>Edit</span>
                           </button>
                         )}
@@ -633,7 +640,7 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                         <button
                           type="button"
                           onClick={() => onToggleStatus(listing.id)}
-                          className="px-3 py-1.5 rounded-lg border border-[#E5E7EB] hover:bg-[#F3F4F6] text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg border border-[#E2DFD8] hover:bg-[#F7F5F0] text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer text-[#5A6578]"
                         >
                           {listing.status === 'active' ? (
                             <>
@@ -651,16 +658,16 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                         <button
                           type="button"
                           onClick={() => onSelectListing(listing)}
-                          className="px-3 py-1.5 rounded-lg border border-[#E5E7EB] hover:bg-[#F3F4F6] text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg border border-[#E2DFD8] hover:bg-[#F7F5F0] text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer text-[#5A6578]"
                         >
                           <span>Preview</span>
-                          <ExternalLink className="w-3 h-3 text-[#646B76]" />
+                          <ExternalLink className="w-3 h-3 text-[#5A6578]" />
                         </button>
 
                         <button
                           type="button"
                           onClick={() => onDeleteListing(listing.id)}
-                          className="p-1.5 text-[#9CA3AF] hover:text-[#EF4444] hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-[#5A6578] hover:text-[#EF4444] hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                           title="Delete Listing"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -688,9 +695,9 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
             {store ? (
               <div className="space-y-6">
                 {/* Store Hub Banner */}
-                <div className="bg-white rounded-3xl border border-[#E5E7EB] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
+                <div className="bg-white rounded-3xl border border-[#E2DFD8] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center font-bold text-xl border border-[#E5E7EB] overflow-hidden shrink-0 shadow-2xs">
+                    <div className="w-16 h-16 rounded-2xl bg-[#F7F3EB] text-[#8E6D38] border border-[#E8DAC2] flex items-center justify-center font-bold text-xl overflow-hidden shrink-0 shadow-2xs">
                       {store.logoUrl ? (
                         <img src={store.logoUrl} alt="" className="w-full h-full object-cover" />
                       ) : (
@@ -699,12 +706,12 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-xl font-bold text-[#17191F]">{store.storeName}</h2>
+                        <h2 className="text-xl font-bold text-[#14243A]">{store.storeName}</h2>
                         <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                           Active Store
                         </span>
                       </div>
-                      <p className="text-xs text-[#646B76] font-mono mt-0.5">novora.com/?store={store.storeSlug}</p>
+                      <p className="text-xs text-[#5A6578] font-mono mt-0.5">novora.com/?store={store.storeSlug}</p>
                     </div>
                   </div>
 
@@ -712,16 +719,16 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                     <button
                       type="button"
                       onClick={() => onViewStore(store)}
-                      className="px-4 py-2 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                      className="px-4 py-2 bg-[#14243A] hover:bg-[#0E1B2D] text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
                     >
-                      <ExternalLink className="w-3.5 h-3.5" />
+                      <ExternalLink className="w-3.5 h-3.5 text-[#C5A572]" />
                       <span>View Public Store</span>
                     </button>
 
                     <button
                       type="button"
                       onClick={handleCopyStoreLink}
-                      className="px-3.5 py-2 bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] text-[#17191F] rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                      className="px-3.5 py-2 bg-white border border-[#E2DFD8] hover:bg-[#F7F5F0] text-[#14243A] rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
                     >
                       {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                       <span>{copiedLink ? 'Copied' : 'Copy Link'}</span>
@@ -730,61 +737,61 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                     <button
                       type="button"
                       onClick={onOpenStoreWizard}
-                      className="px-3.5 py-2 bg-[#EEF2FF] text-[#4057D6] hover:bg-[#E0E7FF] rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                      className="px-3.5 py-2 bg-[#F7F3EB] text-[#8E6D38] hover:bg-[#EFE7D8] border border-[#E8DAC2] rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
-                      <SettingsIcon className="w-3.5 h-3.5" />
+                      <SettingsIcon className="w-3.5 h-3.5 text-[#C5A572]" />
                       <span>Edit Settings</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Completeness Card */}
-                <div className="p-6 bg-white rounded-3xl border border-[#E5E7EB] shadow-xs space-y-3">
+                <div className="p-6 bg-white rounded-3xl border border-[#E2DFD8] shadow-xs space-y-3">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-[#17191F]">Storefront Quality & Completeness</span>
-                    <span className="font-bold text-[#4057D6]">{store.completenessPercent || 80}%</span>
+                    <span className="font-semibold text-[#14243A]">Storefront Quality & Completeness</span>
+                    <span className="font-bold text-[#8E6D38]">{store.completenessPercent || 80}%</span>
                   </div>
-                  <div className="w-full h-2.5 bg-[#F3F4F6] rounded-full overflow-hidden">
+                  <div className="w-full h-2.5 bg-[#F7F5F0] rounded-full overflow-hidden border border-[#E2DFD8]/60">
                     <div 
-                      className="h-full bg-linear-to-r from-[#4057D6] to-emerald-500 rounded-full transition-all"
+                      className="h-full bg-linear-to-r from-[#14243A] via-[#C5A572] to-emerald-600 rounded-full transition-all"
                       style={{ width: `${store.completenessPercent || 80}%` }}
                     />
                   </div>
-                  <p className="text-[11px] text-[#646B76]">
+                  <p className="text-[11px] text-[#5A6578]">
                     Complete your custom categories, announcement banner, and workshop story to maximize buyer confidence.
                   </p>
                 </div>
 
                 {/* Storefront Sections Overview */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <div className="p-6 bg-white rounded-2xl border border-[#E5E7EB] space-y-2 shadow-2xs">
-                    <h4 className="text-xs font-semibold text-[#17191F]">Custom Collections</h4>
-                    <p className="text-xs text-[#646B76]">{store.categories?.length || 0} active store categories</p>
+                  <div className="p-6 bg-white rounded-2xl border border-[#E2DFD8] space-y-2 shadow-2xs">
+                    <h4 className="text-xs font-semibold text-[#14243A]">Custom Collections</h4>
+                    <p className="text-xs text-[#5A6578]">{store.categories?.length || 0} active store categories</p>
                     <button
                       onClick={onOpenStoreWizard}
-                      className="text-xs text-[#4057D6] hover:underline font-medium block pt-1 cursor-pointer"
+                      className="text-xs text-[#8E6D38] hover:underline font-medium block pt-1 cursor-pointer"
                     >
                       Edit collections →
                     </button>
                   </div>
 
-                  <div className="p-6 bg-white rounded-2xl border border-[#E5E7EB] space-y-2 shadow-2xs">
-                    <h4 className="text-xs font-semibold text-[#17191F]">Fulfillment Policies</h4>
-                    <p className="text-xs text-[#646B76]">Shipping, returns, and refund terms defined</p>
+                  <div className="p-6 bg-white rounded-2xl border border-[#E2DFD8] space-y-2 shadow-2xs">
+                    <h4 className="text-xs font-semibold text-[#14243A]">Fulfillment Policies</h4>
+                    <p className="text-xs text-[#5A6578]">Shipping, returns, and refund terms defined</p>
                     <button
                       onClick={onOpenStoreWizard}
-                      className="text-xs text-[#4057D6] hover:underline font-medium block pt-1 cursor-pointer"
+                      className="text-xs text-[#8E6D38] hover:underline font-medium block pt-1 cursor-pointer"
                     >
                       Update policies →
                     </button>
                   </div>
 
-                  <div className="p-6 bg-white rounded-2xl border border-[#E5E7EB] space-y-2 shadow-2xs">
-                    <h4 className="text-xs font-semibold text-[#17191F]">Store Announcement</h4>
-                    <p className="text-xs text-[#646B76] truncate">{store.announcement || 'No announcement banner set'}</p>
+                  <div className="p-6 bg-white rounded-2xl border border-[#E2DFD8] space-y-2 shadow-2xs">
+                    <h4 className="text-xs font-semibold text-[#14243A]">Store Announcement</h4>
+                    <p className="text-xs text-[#5A6578] truncate">{store.announcement || 'No announcement banner set'}</p>
                     <button
                       onClick={onOpenStoreWizard}
-                      className="text-xs text-[#4057D6] hover:underline font-medium block pt-1 cursor-pointer"
+                      className="text-xs text-[#8E6D38] hover:underline font-medium block pt-1 cursor-pointer"
                     >
                       Change banner →
                     </button>
@@ -792,18 +799,18 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="text-center py-16 px-6 bg-white rounded-3xl border border-[#E5E7EB] space-y-4 max-w-xl mx-auto shadow-xs">
-                <div className="w-14 h-14 rounded-2xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center mx-auto shadow-2xs">
+              <div className="text-center py-16 px-6 bg-white rounded-3xl border border-[#E2DFD8] space-y-4 max-w-xl mx-auto shadow-xs">
+                <div className="w-14 h-14 rounded-2xl bg-[#F7F3EB] text-[#C5A572] border border-[#E8DAC2] flex items-center justify-center mx-auto shadow-2xs">
                   <Store className="w-7 h-7" />
                 </div>
-                <h3 className="text-lg font-bold text-[#17191F]">You haven't set up your storefront yet</h3>
-                <p className="text-xs text-[#646B76] leading-relaxed">
+                <h3 className="text-lg font-bold text-[#14243A]">You haven't set up your storefront yet</h3>
+                <p className="text-xs text-[#5A6578] leading-relaxed">
                   Turn your seller profile into a branded independent storefront with custom categories, store policies, workshop bio, and a unique shareable web link.
                 </p>
                 <div className="pt-2">
                   <button
                     onClick={onOpenStoreWizard}
-                    className="px-6 py-2.5 bg-[#4057D6] hover:bg-[#3446B8] text-white rounded-xl text-xs font-medium transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
+                    className="px-6 py-2.5 bg-[#14243A] hover:bg-[#0E1B2D] text-white rounded-xl text-xs font-medium transition-colors cursor-pointer shadow-xs active:scale-[0.98] border border-[#C5A572]/40"
                   >
                     Launch Store Setup Wizard
                   </button>
@@ -818,10 +825,10 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-semibold text-[#17191F]">Open Buyer Requests (Leads)</h3>
-                <p className="text-xs text-[#646B76]">Submit commercial proposals to buyers actively searching for products or services.</p>
+                <h3 className="text-base font-semibold text-[#14243A]">Open Buyer Requests (Leads)</h3>
+                <p className="text-xs text-[#5A6578]">Submit commercial proposals to buyers actively searching for products or services.</p>
               </div>
-              <span className="text-xs text-[#646B76]">{openBuyerRequests.length} available</span>
+              <span className="text-xs text-[#5A6578]">{openBuyerRequests.length} available</span>
             </div>
 
             {openBuyerRequests.length > 0 ? (
@@ -829,20 +836,20 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                 {openBuyerRequests.map((req) => (
                   <div
                     key={req.id}
-                    className="p-5 bg-white rounded-2xl border border-[#E5E7EB] hover:border-[#17191F] transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
+                    className="p-5 bg-white rounded-2xl border border-[#E2DFD8] hover:border-[#14243A] transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
                   >
                     <div className="space-y-1.5 flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#EEF2FF] text-[#4057D6]">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#F7F3EB] text-[#8E6D38] border border-[#E8DAC2]">
                           {req.categoryId}
                         </span>
-                        <span className="text-[11px] text-[#646B76]">
+                        <span className="text-[11px] text-[#5A6578]">
                           Destination: {req.destinationCountry}
                         </span>
                       </div>
-                      <h4 className="text-sm font-semibold text-[#17191F]">{req.title}</h4>
-                      <p className="text-xs text-[#646B76] line-clamp-2 leading-relaxed">{req.description}</p>
-                      <div className="flex items-center gap-3 text-xs font-mono pt-1 text-[#17191F]">
+                      <h4 className="text-sm font-semibold text-[#14243A]">{req.title}</h4>
+                      <p className="text-xs text-[#5A6578] line-clamp-2 leading-relaxed">{req.description}</p>
+                      <div className="flex items-center gap-3 text-xs font-mono pt-1 text-[#14243A]">
                         <span>Budget: ${req.budgetMin} – ${req.budgetMax} {req.currency}</span>
                         <span>·</span>
                         <span>{req.offersCount || 0} quotes submitted</span>
@@ -852,7 +859,7 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                     <button
                       type="button"
                       onClick={() => onOpenSubmitOffer(req)}
-                      className="px-4 py-2 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs font-medium transition-colors cursor-pointer shrink-0 shadow-xs active:scale-[0.98]"
+                      className="px-4 py-2 bg-[#14243A] hover:bg-[#0E1B2D] text-white rounded-xl text-xs font-medium transition-colors cursor-pointer shrink-0 shadow-xs active:scale-[0.98]"
                     >
                       Submit Quote
                     </button>
@@ -873,8 +880,8 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
         {activeTab === 'offers' && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-base font-semibold text-[#17191F]">Submitted Commercial Proposals</h3>
-              <p className="text-xs text-[#646B76]">Track status of quotes you submitted to buyer procurement requests.</p>
+              <h3 className="text-base font-semibold text-[#14243A]">Submitted Commercial Proposals</h3>
+              <p className="text-xs text-[#5A6578]">Track status of quotes you submitted to buyer procurement requests.</p>
             </div>
 
             {sellerOffers.length > 0 ? (
@@ -882,7 +889,7 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                 {sellerOffers.map((o) => (
                   <div
                     key={o.id}
-                    className="p-5 bg-white rounded-2xl border border-[#E5E7EB] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
+                    className="p-5 bg-white rounded-2xl border border-[#E2DFD8] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
@@ -895,12 +902,12 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                         }`}>
                           {o.status}
                         </span>
-                        <span className="text-[11px] text-[#646B76]">
+                        <span className="text-[11px] text-[#5A6578]">
                           Est. {o.estimatedDays} days delivery
                         </span>
                       </div>
-                      <h4 className="text-xs sm:text-sm font-semibold text-[#17191F]">{o.description}</h4>
-                      <p className="text-xs font-mono font-bold text-[#17191F] pt-1">
+                      <h4 className="text-xs sm:text-sm font-semibold text-[#14243A]">{o.description}</h4>
+                      <p className="text-xs font-mono font-bold text-[#14243A] pt-1">
                         Proposed Price: ${o.proposedPrice} {o.currency}
                       </p>
                     </div>
@@ -908,7 +915,7 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
                     <button
                       type="button"
                       onClick={() => onOpenMessages()}
-                      className="px-3.5 py-1.5 bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#17191F] rounded-lg text-xs font-medium transition-colors cursor-pointer shrink-0"
+                      className="px-3.5 py-1.5 bg-[#F7F5F0] hover:bg-[#EFECE5] text-[#14243A] border border-[#E2DFD8] rounded-lg text-xs font-medium transition-colors cursor-pointer shrink-0"
                     >
                       Message Buyer
                     </button>
@@ -931,35 +938,35 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
         {activeTab === 'analytics' && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-base font-semibold text-[#17191F]">Real Catalog & Storefront Performance</h3>
-              <p className="text-xs text-[#646B76]">100% genuine metrics derived from live buyer interactions. No simulated stats.</p>
+              <h3 className="text-base font-semibold text-[#14243A]">Real Catalog & Storefront Performance</h3>
+              <p className="text-xs text-[#5A6578]">100% genuine metrics derived from live buyer interactions. No simulated stats.</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="p-6 bg-white rounded-2xl border border-[#E5E7EB] space-y-1 shadow-2xs">
-                <span className="text-[10px] font-semibold text-[#646B76] uppercase tracking-wider block">Total Catalog Views</span>
-                <div className="text-3xl font-bold font-mono text-[#17191F]">{totalViews}</div>
-                <p className="text-[11px] text-[#646B76]">Real visitor interactions</p>
+              <div className="p-6 bg-white rounded-2xl border border-[#E2DFD8] space-y-1 shadow-2xs">
+                <span className="text-[10px] font-semibold text-[#5A6578] uppercase tracking-wider block">Total Catalog Views</span>
+                <div className="text-3xl font-bold font-mono text-[#14243A]">{totalViews}</div>
+                <p className="text-[11px] text-[#5A6578]">Real visitor interactions</p>
               </div>
 
-              <div className="p-6 bg-white rounded-2xl border border-[#E5E7EB] space-y-1 shadow-2xs">
-                <span className="text-[10px] font-semibold text-[#646B76] uppercase tracking-wider block">Total Community Saves</span>
-                <div className="text-3xl font-bold font-mono text-[#17191F]">{totalFavorites}</div>
-                <p className="text-[11px] text-[#646B76]">Added to buyer collections</p>
+              <div className="p-6 bg-white rounded-2xl border border-[#E2DFD8] space-y-1 shadow-2xs">
+                <span className="text-[10px] font-semibold text-[#5A6578] uppercase tracking-wider block">Total Community Saves</span>
+                <div className="text-3xl font-bold font-mono text-[#14243A]">{totalFavorites}</div>
+                <p className="text-[11px] text-[#5A6578]">Added to buyer collections</p>
               </div>
 
-              <div className="p-6 bg-white rounded-2xl border border-[#E5E7EB] space-y-1 shadow-2xs">
-                <span className="text-[10px] font-semibold text-[#646B76] uppercase tracking-wider block">Inquiries Received</span>
-                <div className="text-3xl font-bold font-mono text-[#17191F]">{conversations.length}</div>
-                <p className="text-[11px] text-[#646B76]">Direct buyer discussions</p>
+              <div className="p-6 bg-white rounded-2xl border border-[#E2DFD8] space-y-1 shadow-2xs">
+                <span className="text-[10px] font-semibold text-[#5A6578] uppercase tracking-wider block">Inquiries Received</span>
+                <div className="text-3xl font-bold font-mono text-[#14243A]">{conversations.length}</div>
+                <p className="text-[11px] text-[#5A6578]">Direct buyer discussions</p>
               </div>
             </div>
 
             {totalViews === 0 && totalFavorites === 0 && (
-              <div className="p-8 text-center bg-[#FAFAF8] rounded-3xl border border-dashed border-[#E5E7EB] space-y-2">
-                <Clock className="w-8 h-8 text-[#9CA3AF] mx-auto" />
-                <h4 className="text-sm font-semibold text-[#17191F]">Analytics will appear as visitors discover your store</h4>
-                <p className="text-xs text-[#646B76] max-w-sm mx-auto">
+              <div className="p-8 text-center bg-[#F7F5F0] rounded-3xl border border-dashed border-[#E2DFD8] space-y-2">
+                <Clock className="w-8 h-8 text-[#5A6578] mx-auto" />
+                <h4 className="text-sm font-semibold text-[#14243A]">Analytics will appear as visitors discover your store</h4>
+                <p className="text-xs text-[#5A6578] max-w-sm mx-auto">
                   Publish high-quality photos, clear item descriptions, and complete your storefront to attract international buyers.
                 </p>
               </div>
@@ -969,42 +976,57 @@ export const SellerWorkspace: React.FC<SellerWorkspaceProps> = ({
 
         {/* TAB 7: SETTINGS */}
         {activeTab === 'settings' && (
-          <div className="max-w-2xl bg-white rounded-3xl border border-[#E5E7EB] p-6 sm:p-8 space-y-6 shadow-xs">
+          <div className="max-w-2xl bg-white rounded-3xl border border-[#E2DFD8] p-6 sm:p-8 space-y-6 shadow-xs">
             <div>
-              <h3 className="text-base font-semibold text-[#17191F]">Seller Profile Settings</h3>
-              <p className="text-xs text-[#646B76]">Manage your public tagline and maker bio.</p>
+              <h3 className="text-base font-semibold text-[#14243A]">Seller Profile Settings</h3>
+              <p className="text-xs text-[#5A6578]">Manage your public tagline and maker bio.</p>
             </div>
 
             <form onSubmit={handleSaveSettings} className="space-y-4 text-xs">
               <div>
-                <label className="font-medium text-[#374151] block mb-1">Seller Tagline</label>
+                <label className="font-medium text-[#283548] block mb-1">Seller Tagline</label>
                 <input
                   type="text"
                   value={sellerTagline}
                   onChange={(e) => setSellerTagline(e.target.value)}
                   placeholder="e.g. Master watchmaker and horological artisan in Geneva"
-                  className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                  className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
                 />
               </div>
 
               <div>
-                <label className="font-medium text-[#374151] block mb-1">Public Bio</label>
+                <label className="font-medium text-[#283548] block mb-1">Public Bio</label>
                 <textarea
                   rows={4}
                   value={sellerBio}
                   onChange={(e) => setSellerBio(e.target.value)}
                   placeholder="Tell buyers about your background and craft..."
-                  className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden leading-relaxed"
+                  className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#C5A572] focus:bg-white focus:outline-hidden leading-relaxed"
                 />
               </div>
+
+              {settingsSuccess && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{settingsSuccess}</span>
+                </div>
+              )}
+
+              {settingsError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  <span>{settingsError}</span>
+                </div>
+              )}
 
               <div className="pt-2">
                 <button
                   type="submit"
                   disabled={isUpdatingSettings}
-                  className="px-5 py-2.5 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl font-medium transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                  className="px-5 py-2.5 bg-[#14243A] hover:bg-[#0E1B2D] text-white rounded-xl font-medium transition-colors cursor-pointer shadow-xs disabled:opacity-50 flex items-center gap-2 active:scale-[0.98]"
                 >
-                  {isUpdatingSettings ? 'Saving...' : 'Save Profile Changes'}
+                  {isUpdatingSettings && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>{isUpdatingSettings ? 'Saving Profile...' : 'Save Profile Changes'}</span>
                 </button>
               </div>
             </form>

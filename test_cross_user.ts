@@ -75,7 +75,7 @@ class FirestoreSecurityRulesEvaluator {
   private isAdmin(ctx: RequestContext): boolean {
     if (!this.isSignedIn(ctx)) return false;
     const isEmailAdmin =
-      ctx.auth!.email?.toLowerCase() === 'alphapro889@gmail.com' &&
+      (ctx.auth!.email?.toLowerCase() === 'alphapro889@gmail.com' || ctx.auth!.email?.toLowerCase() === 'alichakarlhr@gmail.com') &&
       ctx.auth!.email_verified === true;
     const hasAdminDoc = this.db.admins.has(ctx.auth!.uid);
     return isEmailAdmin || hasAdminDoc;

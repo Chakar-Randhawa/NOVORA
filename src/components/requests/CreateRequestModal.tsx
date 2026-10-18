@@ -43,20 +43,20 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
   if (!currentUser) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs">
-        <div className="bg-white rounded-2xl max-w-md w-full border border-[#E5E7EB] shadow-2xl p-6 text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center mx-auto">
+        <div className="bg-white rounded-2xl max-w-md w-full border border-[#E2DFD8] shadow-2xl p-6 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-[#F7F3EB] text-[#C5A572] border border-[#E8DAC2] flex items-center justify-center mx-auto">
             <Plus className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-semibold text-[#17191F]">
+          <h3 className="text-base font-semibold text-[#14243A]">
             Sign in to Post a Buyer Request
           </h3>
-          <p className="text-xs text-[#646B76] leading-relaxed">
+          <p className="text-xs text-[#5A6578] leading-relaxed">
             Create an account to broadcast your exact requirements and receive tailored proposals from global sellers.
           </p>
           <div className="pt-2 flex items-center justify-center gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-[#646B76] hover:text-[#17191F] rounded-lg transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-medium text-[#5A6578] hover:text-[#14243A] rounded-lg transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -65,7 +65,7 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
                 onClose();
                 onOpenAuth('signin');
               }}
-              className="px-4 py-2 text-xs font-medium text-white bg-[#17191F] hover:bg-[#27272A] rounded-lg transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-medium text-white bg-[#14243A] hover:bg-[#0E1B2D] rounded-lg transition-colors cursor-pointer active:scale-[0.98]"
             >
               Sign In / Register
             </button>
@@ -124,19 +124,19 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto novora-animate-backdrop">
-      <div className="bg-white rounded-2xl max-w-2xl w-full border border-[#E5E7EB] shadow-2xl relative overflow-hidden my-auto max-h-[92vh] flex flex-col novora-animate-modal">
+      <div className="bg-white rounded-2xl max-w-2xl w-full border border-[#E2DFD8] shadow-2xl relative overflow-hidden my-auto max-h-[92vh] flex flex-col novora-animate-modal">
         
         {/* Header */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[#E5E7EB] flex items-center justify-between shrink-0 bg-[#FAFAF8]">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[#E2DFD8] flex items-center justify-between shrink-0 bg-[#F7F5F0]">
           <div>
-            <h2 className="text-base font-semibold text-[#17191F]">Post to Request Orbit</h2>
-            <p className="text-xs text-[#646B76]">
+            <h2 className="text-base font-semibold text-[#14243A]">Post to Request Orbit</h2>
+            <p className="text-xs text-[#5A6578]">
               Broadcast your custom requirements to independent makers and global suppliers
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-[#646B76] hover:text-[#17191F] hover:bg-[#F3F4F6] rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-[#5A6578] hover:text-[#14243A] hover:bg-[#EFECE5] rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -153,7 +153,7 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
           )}
 
           <div>
-            <label className="block text-xs font-medium text-[#17191F] mb-1">
+            <label className="block text-xs font-medium text-[#14243A] mb-1">
               Request Title *
             </label>
             <input
@@ -162,19 +162,19 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Seeking Handcrafted Walnut Desk Tray with Pen Rest"
-              className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] focus:border-[#4057D6] focus:outline-hidden"
+              className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">
+              <label className="block text-xs font-medium text-[#14243A] mb-1">
                 Category
               </label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] focus:border-[#4057D6] focus:outline-hidden cursor-pointer"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden cursor-pointer"
               >
                 {CATEGORIES.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -185,13 +185,13 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">
+              <label className="block text-xs font-medium text-[#14243A] mb-1">
                 Fulfillment Preference
               </label>
               <select
                 value={fulfillmentPreference}
                 onChange={(e) => setFulfillmentPreference(e.target.value as any)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] focus:border-[#4057D6] focus:outline-hidden cursor-pointer"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden cursor-pointer"
               >
                 <option value="shipping">Physical Shipping to Destination</option>
                 <option value="digital">Instant Digital Transfer</option>
@@ -202,7 +202,7 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#17191F] mb-1">
+            <label className="block text-xs font-medium text-[#14243A] mb-1">
               Detailed Specifications & Requirements *
             </label>
             <textarea
@@ -211,14 +211,14 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe materials, dimensions, aesthetic references, timeline, and acceptable alternatives..."
-              className="w-full text-xs p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] focus:border-[#4057D6] focus:outline-hidden"
+              className="w-full text-xs p-3 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden leading-relaxed"
             />
           </div>
 
           {/* Budget & Currency */}
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">
+              <label className="block text-xs font-medium text-[#14243A] mb-1">
                 Min Budget *
               </label>
               <input
@@ -228,12 +228,12 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
                 value={budgetMin}
                 onChange={(e) => setBudgetMin(e.target.value)}
                 placeholder="100"
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg font-mono text-[#17191F]"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg font-mono text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">
+              <label className="block text-xs font-medium text-[#14243A] mb-1">
                 Max Budget *
               </label>
               <input
@@ -243,18 +243,18 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
                 value={budgetMax}
                 onChange={(e) => setBudgetMax(e.target.value)}
                 placeholder="250"
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg font-mono text-[#17191F]"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg font-mono text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">
+              <label className="block text-xs font-medium text-[#14243A] mb-1">
                 Currency
               </label>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg font-mono text-[#17191F] cursor-pointer"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg font-mono text-[#14243A] cursor-pointer focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
               >
                 {CURRENCIES.map((cur) => (
                   <option key={cur.code} value={cur.code}>
@@ -265,7 +265,7 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">
+              <label className="block text-xs font-medium text-[#14243A] mb-1">
                 Quantity Needed
               </label>
               <input
@@ -273,20 +273,20 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
                 min="1"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F]"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">
+              <label className="block text-xs font-medium text-[#14243A] mb-1">
                 Destination Country
               </label>
               <select
                 value={destinationCountry}
                 onChange={(e) => setDestinationCountry(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] cursor-pointer"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] cursor-pointer focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
               >
                 {COUNTRIES.map((c) => (
                   <option key={c.code} value={c.code}>
@@ -297,20 +297,20 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">
+              <label className="block text-xs font-medium text-[#14243A] mb-1">
                 Target Deadline (Optional)
               </label>
               <input
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F]"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#17191F] mb-1">
+            <label className="block text-xs font-medium text-[#14243A] mb-1">
               Customization & Bespoke Requirements (Optional)
             </label>
             <input
@@ -318,13 +318,13 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
               value={customizationDetails}
               onChange={(e) => setCustomizationDetails(e.target.value)}
               placeholder="e.g. Inscription, specific timber species, custom colorway"
-              className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F]"
+              className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
             />
           </div>
 
           {/* Actions */}
-          <div className="pt-4 border-t border-[#E5E7EB] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <span className="text-xs text-[#646B76] text-center sm:text-left">
+          <div className="pt-4 border-t border-[#E2DFD8] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <span className="text-xs text-[#5A6578] text-center sm:text-left">
               Publicly visible to verified artisans & suppliers worldwide
             </span>
 
@@ -333,14 +333,14 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
                 type="button"
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="flex-1 sm:flex-none px-4 py-2 text-xs font-medium text-[#646B76] hover:text-[#17191F] rounded-lg transition-colors cursor-pointer text-center"
+                className="flex-1 sm:flex-none px-4 py-2 text-xs font-medium text-[#5A6578] hover:text-[#14243A] rounded-lg transition-colors cursor-pointer text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 sm:flex-none px-5 py-2.5 text-xs font-medium text-white bg-[#17191F] hover:bg-[#27272A] rounded-lg transition-colors shadow-xs cursor-pointer text-center flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-50"
+                className="flex-1 sm:flex-none px-5 py-2.5 text-xs font-medium text-white bg-[#14243A] hover:bg-[#0E1B2D] rounded-lg transition-colors shadow-xs cursor-pointer text-center flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>

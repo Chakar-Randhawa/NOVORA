@@ -146,10 +146,16 @@ export function handleSnapshotError(err: unknown, path: string, operationType: O
 // Authentication & User Profiles
 // ============================================================================
 
-export const ADMIN_EMAIL = 'alphapro889@gmail.com';
+export const ADMIN_EMAILS = ['alphapro889@gmail.com', 'alichakarlhr@gmail.com'];
+export const ADMIN_EMAIL = 'alphapro889@gmail.com'; // preserved for backward-compatible references
+
+export function isPlatformAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  return ADMIN_EMAILS.some(adminEmail => adminEmail.toLowerCase() === email.toLowerCase());
+}
 
 export async function checkIfAdmin(uid: string, email?: string | null, emailVerified?: boolean): Promise<boolean> {
-  if (email && email.toLowerCase() === ADMIN_EMAIL.toLowerCase() && emailVerified) {
+  if (email && isPlatformAdminEmail(email) && emailVerified) {
     return true;
   }
   try {
@@ -253,7 +259,7 @@ export function subscribeToAuth(callback: (profile: UserProfile | null, rawUser:
         preferredCurrency: 'USD',
         joinedDate: new Date().toISOString().split('T')[0],
         isSeller: false,
-        isAdmin: rawUser.email === ADMIN_EMAIL,
+        isAdmin: isPlatformAdminEmail(rawUser.email),
         languages: ['English']
       }, rawUser);
     }

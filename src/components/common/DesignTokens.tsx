@@ -6,16 +6,40 @@ import { LucideIcon, ArrowRight } from 'lucide-react';
 // ============================================================================
 
 export const SkeletonListingCard: React.FC = () => (
-  <div className="bg-white rounded-2xl border border-[#E5E7EB] overflow-hidden flex flex-col animate-pulse">
-    <div className="aspect-4/3 w-full bg-[#F3F4F6]" />
-    <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
+  <div className="bg-white rounded-xl border border-[#E2DFD8] overflow-hidden flex flex-col h-full shadow-2xs">
+    {/* Aspect 4/3 image placeholder with shimmering gradient */}
+    <div className="relative aspect-4/3 w-full bg-[#EFECE5] overflow-hidden novora-skeleton" />
+
+    {/* Content matching ListingCard */}
+    <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
       <div className="space-y-2">
-        <div className="h-4 bg-[#E5E7EB] rounded-md w-3/4" />
-        <div className="h-3 bg-[#F3F4F6] rounded-md w-1/2" />
+        {/* Category & Location metadata line */}
+        <div className="flex items-center gap-2">
+          <div className="h-3 w-16 novora-skeleton rounded-md" />
+          <div className="h-3 w-3 novora-skeleton rounded-full" />
+          <div className="h-3 w-20 novora-skeleton rounded-md" />
+        </div>
+
+        {/* Title (2 lines) */}
+        <div className="space-y-1.5 pt-0.5">
+          <div className="h-4 w-5/6 novora-skeleton rounded-md" />
+          <div className="h-4 w-2/3 novora-skeleton rounded-md" />
+        </div>
+
+        {/* Description line */}
+        <div className="pt-1 space-y-1">
+          <div className="h-3 w-full novora-skeleton rounded-md" />
+          <div className="h-3 w-4/5 novora-skeleton rounded-md" />
+        </div>
       </div>
-      <div className="pt-2 border-t border-[#F3F4F6] flex items-center justify-between">
-        <div className="h-4 bg-[#E5E7EB] rounded-md w-1/4" />
-        <div className="h-3 bg-[#F3F4F6] rounded-md w-1/3" />
+
+      {/* Footer: Price & Details button */}
+      <div className="pt-3 border-t border-[#EFECE5] flex items-center justify-between">
+        <div className="space-y-1">
+          <div className="h-5 w-20 novora-skeleton rounded-md" />
+          <div className="h-2.5 w-14 novora-skeleton rounded-md" />
+        </div>
+        <div className="h-4 w-12 novora-skeleton rounded-md" />
       </div>
     </div>
   </div>
@@ -23,12 +47,12 @@ export const SkeletonListingCard: React.FC = () => (
 
 export const SkeletonProfile: React.FC = () => (
   <div className="max-w-5xl mx-auto px-4 py-8 space-y-6 animate-pulse">
-    <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-      <div className="w-24 h-24 rounded-full bg-[#E5E7EB] shrink-0" />
+    <div className="bg-white rounded-2xl border border-[#E2DFD8] p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+      <div className="w-24 h-24 rounded-full bg-[#EFECE5] shrink-0" />
       <div className="space-y-3 flex-1">
-        <div className="h-6 bg-[#E5E7EB] rounded-md w-1/3" />
-        <div className="h-4 bg-[#F3F4F6] rounded-md w-1/2" />
-        <div className="h-4 bg-[#F3F4F6] rounded-md w-2/3" />
+        <div className="h-6 bg-[#E2DFD8] rounded-md w-1/3" />
+        <div className="h-4 bg-[#EFECE5] rounded-md w-1/2" />
+        <div className="h-4 bg-[#EFECE5] rounded-md w-2/3" />
       </div>
     </div>
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -41,17 +65,17 @@ export const SkeletonProfile: React.FC = () => (
 
 export const SkeletonStorefront: React.FC = () => (
   <div className="max-w-6xl mx-auto px-4 py-6 space-y-6 animate-pulse">
-    <div className="w-full h-48 sm:h-64 rounded-2xl bg-[#E5E7EB]" />
+    <div className="w-full h-48 sm:h-64 rounded-2xl bg-[#E2DFD8]" />
     <div className="flex flex-col sm:flex-row gap-4 items-center -mt-16 sm:-mt-20 px-6">
-      <div className="w-28 h-28 rounded-2xl bg-white p-1.5 shadow-md">
-        <div className="w-full h-full rounded-xl bg-[#E5E7EB]" />
+      <div className="w-28 h-28 rounded-2xl bg-white p-1.5 shadow-md border border-[#E2DFD8]">
+        <div className="w-full h-full rounded-xl bg-[#EFECE5]" />
       </div>
       <div className="space-y-2 text-center sm:text-left flex-1">
-        <div className="h-6 bg-[#E5E7EB] rounded-md w-48 mx-auto sm:mx-0" />
-        <div className="h-4 bg-[#F3F4F6] rounded-md w-72 mx-auto sm:mx-0" />
+        <div className="h-6 bg-[#E2DFD8] rounded-md w-48 mx-auto sm:mx-0" />
+        <div className="h-4 bg-[#EFECE5] rounded-md w-72 mx-auto sm:mx-0" />
       </div>
     </div>
-    <div className="h-10 bg-[#F3F4F6] rounded-xl w-full" />
+    <div className="h-10 bg-[#EFECE5] rounded-xl w-full" />
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
       <SkeletonListingCard />
       <SkeletonListingCard />
@@ -61,13 +85,13 @@ export const SkeletonStorefront: React.FC = () => (
 );
 
 export const SkeletonTable: React.FC = () => (
-  <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6 space-y-4 animate-pulse">
-    <div className="h-5 bg-[#E5E7EB] rounded-md w-1/4" />
+  <div className="bg-white rounded-2xl border border-[#E2DFD8] p-6 space-y-4 animate-pulse">
+    <div className="h-5 bg-[#E2DFD8] rounded-md w-1/4" />
     <div className="space-y-3">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="h-12 bg-[#F9FAFB] rounded-xl flex items-center justify-between px-4">
-          <div className="h-4 bg-[#E5E7EB] rounded-md w-1/3" />
-          <div className="h-4 bg-[#E5E7EB] rounded-md w-1/6" />
+        <div key={i} className="h-12 bg-[#F7F5F0] rounded-xl flex items-center justify-between px-4">
+          <div className="h-4 bg-[#E2DFD8] rounded-md w-1/3" />
+          <div className="h-4 bg-[#E2DFD8] rounded-md w-1/6" />
         </div>
       ))}
     </div>
@@ -99,16 +123,16 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   onSecondaryAction,
   className = ''
 }) => (
-  <div className={`text-center py-12 px-6 rounded-2xl border border-dashed border-[#E5E7EB] bg-[#FAFAF8] flex flex-col items-center justify-center space-y-3.5 transition-all ${className}`}>
+  <div className={`text-center py-12 px-6 rounded-2xl border border-dashed border-[#E2DFD8] bg-[#F7F5F0] flex flex-col items-center justify-center space-y-3.5 transition-all ${className}`}>
     {Icon && (
-      <div className="w-12 h-12 rounded-xl bg-white border border-[#E5E7EB] shadow-2xs flex items-center justify-center text-[#646B76]">
-        <Icon className="w-6 h-6" />
+      <div className="w-12 h-12 rounded-xl bg-white border border-[#E2DFD8] shadow-2xs flex items-center justify-center text-[#283548]">
+        <Icon className="w-6 h-6 text-[#C5A572]" />
       </div>
     )}
-    <h4 className="text-base font-semibold text-[#17191F]">
+    <h4 className="text-base font-semibold text-[#14243A]">
       {title}
     </h4>
-    <p className="text-xs sm:text-sm text-[#646B76] max-w-md leading-relaxed">
+    <p className="text-xs sm:text-sm text-[#5A6578] max-w-md leading-relaxed">
       {description}
     </p>
     {(actionText || secondaryActionText) && (
@@ -117,17 +141,17 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           <button
             type="button"
             onClick={onAction}
-            className="px-4 py-2 text-xs sm:text-sm font-medium text-white bg-[#17191F] hover:bg-[#27272A] rounded-xl transition-all cursor-pointer shadow-xs active:scale-[0.98] flex items-center gap-1.5"
+            className="px-4 py-2 text-xs sm:text-sm font-medium text-white bg-[#14243A] hover:bg-[#0E1B2D] rounded-xl transition-all cursor-pointer shadow-xs active:scale-[0.98] flex items-center gap-1.5"
           >
             <span>{actionText}</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3.5 h-3.5 text-[#C5A572]" />
           </button>
         )}
         {secondaryActionText && onSecondaryAction && (
           <button
             type="button"
             onClick={onSecondaryAction}
-            className="px-4 py-2 text-xs sm:text-sm font-medium text-[#374151] hover:text-[#17191F] bg-white hover:bg-[#F3F4F6] border border-[#E5E7EB] rounded-xl transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
+            className="px-4 py-2 text-xs sm:text-sm font-medium text-[#14243A] hover:text-[#0E1B2D] bg-white hover:bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl transition-all cursor-pointer shadow-2xs active:scale-[0.98]"
           >
             {secondaryActionText}
           </button>

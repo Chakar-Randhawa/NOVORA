@@ -99,6 +99,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
     existingStore?.featuredListingIds || sellerListings.slice(0, 3).map(l => l.id)
   );
   const [featuredSearch, setFeaturedSearch] = useState('');
+  const [draftSavedMessage, setDraftSavedMessage] = useState(false);
 
   // Draft key
   const draftKey = `novora_store_draft_${currentUser.id}`;
@@ -337,19 +338,19 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs overflow-y-auto novora-animate-backdrop">
-      <div className="bg-white rounded-3xl max-w-4xl w-full border border-[#E5E7EB] shadow-2xl relative overflow-hidden my-auto max-h-[94vh] flex flex-col novora-animate-modal">
+      <div className="bg-white rounded-3xl max-w-4xl w-full border border-[#E2DFD8] shadow-2xl relative overflow-hidden my-auto max-h-[94vh] flex flex-col novora-animate-modal">
         
         {/* Wizard Header */}
-        <div className="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between shrink-0 bg-[#FAFAF8]">
+        <div className="px-6 py-4 border-b border-[#E2DFD8] flex items-center justify-between shrink-0 bg-[#F7F5F0]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-[#F7F3EB] text-[#C5A572] border border-[#E8DAC2] flex items-center justify-center shadow-2xs">
               <Store className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-[#17191F]">
+              <h2 className="text-base font-semibold text-[#14243A]">
                 {existingStore ? 'Storefront Studio & Settings' : 'Set Up Your Independent Storefront'}
               </h2>
-              <div className="flex items-center gap-2 text-[11px] text-[#646B76]">
+              <div className="flex items-center gap-2 text-[11px] text-[#5A6578]">
                 <span>Step {currentStep} of {STEPS.length - 1}</span>
                 <span>·</span>
                 <span className="font-medium text-emerald-700">Completeness: {completenessPercent}%</span>
@@ -363,18 +364,23 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                 type="button"
                 onClick={() => {
                   saveDraftToStorage();
-                  alert('Draft saved to browser storage.');
+                  setDraftSavedMessage(true);
+                  setTimeout(() => setDraftSavedMessage(false), 2500);
                 }}
-                className="px-2.5 py-1.5 text-xs text-[#646B76] hover:text-[#17191F] hover:bg-[#E5E7EB] rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                className={`px-2.5 py-1.5 text-xs rounded-lg transition-colors flex items-center gap-1 cursor-pointer ${
+                  draftSavedMessage
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'text-[#5A6578] hover:text-[#14243A] hover:bg-[#EFECE4]'
+                }`}
                 title="Save draft"
               >
                 <Save className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Save Draft</span>
+                <span className="hidden sm:inline">{draftSavedMessage ? 'Draft Saved!' : 'Save Draft'}</span>
               </button>
             )}
             <button
               onClick={handleCloseAttempt}
-              className="p-1.5 text-[#646B76] hover:text-[#17191F] hover:bg-[#E5E7EB] rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 text-[#5A6578] hover:text-[#14243A] hover:bg-[#EFECE4] rounded-lg transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -383,9 +389,9 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
 
         {/* Draft Restored Banner */}
         {draftRestoredBanner && currentStep === 1 && (
-          <div className="bg-blue-50 border-b border-blue-100 px-6 py-2 flex items-center justify-between text-xs text-blue-900">
+          <div className="bg-[#F7F3EB] border-b border-[#E8DAC2] px-6 py-2 flex items-center justify-between text-xs text-[#14243A]">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>Restored your saved setup draft from previous session.</span>
             </span>
             <button
@@ -393,7 +399,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                 localStorage.removeItem(draftKey);
                 setDraftRestoredBanner(false);
               }}
-              className="text-[11px] text-blue-700 hover:underline cursor-pointer ml-3 shrink-0"
+              className="text-[11px] text-[#8E6D38] hover:underline cursor-pointer ml-3 shrink-0 font-medium"
             >
               Dismiss
             </button>
@@ -402,25 +408,25 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
 
         {/* Step Progress Bar */}
         {currentStep < 7 && (
-          <div className="bg-[#F9FAFB] border-b border-[#E5E7EB] px-6 py-2.5 flex items-center justify-between overflow-x-auto text-[11px]">
+          <div className="bg-[#F7F5F0] border-b border-[#E2DFD8] px-6 py-2.5 flex items-center justify-between overflow-x-auto text-[11px]">
             {STEPS.slice(0, 6).map((s) => (
               <div
                 key={s.num}
                 onClick={() => handleStepChange(s.num)}
                 className={`flex items-center gap-1.5 cursor-pointer transition-colors whitespace-nowrap px-2 py-1 rounded-md ${
                   currentStep === s.num
-                    ? 'font-bold text-[#4057D6] bg-white shadow-2xs'
+                    ? 'font-bold text-[#14243A] bg-white shadow-2xs'
                     : currentStep > s.num
                     ? 'text-emerald-700 font-medium'
-                    : 'text-[#9CA3AF]'
+                    : 'text-[#8A94A6]'
                 }`}
               >
                 <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] ${
                   currentStep === s.num
-                    ? 'bg-[#4057D6] text-white'
+                    ? 'bg-[#14243A] text-white'
                     : currentStep > s.num
                     ? 'bg-emerald-600 text-white'
-                    : 'bg-[#E5E7EB] text-[#646B76]'
+                    : 'bg-[#E2DFD8] text-[#5A6578]'
                 }`}>
                   {currentStep > s.num ? '✓' : s.num}
                 </span>
@@ -444,13 +450,13 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
           {currentStep === 1 && (
             <div className="space-y-5 max-w-2xl">
               <div>
-                <h3 className="text-base font-semibold text-[#17191F]">Store Branding & URL</h3>
-                <p className="text-xs text-[#646B76] mt-0.5">Define how your independent storefront appears to buyers worldwide.</p>
+                <h3 className="text-base font-semibold text-[#14243A]">Store Branding & URL</h3>
+                <p className="text-xs text-[#5A6578] mt-0.5">Define how your independent storefront appears to buyers worldwide.</p>
               </div>
 
               <div className="space-y-4 text-xs">
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Store Display Name *</label>
+                  <label className="font-medium text-[#14243A] block mb-1">Store Display Name *</label>
                   <input
                     type="text"
                     value={storeName}
@@ -461,14 +467,14 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                       }
                     }}
                     placeholder="e.g. Nordic Leather Studio"
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                    className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                   />
                 </div>
 
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Store Slug / Public URL Handle *</label>
+                  <label className="font-medium text-[#14243A] block mb-1">Store Slug / Public URL Handle *</label>
                   <div className="flex items-center">
-                    <span className="px-3 py-2.5 bg-[#F3F4F6] border border-r-0 border-[#E5E7EB] rounded-l-xl text-[#646B76] text-xs font-mono">
+                    <span className="px-3 py-2.5 bg-[#F7F5F0] border border-r-0 border-[#E2DFD8] rounded-l-xl text-[#5A6578] text-xs font-mono">
                       novora.com/?store=
                     </span>
                     <input
@@ -476,15 +482,15 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                       value={storeSlug}
                       onChange={(e) => setStoreSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                       placeholder="nordic-leather"
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-r-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden font-mono text-xs"
+                      className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-r-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden font-mono text-xs text-[#14243A]"
                     />
                   </div>
 
                   {/* Slug availability indicator */}
                   <div className="mt-1.5 flex items-center gap-1.5 text-[11px]">
                     {slugStatus === 'checking' && (
-                      <span className="text-[#646B76] flex items-center gap-1">
-                        <Loader2 className="w-3 h-3 animate-spin text-[#4057D6]" />
+                      <span className="text-[#5A6578] flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin text-[#C5A572]" />
                         <span>{slugMessage}</span>
                       </span>
                     )}
@@ -510,46 +516,46 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                 </div>
 
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Brand Tagline</label>
+                  <label className="font-medium text-[#14243A] block mb-1">Brand Tagline</label>
                   <input
                     type="text"
                     value={tagline}
                     onChange={(e) => setTagline(e.target.value)}
                     placeholder="e.g. Hand-stitched full-grain accessories made in Stockholm."
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                    className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                   />
                 </div>
 
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Store Overview & Bio</label>
+                  <label className="font-medium text-[#14243A] block mb-1">Store Overview & Bio</label>
                   <textarea
                     rows={3}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Brief introduction for buyers discovering your shop..."
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                    className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="font-medium text-[#374151] block mb-1">Logo / Avatar Image URL</label>
+                    <label className="font-medium text-[#14243A] block mb-1">Logo / Avatar Image URL</label>
                     <input
                       type="url"
                       value={logoUrl}
                       onChange={(e) => setLogoUrl(e.target.value)}
                       placeholder="https://images.unsplash.com/..."
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                      className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                     />
                   </div>
                   <div>
-                    <label className="font-medium text-[#374151] block mb-1">Banner Image URL</label>
+                    <label className="font-medium text-[#14243A] block mb-1">Banner Image URL</label>
                     <input
                       type="url"
                       value={bannerUrl}
                       onChange={(e) => setBannerUrl(e.target.value)}
                       placeholder="https://images.unsplash.com/..."
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                      className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                     />
                   </div>
                 </div>
@@ -561,29 +567,29 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
           {currentStep === 2 && (
             <div className="space-y-5 max-w-2xl text-xs">
               <div>
-                <h3 className="text-base font-semibold text-[#17191F]">Maker Story & Origin</h3>
-                <p className="text-xs text-[#646B76] mt-0.5">Share your origins, craft techniques, and workshop details with buyers.</p>
+                <h3 className="text-base font-semibold text-[#14243A]">Maker Story & Origin</h3>
+                <p className="text-xs text-[#5A6578] mt-0.5">Share your origins, craft techniques, and workshop details with buyers.</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Full Workshop Story</label>
+                  <label className="font-medium text-[#14243A] block mb-1">Full Workshop Story</label>
                   <textarea
                     rows={5}
                     value={story}
                     onChange={(e) => setStory(e.target.value)}
                     placeholder="Tell your story. When did you start? What materials do you source? Why should buyers choose your work?"
-                    className="w-full p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden leading-relaxed text-xs"
+                    className="w-full p-3 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden leading-relaxed text-xs text-[#14243A]"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="font-medium text-[#374151] block mb-1">Business / Maker Type</label>
+                    <label className="font-medium text-[#14243A] block mb-1">Business / Maker Type</label>
                     <select
                       value={businessType}
                       onChange={(e) => setBusinessType(e.target.value as any)}
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                      className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                     >
                       <option value="independent_maker">Independent Maker / Artisan</option>
                       <option value="artisan_studio">Artisan Studio / Workshop</option>
@@ -595,11 +601,11 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                   </div>
 
                   <div>
-                    <label className="font-medium text-[#374151] block mb-1">Country / Territory</label>
+                    <label className="font-medium text-[#14243A] block mb-1">Country / Territory</label>
                     <select
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                      className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                     >
                       {COUNTRIES.map(c => (
                         <option key={c.code} value={c.code}>{c.flag} {c.name}</option>
@@ -610,24 +616,24 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="font-medium text-[#374151] block mb-1">City or Workshop Location</label>
+                    <label className="font-medium text-[#14243A] block mb-1">City or Workshop Location</label>
                     <input
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       placeholder="e.g. Stockholm, Sweden"
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                      className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                     />
                   </div>
 
                   <div>
-                    <label className="font-medium text-[#374151] block mb-1">Languages Spoken (comma separated)</label>
+                    <label className="font-medium text-[#14243A] block mb-1">Languages Spoken (comma separated)</label>
                     <input
                       type="text"
                       value={languagesStr}
                       onChange={(e) => setLanguagesStr(e.target.value)}
                       placeholder="English, Swedish, German"
-                      className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                      className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                     />
                   </div>
                 </div>
@@ -639,8 +645,8 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
           {currentStep === 3 && (
             <div className="space-y-5 max-w-2xl text-xs">
               <div>
-                <h3 className="text-base font-semibold text-[#17191F]">Storefront Collections & Categories</h3>
-                <p className="text-xs text-[#646B76] mt-0.5">Organize your offerings into custom sections on your public storefront.</p>
+                <h3 className="text-base font-semibold text-[#14243A]">Storefront Collections & Categories</h3>
+                <p className="text-xs text-[#5A6578] mt-0.5">Organize your offerings into custom sections on your public storefront.</p>
               </div>
 
               <div className="space-y-3">
@@ -651,12 +657,12 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                     onChange={(e) => setNewCatName(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddCategory(); } }}
                     placeholder="Add collection title (e.g. Hand-Stitched Wallets)..."
-                    className="flex-1 p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                    className="flex-1 p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                   />
                   <button
                     type="button"
                     onClick={handleAddCategory}
-                    className="px-4 py-2 bg-[#17191F] text-white rounded-xl font-medium hover:bg-[#27272A] transition-colors flex items-center gap-1.5 cursor-pointer text-xs"
+                    className="px-4 py-2 bg-[#14243A] text-white rounded-xl font-medium hover:bg-[#0E1B2D] transition-colors flex items-center gap-1.5 cursor-pointer text-xs active:scale-[0.98]"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add</span>
@@ -667,16 +673,16 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                   {categories.map((c) => (
                     <div
                       key={c.id}
-                      className="p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl flex items-center justify-between"
+                      className="p-3 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl flex items-center justify-between"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-[#17191F]">{c.name}</span>
-                        {c.description && <span className="text-[11px] text-[#646B76]">· {c.description}</span>}
+                        <span className="font-semibold text-[#14243A]">{c.name}</span>
+                        {c.description && <span className="text-[11px] text-[#5A6578]">· {c.description}</span>}
                       </div>
                       <button
                         type="button"
                         onClick={() => handleRemoveCategory(c.id)}
-                        className="p-1 text-[#9CA3AF] hover:text-rose-600 transition-colors cursor-pointer"
+                        className="p-1 text-[#8A94A6] hover:text-rose-600 transition-colors cursor-pointer"
                         title="Remove category"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -692,48 +698,48 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
           {currentStep === 4 && (
             <div className="space-y-5 max-w-2xl text-xs">
               <div>
-                <h3 className="text-base font-semibold text-[#17191F]">Store Policies & Terms</h3>
-                <p className="text-xs text-[#646B76] mt-0.5">Transparent guidelines build high buyer trust for international orders.</p>
+                <h3 className="text-base font-semibold text-[#14243A]">Store Policies & Terms</h3>
+                <p className="text-xs text-[#5A6578] mt-0.5">Transparent guidelines build high buyer trust for international orders.</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Shipping & Dispatch Terms *</label>
+                  <label className="font-medium text-[#14243A] block mb-1">Shipping & Dispatch Terms *</label>
                   <textarea
                     rows={2}
                     value={policies.shippingPolicy || ''}
                     onChange={(e) => setPolicies({ ...policies, shippingPolicy: e.target.value })}
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                    className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                   />
                 </div>
 
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Return Window & Eligibility</label>
+                  <label className="font-medium text-[#14243A] block mb-1">Return Window & Eligibility</label>
                   <textarea
                     rows={2}
                     value={policies.returnsPolicy || ''}
                     onChange={(e) => setPolicies({ ...policies, returnsPolicy: e.target.value })}
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                    className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                   />
                 </div>
 
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Refund Protocol</label>
+                  <label className="font-medium text-[#14243A] block mb-1">Refund Protocol</label>
                   <textarea
                     rows={2}
                     value={policies.refundsPolicy || ''}
                     onChange={(e) => setPolicies({ ...policies, refundsPolicy: e.target.value })}
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                    className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                   />
                 </div>
 
                 <div>
-                  <label className="font-medium text-[#374151] block mb-1">Custom / Bespoke Commission Policy</label>
+                  <label className="font-medium text-[#14243A] block mb-1">Custom / Bespoke Commission Policy</label>
                   <textarea
                     rows={2}
                     value={policies.customOrdersPolicy || ''}
                     onChange={(e) => setPolicies({ ...policies, customOrdersPolicy: e.target.value })}
-                    className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                    className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                   />
                 </div>
               </div>
@@ -744,35 +750,35 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
           {currentStep === 5 && (
             <div className="space-y-5 max-w-2xl text-xs">
               <div>
-                <h3 className="text-base font-semibold text-[#17191F]">Featured Announcement & Showcase</h3>
-                <p className="text-xs text-[#646B76] mt-0.5">Select listings to spotlight on your storefront homepage.</p>
+                <h3 className="text-base font-semibold text-[#14243A]">Featured Announcement & Showcase</h3>
+                <p className="text-xs text-[#5A6578] mt-0.5">Select listings to spotlight on your storefront homepage.</p>
               </div>
 
               <div>
-                <label className="font-medium text-[#374151] block mb-1">Store Announcement Banner</label>
+                <label className="font-medium text-[#14243A] block mb-1">Store Announcement Banner</label>
                 <input
                   type="text"
                   value={announcement}
                   onChange={(e) => setAnnouncement(e.target.value)}
                   placeholder="e.g. Free shipping on all international orders over $100 this week!"
-                  className="w-full p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl focus:border-[#4057D6] focus:bg-white focus:outline-hidden text-xs"
+                  className="w-full p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl focus:border-[#14243A] focus:bg-white focus:outline-hidden text-xs text-[#14243A]"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="font-medium text-[#374151]">
+                  <label className="font-medium text-[#14243A]">
                     Select Featured Items ({featuredListingIds.length} selected)
                   </label>
                   {sellerListings.length > 4 && (
                     <div className="relative w-48">
-                      <Search className="w-3 h-3 absolute left-2.5 top-2.5 text-[#9CA3AF]" />
+                      <Search className="w-3 h-3 absolute left-2.5 top-2.5 text-[#8A94A6]" />
                       <input
                         type="text"
                         value={featuredSearch}
                         onChange={(e) => setFeaturedSearch(e.target.value)}
                         placeholder="Filter listings..."
-                        className="w-full pl-7 pr-2 py-1 text-[11px] bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg focus:outline-hidden"
+                        className="w-full pl-7 pr-2 py-1 text-[11px] bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg focus:outline-hidden text-[#14243A]"
                       />
                     </div>
                   )}
@@ -788,23 +794,23 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                           onClick={() => handleToggleFeaturedListing(l.id)}
                           className={`p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-all ${
                             isSelected
-                              ? 'border-[#4057D6] bg-[#EEF2FF]'
-                              : 'border-[#E5E7EB] bg-white hover:border-[#9CA3AF]'
+                              ? 'border-[#14243A] bg-[#F7F3EB]'
+                              : 'border-[#E2DFD8] bg-white hover:border-[#14243A]'
                           }`}
                         >
-                          <div className="w-12 h-12 rounded-lg bg-[#F3F4F6] overflow-hidden shrink-0">
+                          <div className="w-12 h-12 rounded-lg bg-[#EFECE5] overflow-hidden shrink-0">
                             {l.images && l.images[0] ? (
                               <img src={l.images[0]} alt="" className="w-full h-full object-cover" />
                             ) : (
-                              <div className="w-full h-full bg-[#E5E7EB]" />
+                              <div className="w-full h-full bg-[#EFECE5]" />
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-xs text-[#17191F] truncate">{l.title}</p>
-                            <p className="text-[11px] text-[#646B76] font-mono">${l.price} {l.currency}</p>
+                            <p className="font-semibold text-xs text-[#14243A] truncate">{l.title}</p>
+                            <p className="text-[11px] text-[#5A6578] font-mono">${l.price} {l.currency}</p>
                           </div>
                           <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0 ${
-                            isSelected ? 'bg-[#4057D6] text-white' : 'border border-[#D1D5DB]'
+                            isSelected ? 'bg-[#14243A] text-white' : 'border border-[#E2DFD8]'
                           }`}>
                             {isSelected ? '✓' : ''}
                           </span>
@@ -813,8 +819,8 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                     })}
                   </div>
                 ) : (
-                  <div className="text-[#646B76] p-5 bg-[#FAFAF8] rounded-xl border border-[#E5E7EB] text-center space-y-1">
-                    <p className="font-medium text-[#17191F]">No listings published yet</p>
+                  <div className="text-[#5A6578] p-5 bg-[#F7F5F0] rounded-xl border border-[#E2DFD8] text-center space-y-1">
+                    <p className="font-medium text-[#14243A]">No listings published yet</p>
                     <p className="text-[11px]">You can complete and publish your storefront now, then pin listings after creating them in your Seller Studio.</p>
                   </div>
                 )}
@@ -827,16 +833,16 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-[#17191F]">Live Storefront Simulator Preview</h3>
-                  <p className="text-xs text-[#646B76]">Preview your store layout before publishing to the global marketplace.</p>
+                  <h3 className="text-base font-semibold text-[#14243A]">Live Storefront Simulator Preview</h3>
+                  <p className="text-xs text-[#5A6578]">Preview your store layout before publishing to the global marketplace.</p>
                 </div>
 
-                <div className="flex items-center gap-1 bg-[#F3F4F6] p-1 rounded-xl">
+                <div className="flex items-center gap-1 bg-[#F7F5F0] p-1 rounded-xl border border-[#E2DFD8]">
                   <button
                     type="button"
                     onClick={() => setPreviewDevice('desktop')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
-                      previewDevice === 'desktop' ? 'bg-white shadow-2xs text-[#17191F]' : 'text-[#646B76]'
+                      previewDevice === 'desktop' ? 'bg-white shadow-2xs text-[#14243A]' : 'text-[#5A6578]'
                     }`}
                   >
                     <Monitor className="w-3.5 h-3.5" />
@@ -846,7 +852,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                     type="button"
                     onClick={() => setPreviewDevice('mobile')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
-                      previewDevice === 'mobile' ? 'bg-white shadow-2xs text-[#17191F]' : 'text-[#646B76]'
+                      previewDevice === 'mobile' ? 'bg-white shadow-2xs text-[#14243A]' : 'text-[#5A6578]'
                     }`}
                   >
                     <Smartphone className="w-3.5 h-3.5" />
@@ -856,16 +862,16 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
               </div>
 
               {/* Preview Canvas */}
-              <div className="border border-[#E5E7EB] rounded-2xl p-4 bg-[#F9FAFB] flex justify-center">
-                <div className={`bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden transition-all ${
+              <div className="border border-[#E2DFD8] rounded-2xl p-4 bg-[#F7F5F0] flex justify-center">
+                <div className={`bg-white rounded-2xl shadow-sm border border-[#E2DFD8] overflow-hidden transition-all ${
                   previewDevice === 'mobile' ? 'w-[375px]' : 'w-full'
                 }`}>
                   {/* Banner */}
-                  <div className="h-32 sm:h-40 bg-[#17191F] relative overflow-hidden">
+                  <div className="h-32 sm:h-40 bg-[#14243A] relative overflow-hidden">
                     {bannerUrl ? (
                       <img src={bannerUrl} alt="" className="w-full h-full object-cover" />
                     ) : (
-                      <div className="w-full h-full bg-linear-to-r from-[#17191F] via-[#2A303C] to-[#1E293B]" />
+                      <div className="w-full h-full bg-linear-to-r from-[#14243A] via-[#1E2F4A] to-[#283548]" />
                     )}
                   </div>
 
@@ -876,36 +882,36 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                         {logoUrl ? (
                           <img src={logoUrl} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-[#EEF2FF] text-[#4057D6] font-bold text-xl flex items-center justify-center">
+                          <div className="w-full h-full bg-[#F7F3EB] text-[#8E6D38] border border-[#E8DAC2] font-bold text-xl flex items-center justify-center font-mono">
                             {storeName.charAt(0)}
                           </div>
                         )}
                       </div>
                       <div className="pt-8 sm:pt-10 min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-base sm:text-lg font-bold text-[#17191F] truncate">{storeName}</h4>
+                          <h4 className="text-base sm:text-lg font-bold text-[#14243A] truncate">{storeName}</h4>
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             Verified
                           </span>
                         </div>
-                        <p className="text-xs text-[#646B76]">{tagline}</p>
+                        <p className="text-xs text-[#5A6578]">{tagline}</p>
                       </div>
                     </div>
 
                     {announcement && (
-                      <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center gap-2">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <div className="p-2.5 bg-[#F7F3EB] border border-[#E8DAC2] rounded-xl text-xs text-[#14243A] flex items-center gap-2">
+                        <Sparkles className="w-3.5 h-3.5 text-[#C5A572] shrink-0" />
                         <span>{announcement}</span>
                       </div>
                     )}
 
-                    <div className="text-xs text-[#4B5563] leading-relaxed">
+                    <div className="text-xs text-[#283548] leading-relaxed">
                       {description}
                     </div>
 
-                    <div className="pt-3 border-t border-[#F3F4F6] flex items-center justify-between text-xs text-[#646B76]">
+                    <div className="pt-3 border-t border-[#EFECE5] flex items-center justify-between text-xs text-[#5A6578]">
                       <span>{city ? `${city}, ` : ''}{country}</span>
-                      <span className="text-[#4057D6] font-mono">novora.com/?store={storeSlug}</span>
+                      <span className="text-[#8E6D38] font-mono">novora.com/?store={storeSlug}</span>
                     </div>
                   </div>
                 </div>
@@ -919,21 +925,21 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
               <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto shadow-sm">
                 <Check className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold text-[#17191F]">
+              <h3 className="text-xl font-bold text-[#14243A]">
                 Your Storefront is Live on NOVORA!
               </h3>
-              <p className="text-xs sm:text-sm text-[#646B76] leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#5A6578] leading-relaxed">
                 Your store has been published with <strong>{completenessPercent}% completeness</strong>. Global buyers can now discover your curated workshop and purchase directly.
               </p>
 
-              <div className="p-4 bg-[#F9FAFB] rounded-xl border border-[#E5E7EB] flex items-center justify-between text-xs font-mono">
-                <span className="truncate max-w-[280px] text-[#4057D6]">
+              <div className="p-4 bg-[#F7F5F0] rounded-xl border border-[#E2DFD8] flex items-center justify-between text-xs font-mono">
+                <span className="truncate max-w-[280px] text-[#8E6D38] font-semibold">
                   novora.com/?store={publishedStore.storeSlug}
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="px-3 py-1.5 bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] rounded-lg font-sans font-medium flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 active:scale-[0.98]"
+                  className="px-3 py-1.5 bg-white border border-[#E2DFD8] hover:bg-[#F7F5F0] rounded-lg font-sans font-medium flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 active:scale-[0.98] text-[#14243A]"
                 >
                   {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copiedLink ? 'Copied' : 'Copy'}</span>
@@ -944,15 +950,15 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                 <button
                   type="button"
                   onClick={() => onViewStore(publishedStore)}
-                  className="px-5 py-2.5 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs sm:text-sm font-medium flex items-center gap-2 transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+                  className="px-5 py-2.5 bg-[#14243A] hover:bg-[#0E1B2D] text-white rounded-xl text-xs sm:text-sm font-medium flex items-center gap-2 transition-all shadow-xs cursor-pointer active:scale-[0.98]"
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-4 h-4 text-[#C5A572]" />
                   <span>View Public Storefront</span>
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2.5 bg-white border border-[#E5E7EB] hover:bg-[#F3F4F6] text-[#374151] rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer active:scale-[0.98]"
+                  className="px-5 py-2.5 bg-white border border-[#E2DFD8] hover:bg-[#F7F5F0] text-[#14243A] rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer active:scale-[0.98]"
                 >
                   Done
                 </button>
@@ -964,12 +970,12 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
 
         {/* Wizard Footer Controls */}
         {currentStep < 7 && (
-          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-[#E5E7EB] bg-[#FAFAF8] flex items-center justify-between shrink-0">
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-[#E2DFD8] bg-[#F7F5F0] flex items-center justify-between shrink-0">
             <button
               type="button"
               disabled={currentStep === 1}
               onClick={() => handleStepChange(currentStep - 1)}
-              className="px-4 py-2 text-xs font-medium text-[#646B76] hover:text-[#17191F] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 text-xs font-medium text-[#5A6578] hover:text-[#14243A] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
@@ -980,7 +986,7 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                 type="button"
                 disabled={currentStep === 1 && (slugStatus === 'taken' || slugStatus === 'checking')}
                 onClick={() => handleStepChange(currentStep + 1)}
-                className="px-5 py-2 bg-[#17191F] hover:bg-[#27272A] text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-5 py-2 bg-[#14243A] hover:bg-[#0E1B2D] text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <span>Continue</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -990,17 +996,17 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
                 type="button"
                 disabled={isSaving || slugStatus === 'taken'}
                 onClick={handlePublish}
-                className="px-6 py-2 bg-[#4057D6] hover:bg-[#3446B8] text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-2 bg-[#14243A] hover:bg-[#0E1B2D] text-white rounded-xl text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#C5A572]" />
                     <span>Publishing to NOVORA...</span>
                   </>
                 ) : (
                   <>
                     <span>Publish Storefront</span>
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#C5A572]" />
                   </>
                 )}
               </button>
@@ -1011,26 +1017,26 @@ export const StoreSetupWizard: React.FC<StoreSetupWizardProps> = ({
         {/* Unsaved Changes Exit Confirmation Dialog */}
         {showExitConfirm && (
           <div className="absolute inset-0 z-60 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-[#E5E7EB] text-center">
+            <div className="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl border border-[#E2DFD8] text-center">
               <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
                 <AlertCircle className="w-5 h-5" />
               </div>
-              <h4 className="text-sm font-semibold text-[#17191F]">Unsaved Store Changes</h4>
-              <p className="text-xs text-[#646B76] leading-relaxed">
+              <h4 className="text-sm font-semibold text-[#14243A]">Unsaved Store Changes</h4>
+              <p className="text-xs text-[#5A6578] leading-relaxed">
                 Your in-progress store configuration has been safely saved to your local browser draft.
               </p>
               <div className="pt-2 flex items-center justify-center gap-2">
                 <button
                   type="button"
                   onClick={() => setShowExitConfirm(false)}
-                  className="px-3.5 py-2 text-xs font-medium bg-[#F3F4F6] text-[#374151] rounded-xl hover:bg-[#E5E7EB] transition-colors cursor-pointer"
+                  className="px-3.5 py-2 text-xs font-medium bg-[#F7F5F0] text-[#14243A] rounded-xl hover:bg-[#EFECE4] transition-colors cursor-pointer"
                 >
                   Keep Editing
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-3.5 py-2 text-xs font-medium bg-[#17191F] text-white rounded-xl hover:bg-[#27272A] transition-colors cursor-pointer"
+                  className="px-3.5 py-2 text-xs font-medium bg-[#14243A] text-white rounded-xl hover:bg-[#0E1B2D] transition-colors cursor-pointer active:scale-[0.98]"
                 >
                   Exit Wizard
                 </button>

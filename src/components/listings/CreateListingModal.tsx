@@ -78,20 +78,20 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
   if (!currentUser) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs novora-animate-backdrop">
-        <div className="bg-white rounded-2xl max-w-md w-full border border-[#E5E7EB] shadow-2xl p-6 text-center space-y-4 novora-animate-modal">
-          <div className="w-12 h-12 rounded-2xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center mx-auto">
+        <div className="bg-white rounded-2xl max-w-md w-full border border-[#E2DFD8] shadow-2xl p-6 text-center space-y-4 novora-animate-modal">
+          <div className="w-12 h-12 rounded-2xl bg-[#F7F3EB] text-[#C5A572] border border-[#E8DAC2] flex items-center justify-center mx-auto">
             <Plus className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-semibold text-[#17191F]">
+          <h3 className="text-base font-semibold text-[#14243A]">
             Sign in to Publish a Listing
           </h3>
-          <p className="text-xs text-[#646B76] leading-relaxed">
+          <p className="text-xs text-[#5A6578] leading-relaxed">
             You need a free registered account to publish offerings, manage inventory, and receive direct buyer inquiries.
           </p>
           <div className="pt-2 flex items-center justify-center gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-[#646B76] hover:text-[#17191F] rounded-lg transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-medium text-[#5A6578] hover:text-[#14243A] rounded-lg transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -100,7 +100,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                 onClose();
                 onOpenAuth('signin');
               }}
-              className="px-4 py-2 text-xs font-medium text-white bg-[#17191F] hover:bg-[#27272A] rounded-lg transition-colors cursor-pointer active:scale-[0.98]"
+              className="px-4 py-2 text-xs font-medium text-white bg-[#14243A] hover:bg-[#0E1B2D] rounded-lg transition-colors cursor-pointer active:scale-[0.98]"
             >
               Sign In / Register
             </button>
@@ -245,21 +245,21 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto novora-animate-backdrop">
-      <div className="bg-white rounded-2xl max-w-3xl w-full border border-[#E5E7EB] shadow-2xl relative overflow-hidden my-auto max-h-[92vh] flex flex-col novora-animate-modal">
+      <div className="bg-white rounded-2xl max-w-3xl w-full border border-[#E2DFD8] shadow-2xl relative overflow-hidden my-auto max-h-[92vh] flex flex-col novora-animate-modal">
         
         {/* Header */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[#E5E7EB] flex items-center justify-between shrink-0 bg-[#FAFAF8]">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[#E2DFD8] flex items-center justify-between shrink-0 bg-[#F7F5F0]">
           <div>
-            <h2 className="text-base font-semibold text-[#17191F]">
+            <h2 className="text-base font-semibold text-[#14243A]">
               {isEditing ? `Edit Offering: ${initialListing?.title}` : 'Publish New Listing'}
             </h2>
-            <p className="text-xs text-[#646B76]">
+            <p className="text-xs text-[#5A6578]">
               {isEditing ? 'Modify product details, pricing, fulfillment and photos' : 'Category-tailored dynamic fields · Zero listing fees'}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-[#646B76] hover:text-[#17191F] hover:bg-[#F3F4F6] rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-[#5A6578] hover:text-[#14243A] hover:bg-[#EFECE5] rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -278,13 +278,13 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
           {/* Category & Status Selection */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-[#17191F] mb-1">
+              <label className="block text-xs font-semibold text-[#14243A] mb-1">
                 Category *
               </label>
               <select
                 value={selectedCategoryId}
                 onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#17191F] focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl text-[#14243A] focus:border-[#14243A] focus:bg-white focus:outline-hidden"
               >
                 {CATEGORIES.map(c => (
                   <option key={c.id} value={c.id}>{c.name}</option>
@@ -293,13 +293,13 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#17191F] mb-1">
+              <label className="block text-xs font-semibold text-[#14243A] mb-1">
                 Offering Type *
               </label>
               <select
                 value={listingType}
                 onChange={(e) => setListingType(e.target.value as ListingType)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#17191F] focus:border-[#4057D6] focus:bg-white focus:outline-hidden capitalize"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl text-[#14243A] focus:border-[#14243A] focus:bg-white focus:outline-hidden capitalize"
               >
                 {currentCategory.listingTypes.map(t => (
                   <option key={t} value={t}>{t.replace('_', ' ')}</option>
@@ -309,8 +309,8 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
           </div>
 
           {isEditing && (
-            <div className="p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl flex items-center justify-between text-xs">
-              <span className="font-medium text-[#374151]">Listing Visibility Status:</span>
+            <div className="p-3 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl flex items-center justify-between text-xs">
+              <span className="font-medium text-[#14243A]">Listing Visibility Status:</span>
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -318,7 +318,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                   className={`px-3 py-1 rounded-lg font-medium transition-colors ${
                     listingStatus === 'active'
                       ? 'bg-emerald-600 text-white shadow-2xs'
-                      : 'bg-white border border-[#E5E7EB] text-[#646B76]'
+                      : 'bg-white border border-[#E2DFD8] text-[#5A6578]'
                   }`}
                 >
                   Active
@@ -329,7 +329,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                   className={`px-3 py-1 rounded-lg font-medium transition-colors ${
                     listingStatus === 'paused'
                       ? 'bg-amber-600 text-white shadow-2xs'
-                      : 'bg-white border border-[#E5E7EB] text-[#646B76]'
+                      : 'bg-white border border-[#E2DFD8] text-[#5A6578]'
                   }`}
                 >
                   Paused
@@ -341,7 +341,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
           {/* Title & Price */}
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-semibold text-[#17191F] mb-1">
+              <label className="block text-xs font-semibold text-[#14243A] mb-1">
                 Title *
               </label>
               <input
@@ -349,13 +349,13 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                 placeholder="e.g. Handcrafted Walnut Wood Mechanical Keyboard Case"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#17191F] focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl text-[#14243A] focus:border-[#14243A] focus:bg-white focus:outline-hidden"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-[#17191F] mb-1">
+                <label className="block text-xs font-semibold text-[#14243A] mb-1">
                   Price *
                 </label>
                 <input
@@ -364,18 +364,18 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                   placeholder="0.00"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#17191F] focus:border-[#4057D6] focus:bg-white focus:outline-hidden font-mono"
+                  className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl text-[#14243A] focus:border-[#14243A] focus:bg-white focus:outline-hidden font-mono"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#17191F] mb-1">
+                <label className="block text-xs font-semibold text-[#14243A] mb-1">
                   Currency *
                 </label>
                 <select
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
-                  className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#17191F] focus:border-[#4057D6] focus:bg-white focus:outline-hidden"
+                  className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl text-[#14243A] focus:border-[#14243A] focus:bg-white focus:outline-hidden"
                 >
                   {CURRENCIES.map(curr => (
                     <option key={curr.code} value={curr.code}>{curr.code} ({curr.symbol})</option>
@@ -384,13 +384,13 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#17191F] mb-1">
+                <label className="block text-xs font-semibold text-[#14243A] mb-1">
                   Condition *
                 </label>
                 <select
                   value={condition}
                   onChange={(e) => setCondition(e.target.value as ProductCondition)}
-                  className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#17191F] focus:border-[#4057D6] focus:bg-white focus:outline-hidden capitalize"
+                  className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl text-[#14243A] focus:border-[#14243A] focus:bg-white focus:outline-hidden capitalize"
                 >
                   <option value="new">Brand New</option>
                   <option value="like_new">Like New</option>
@@ -405,7 +405,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-[#17191F] mb-1">
+            <label className="block text-xs font-semibold text-[#14243A] mb-1">
               Description *
             </label>
             <textarea
@@ -413,20 +413,20 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
               placeholder="Describe materials, origin, dimensions, provenance, and what makes this offering unique..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full text-xs p-3 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#17191F] focus:border-[#4057D6] focus:bg-white focus:outline-hidden leading-relaxed"
+              className="w-full text-xs p-3 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl text-[#14243A] focus:border-[#14243A] focus:bg-white focus:outline-hidden leading-relaxed"
             />
           </div>
 
           {/* Dynamic Category Custom Fields */}
           {currentCategory.customFields.length > 0 && (
-            <div className="p-4 bg-[#FAFAF8] rounded-2xl border border-[#E5E7EB] space-y-3">
-              <span className="text-xs font-semibold text-[#17191F] block">
+            <div className="p-4 bg-[#F7F5F0] rounded-2xl border border-[#E2DFD8] space-y-3">
+              <span className="text-xs font-semibold text-[#14243A] block">
                 {currentCategory.name} Category Specifications
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 {currentCategory.customFields.map((field) => (
                   <div key={field.key}>
-                    <label className="block text-[11px] font-medium text-[#4B5563] mb-1">
+                    <label className="block text-[11px] font-medium text-[#5A6578] mb-1">
                       {field.label} {field.required && <span className="text-rose-500">*</span>}
                     </label>
 
@@ -434,7 +434,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                       <select
                         value={customAttributes[field.key] || ''}
                         onChange={(e) => handleCustomFieldChange(field.key, e.target.value)}
-                        className="w-full text-xs p-2 bg-white border border-[#E5E7EB] rounded-lg text-[#17191F]"
+                        className="w-full text-xs p-2 bg-white border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#14243A] focus:outline-hidden"
                       >
                         <option value="">Select option...</option>
                         {field.options.map(opt => (
@@ -448,9 +448,9 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                           id={`custom_${field.key}`}
                           checked={Boolean(customAttributes[field.key])}
                           onChange={(e) => handleCustomFieldChange(field.key, e.target.checked)}
-                          className="rounded border-[#E5E7EB] text-[#4057D6]"
+                          className="rounded border-[#E2DFD8] text-[#14243A] focus:ring-[#C5A572]"
                         />
-                        <label htmlFor={`custom_${field.key}`} className="text-xs text-[#374151] cursor-pointer">
+                        <label htmlFor={`custom_${field.key}`} className="text-xs text-[#283548] cursor-pointer">
                           {field.placeholder || 'Yes'}
                         </label>
                       </div>
@@ -460,7 +460,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                         placeholder={field.placeholder || ''}
                         value={customAttributes[field.key] || ''}
                         onChange={(e) => handleCustomFieldChange(field.key, e.target.value)}
-                        className="w-full text-xs p-2 bg-white border border-[#E5E7EB] rounded-lg text-[#17191F]"
+                        className="w-full text-xs p-2 bg-white border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#14243A] focus:outline-hidden"
                       />
                     )}
                   </div>
@@ -472,27 +472,27 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
           {/* Photos Upload */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-semibold text-[#17191F]">
+              <label className="text-xs font-semibold text-[#14243A]">
                 Product Photos ({images.length}/5)
               </label>
-              <span className="text-[11px] text-[#646B76]">
+              <span className="text-[11px] text-[#5A6578]">
                 Compressed client-side to keep service zero-cost
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               {images.map((imgUrl, idx) => (
-                <div key={idx} className="relative aspect-square rounded-xl bg-[#F3F4F6] overflow-hidden border border-[#E5E7EB] group">
+                <div key={idx} className="relative aspect-square rounded-xl bg-[#F7F5F0] overflow-hidden border border-[#E2DFD8] group">
                   <img src={imgUrl} alt="" className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => handleRemoveImage(idx)}
-                    className="absolute top-1.5 right-1.5 p-1 bg-white/90 hover:bg-rose-50 text-[#646B76] hover:text-rose-600 rounded-lg shadow-2xs transition-colors cursor-pointer"
+                    className="absolute top-1.5 right-1.5 p-1 bg-white/90 hover:bg-rose-50 text-[#5A6578] hover:text-rose-600 rounded-lg shadow-2xs transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                   {idx === 0 && (
-                    <span className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 bg-black/70 text-white text-[9px] font-medium rounded-md">
+                    <span className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 bg-[#14243A]/85 text-white text-[9px] font-medium rounded-md">
                       Cover
                     </span>
                   )}
@@ -500,9 +500,9 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
               ))}
 
               {images.length < 5 && (
-                <label className="border-2 border-dashed border-[#E5E7EB] hover:border-[#17191F] rounded-xl aspect-square flex flex-col items-center justify-center p-3 text-center cursor-pointer transition-colors bg-[#F9FAFB]">
-                  <Upload className="w-5 h-5 text-[#9CA3AF] mb-1" />
-                  <span className="text-[11px] font-medium text-[#4B5563]">
+                <label className="border-2 border-dashed border-[#E2DFD8] hover:border-[#14243A] rounded-xl aspect-square flex flex-col items-center justify-center p-3 text-center cursor-pointer transition-colors bg-[#F7F5F0]">
+                  <Upload className="w-5 h-5 text-[#8A94A6] mb-1" />
+                  <span className="text-[11px] font-medium text-[#283548]">
                     {isCompressing ? 'Optimizing...' : 'Upload Image'}
                   </span>
                   <input
@@ -518,36 +518,36 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
           </div>
 
           {/* Shipping & Customization Settings */}
-          <div className="p-4 bg-[#FAFAF8] rounded-xl border border-[#E5E7EB] space-y-3">
+          <div className="p-4 bg-[#F7F5F0] rounded-xl border border-[#E2DFD8] space-y-3">
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
                 id="shipsIntl"
                 checked={shipsInternationally}
                 onChange={(e) => setShipsInternationally(e.target.checked)}
-                className="rounded border-[#E5E7EB] text-[#4057D6]"
+                className="rounded border-[#E2DFD8] text-[#14243A] focus:ring-[#C5A572]"
               />
-              <label htmlFor="shipsIntl" className="text-xs font-medium text-[#17191F] cursor-pointer">
+              <label htmlFor="shipsIntl" className="text-xs font-medium text-[#14243A] cursor-pointer">
                 Ships Internationally / Available Worldwide
               </label>
             </div>
 
             {shipsInternationally && (
               <div>
-                <label className="block text-[11px] text-[#646B76] mb-1">
+                <label className="block text-[11px] text-[#5A6578] mb-1">
                   Destination Regions (comma-separated, e.g. "Worldwide" or "US, CA, GB")
                 </label>
                 <input
                   type="text"
                   value={shippingDestinations}
                   onChange={(e) => setShippingDestinations(e.target.value)}
-                  className="w-full text-xs p-2 bg-white border border-[#E5E7EB] rounded-lg text-[#17191F]"
+                  className="w-full text-xs p-2 bg-white border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#14243A] focus:outline-hidden"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-[11px] text-[#646B76] mb-1">
+              <label className="block text-[11px] text-[#5A6578] mb-1">
                 Shipping Cost Description
               </label>
               <input
@@ -555,7 +555,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                 placeholder="e.g. Free shipping domestic; $12 tracked international airmail"
                 value={shippingCostDesc}
                 onChange={(e) => setShippingCostDesc(e.target.value)}
-                className="w-full text-xs p-2 bg-white border border-[#E5E7EB] rounded-lg text-[#17191F]"
+                className="w-full text-xs p-2 bg-white border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#14243A] focus:outline-hidden"
               />
             </div>
 
@@ -565,19 +565,19 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                 id="allowsCustom"
                 checked={allowsCustomization}
                 onChange={(e) => setAllowsCustomization(e.target.checked)}
-                className="rounded border-[#E5E7EB] text-[#4057D6]"
+                className="rounded border-[#E2DFD8] text-[#14243A] focus:ring-[#C5A572]"
               />
-              <label htmlFor="allowsCustom" className="text-xs font-medium text-[#17191F] cursor-pointer">
+              <label htmlFor="allowsCustom" className="text-xs font-medium text-[#14243A] cursor-pointer">
                 I can customize this product upon request (bespoke dimensions, colorway, engravings)
               </label>
             </div>
           </div>
 
           {/* Form Actions */}
-          <div className="pt-3 border-t border-[#E5E7EB] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-[#059669]">
-              <ShieldCheck className="w-4 h-4 shrink-0" />
-              <span>Zero listing fees · 100% direct trade</span>
+          <div className="pt-3 border-t border-[#E2DFD8] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-[#283548]">
+              <ShieldCheck className="w-4 h-4 shrink-0 text-[#C5A572]" />
+              <span className="font-medium">Zero listing fees · 100% direct trade</span>
             </div>
 
             <div className="flex items-center justify-end gap-2">
@@ -585,24 +585,24 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
                 type="button"
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="flex-1 sm:flex-none px-4 py-2 text-xs font-medium text-[#646B76] hover:text-[#17191F] rounded-lg transition-colors cursor-pointer text-center"
+                className="flex-1 sm:flex-none px-4 py-2 text-xs font-medium text-[#5A6578] hover:text-[#14243A] rounded-lg transition-colors cursor-pointer text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting || isCompressing}
-                className="flex-1 sm:flex-none px-5 py-2 text-xs font-medium text-white bg-[#17191F] hover:bg-[#27272A] rounded-lg transition-colors shadow-xs cursor-pointer text-center flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-50"
+                className="flex-1 sm:flex-none px-5 py-2 text-xs font-medium text-white bg-[#14243A] hover:bg-[#0E1B2D] rounded-lg transition-colors shadow-xs cursor-pointer text-center flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#C5A572]" />
                     <span>{isEditing ? 'Saving Changes...' : 'Publishing...'}</span>
                   </>
                 ) : (
                   <>
                     <span>{isEditing ? 'Save Changes' : 'Publish Listing'}</span>
-                    <Check className="w-3.5 h-3.5" />
+                    <Check className="w-3.5 h-3.5 text-[#C5A572]" />
                   </>
                 )}
               </button>

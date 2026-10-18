@@ -1,18 +1,56 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #14243A;
+  --color-accent: #C5A572;
+  --color-background: #F7F5F0;
+  --color-surface: #FFFFFF;
+  --color-slate: #283548;
+
+  --color-navy: #14243A;
+  --color-navy-hover: #0E1B2D;
+  --color-navy-subtle: #1C2F4A;
+
+  --color-champagne: #C5A572;
+  --color-champagne-hover: #B5935F;
+  --color-champagne-light: #F7F3EB;
+  --color-champagne-border: #E8DAC2;
+  --color-champagne-text: #8E6D38;
+
+  --color-ivory: #F7F5F0;
+  --color-ivory-dark: #ECE9E2;
+
+  --color-slate-brand: #283548;
+  --color-slate-hover: #1E2938;
+  --color-slate-subtle: #36445B;
+}
+
 @layer base {
   :root {
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     --font-mono: 'Space Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     
-    /* Design tokens */
-    --color-bg-primary: #FFFFFF;
-    --color-bg-soft: #F7F8FA;
-    --color-text-primary: #17191F;
-    --color-text-secondary: #646B76;
-    --color-border: #E5E7EB;
-    --color-accent: #4057D6;
-    --color-accent-hover: #2D3FB0;
+    /* Official NOVORA Brand Color Tokens */
+    --color-primary: #14243A;          /* Midnight Navy */
+    --color-primary-hover: #0E1B2D;
+    --color-primary-subtle: #1C2F4A;
+    --color-accent: #C5A572;           /* Champagne */
+    --color-accent-hover: #B5935F;
+    --color-accent-light: #F7F3EB;
+    --color-accent-border: #E8DAC2;
+    --color-accent-text: #8E6D38;      /* Accessible Champagne text (WCAG AA 4.5:1+) */
+    --color-background: #F7F5F0;       /* Warm Ivory */
+    --color-surface: #FFFFFF;          /* Pure White */
+    --color-slate: #283548;            /* Slate */
+    --color-slate-hover: #1E2938;
+    --color-slate-light: #36445B;
+
+    /* Semantic neutrals & borders */
+    --color-text-primary: #14243A;
+    --color-text-secondary: #5A6578;
+    --color-text-muted: #8A94A6;
+    --color-border: #E2DFD8;
+    --color-border-subtle: #ECE9E2;
 
     /* Responsive container max-widths */
     --container-max-width: 1440px;
@@ -37,8 +75,8 @@
 
   body {
     font-family: var(--font-sans);
-    color: #17191F;
-    background-color: #FAFAF8;
+    color: var(--color-text-primary);
+    background-color: var(--color-background);
     letter-spacing: -0.011em;
     min-height: 100vh;
     min-width: 320px;
@@ -48,6 +86,7 @@
     font-family: var(--font-sans);
     letter-spacing: -0.022em;
     font-weight: 600;
+    color: var(--color-primary);
     text-wrap: balance;
   }
 }
@@ -257,12 +296,67 @@
   animation: novora-toast-in var(--duration-normal) var(--ease-out-quad) forwards;
 }
 
-/* Skeleton loader utility */
+/* Skeleton loader utility with warm ivory / champagne undertones */
 .novora-skeleton {
-  background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 37%, #F3F4F6 63%);
+  background: linear-gradient(90deg, #EFECE5 25%, #E2DDD3 37%, #EFECE5 63%);
   background-size: 400% 100%;
   animation: novora-shimmer 1.5s ease infinite;
   border-radius: 0.75rem;
+}
+
+/* Official Brand Button Variants */
+.novora-btn-primary {
+  background-color: #14243A;
+  color: #FFFFFF;
+  border: 1px solid transparent;
+  transition: all var(--duration-fast) ease;
+}
+.novora-btn-primary:hover {
+  background-color: #0E1B2D;
+}
+.novora-btn-primary:active {
+  transform: scale(0.98);
+}
+
+.novora-btn-champagne {
+  background-color: #C5A572;
+  color: #14243A;
+  font-weight: 600;
+  border: 1px solid #E8DAC2;
+  transition: all var(--duration-fast) ease;
+}
+.novora-btn-champagne:hover {
+  background-color: #B5935F;
+}
+.novora-btn-champagne:active {
+  transform: scale(0.98);
+}
+
+.novora-btn-secondary {
+  background-color: #FFFFFF;
+  color: #14243A;
+  border: 1px solid #E2DFD8;
+  transition: all var(--duration-fast) ease;
+}
+.novora-btn-secondary:hover {
+  background-color: #F7F5F0;
+  border-color: #14243A;
+}
+.novora-btn-secondary:active {
+  transform: scale(0.98);
+}
+
+.novora-btn-slate {
+  background-color: #283548;
+  color: #FFFFFF;
+  border: 1px solid transparent;
+  transition: all var(--duration-fast) ease;
+}
+.novora-btn-slate:hover {
+  background-color: #1E2938;
+}
+.novora-btn-slate:active {
+  transform: scale(0.98);
 }
 
 /* Interactive Card & Button Motion */

@@ -68,6 +68,7 @@ import { StoreSetupWizard } from './components/store/StoreSetupWizard';
 import { PublicUserProfile } from './components/profile/PublicUserProfile';
 import { InfoPages } from './components/legal/InfoPages';
 import { AuthModal } from './components/auth/AuthModal';
+import { Breadcrumbs } from './components/common/Breadcrumbs';
 
 export const App: React.FC = () => {
   // 1. Core State
@@ -75,6 +76,7 @@ export const App: React.FC = () => {
   const [authInitialized, setAuthInitialized] = useState(false);
 
   const [listings, setListings] = useState<Listing[]>([]);
+  const [listingsLoading, setListingsLoading] = useState(true);
   const [requests, setRequests] = useState<BuyerRequest[]>([]);
   const [offers, setOffers] = useState<RequestOffer[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -139,6 +141,17 @@ export const App: React.FC = () => {
     // Real-time public listings
     const unsubListings = subscribeToListings((liveListings) => {
       setListings(liveListings);
+      setListingsLoading(false);
+
+      // Deep link to listing if provided in URL parameter (?listing=...)
+      const currentParams = new URLSearchParams(window.location.search);
+      const targetListingId = currentParams.get('listing');
+      if (targetListingId) {
+        const found = liveListings.find(l => l.id === targetListingId);
+        if (found) {
+          setActiveListingForDetail(found);
+        }
+      }
     });
 
     // Real-time public requests
@@ -193,11 +206,29 @@ export const App: React.FC = () => {
       setActiveView('info');
     }
 
+    const handlePopState = () => {
+      const currentParams = new URLSearchParams(window.location.search);
+      const targetListingId = currentParams.get('listing');
+      if (targetListingId) {
+        setListings(prev => {
+          const found = prev.find(l => l.id === targetListingId);
+          if (found) {
+            setActiveListingForDetail(found);
+          }
+          return prev;
+        });
+      } else {
+        setActiveListingForDetail(null);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+
     return () => {
       unsubListings();
       unsubRequests();
       unsubStores();
       unsubAuth();
+      window.removeEventListener('popstate', handlePopState);
     };
   }, []);
 
@@ -296,6 +327,13 @@ export const App: React.FC = () => {
   const handleSelectListing = (listing: Listing) => {
     setActiveListingForDetail(listing);
     incrementListingView(listing.id);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('listing', listing.id);
+      window.history.pushState({}, '', url.toString());
+    } catch {
+      // ignore
+    }
     // Add to recently viewed in localStorage
     try {
       const raw = localStorage.getItem('novora_recent_viewed');
@@ -365,7 +403,6 @@ export const App: React.FC = () => {
   };
 
   const handleDeleteListing = async (listingId: string) => {
-    if (!confirm('Are you sure you want to permanently delete this listing?')) return;
     try {
       await deleteListing(listingId);
       addToast('info', 'Listing Deleted', 'Item removed from marketplace.');
@@ -583,7 +620,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-[#17191F] flex flex-col font-sans selection:bg-[#4057D6] selection:text-white">
+    <div className="min-h-screen bg-[#F7F5F0] text-[#14243A] flex flex-col font-sans selection:bg-[#14243A] selection:text-white">
       
       {/* Global Header */}
       <Header
@@ -705,6 +742,7 @@ export const App: React.FC = () => {
                   favorites={favorites}
                   displayCurrency={currentCurrency}
                   selectedCategory={selectedCategory}
+                  isLoadingListings={listingsLoading}
                   onSelectCategory={setSelectedCategory}
                   onSelectListing={handleSelectListing}
                   onToggleFavorite={handleToggleFavorite}
@@ -790,13 +828,15 @@ export const App: React.FC = () => {
         {/* View 4: Request Orbit (Buyer Sourcing Board) */}
         {activeView === 'request-orbit' && (
           <div className="novora-container py-8 sm:py-10">
-            <div className="mb-6 flex items-center gap-2">
-              <button
-                onClick={() => setActiveView('home')}
-                className="text-xs text-[#646B76] hover:text-[#17191F] font-medium cursor-pointer"
-              >
-                ← Return to Marketplace Home
-              </button>
+            <div className="mb-6 flex items-center justify-between gap-2">
+              <Breadcrumbs
+                items={[
+                  { label: 'Marketplace', onClick: () => setActiveView('home') },
+                  { label: 'Sourcing & Procurement', onClick: () => setActiveView('home') },
+                  { label: 'Request Orbit', current: true }
+                ]}
+                className="py-0 px-0"
+              />
             </div>
             <RequestOrbitView
               requests={requests}
@@ -820,13 +860,15 @@ export const App: React.FC = () => {
         {/* View 5: Seller Control Center */}
         {activeView === 'seller' && (
           <div className="novora-container py-8 sm:py-10">
-            <div className="mb-6 flex items-center gap-2">
-              <button
-                onClick={() => setActiveView('home')}
-                className="text-xs text-[#646B76] hover:text-[#17191F] font-medium cursor-pointer"
-              >
-                ← Return to Marketplace Home
-              </button>
+            <div className="mb-6 flex items-center justify-between gap-2">
+              <Breadcrumbs
+                items={[
+                  { label: 'Marketplace', onClick: () => setActiveView('home') },
+                  { label: 'Workspaces', onClick: () => setActiveView('home') },
+                  { label: 'Seller Control Center', current: true }
+                ]}
+                className="py-0 px-0"
+              />
             </div>
             <SellerWorkspace
               currentUser={currentUser}
@@ -861,13 +903,15 @@ export const App: React.FC = () => {
         {/* View 6: Buyer Sanctuary */}
         {activeView === 'buyer' && (
           <div className="novora-container py-8 sm:py-10">
-            <div className="mb-6 flex items-center gap-2">
-              <button
-                onClick={() => setActiveView('home')}
-                className="text-xs text-[#646B76] hover:text-[#17191F] font-medium cursor-pointer"
-              >
-                ← Return to Marketplace Home
-              </button>
+            <div className="mb-6 flex items-center justify-between gap-2">
+              <Breadcrumbs
+                items={[
+                  { label: 'Marketplace', onClick: () => setActiveView('home') },
+                  { label: 'Workspaces', onClick: () => setActiveView('home') },
+                  { label: 'Buyer Sanctuary', current: true }
+                ]}
+                className="py-0 px-0"
+              />
             </div>
             <BuyerWorkspace
               currentUser={currentUser}
@@ -898,13 +942,15 @@ export const App: React.FC = () => {
         {/* View 7: Admin Workspace */}
         {activeView === 'admin' && (
           <div className="novora-container py-8 sm:py-10">
-            <div className="mb-6 flex items-center gap-2">
-              <button
-                onClick={() => setActiveView('home')}
-                className="text-xs text-[#646B76] hover:text-[#17191F] font-medium cursor-pointer"
-              >
-                ← Return to Marketplace Home
-              </button>
+            <div className="mb-6 flex items-center justify-between gap-2">
+              <Breadcrumbs
+                items={[
+                  { label: 'Marketplace', onClick: () => setActiveView('home') },
+                  { label: 'Administration', onClick: () => setActiveView('home') },
+                  { label: 'Platform Moderation & Security', current: true }
+                ]}
+                className="py-0 px-0"
+              />
             </div>
             <AdminWorkspace
               currentUser={currentUser}
@@ -974,8 +1020,17 @@ export const App: React.FC = () => {
         <ListingDetailModal
           listing={activeListingForDetail}
           currentUser={currentUser}
+          onClose={() => {
+            setActiveListingForDetail(null);
+            try {
+              const url = new URL(window.location.href);
+              url.searchParams.delete('listing');
+              window.history.pushState({}, '', url.pathname + (url.search ? url.search : ''));
+            } catch {
+              // ignore
+            }
+          }}
           isFavorite={favorites.includes(activeListingForDetail.id)}
-          onClose={() => setActiveListingForDetail(null)}
           onToggleFavorite={handleToggleFavorite}
           onStartMessage={handleStartMessageOnListing}
           onReport={(l) => {
@@ -992,6 +1047,22 @@ export const App: React.FC = () => {
           onViewSeller={(sid, sname) => {
             setActiveListingForDetail(null);
             handleSelectSeller(sid, sname);
+          }}
+          onSelectCategory={(categoryId) => {
+            setActiveListingForDetail(null);
+            setSelectedCategory(categoryId);
+            setActiveView('home');
+            try {
+              const url = new URL(window.location.href);
+              url.searchParams.delete('listing');
+              window.history.pushState({}, '', url.pathname + (url.search ? url.search : ''));
+            } catch {
+              // ignore
+            }
+            setTimeout(() => {
+              const el = document.getElementById('catalog-section');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }, 50);
           }}
         />
       )}
@@ -1096,6 +1167,7 @@ export const App: React.FC = () => {
         requests={requests}
         userId={currentUser?.id || ''}
         onNavigate={(view, targetId) => {
+          setShowNotificationDrawer(false);
           if (view === 'messages') {
             const found = conversations.find(c => c.id === targetId);
             if (found) setActiveConversation(found);

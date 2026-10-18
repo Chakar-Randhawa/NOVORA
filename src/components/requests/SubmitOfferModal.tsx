@@ -40,20 +40,20 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
   if (!currentUser) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs novora-animate-backdrop">
-        <div className="bg-white rounded-2xl max-w-md w-full border border-[#E5E7EB] shadow-2xl p-6 text-center space-y-4 novora-animate-modal">
-          <div className="w-12 h-12 rounded-2xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center mx-auto">
+        <div className="bg-white rounded-2xl max-w-md w-full border border-[#E2DFD8] shadow-2xl p-6 text-center space-y-4 novora-animate-modal">
+          <div className="w-12 h-12 rounded-2xl bg-[#F7F3EB] text-[#C5A572] border border-[#E8DAC2] flex items-center justify-center mx-auto">
             <Send className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-semibold text-[#17191F]">
+          <h3 className="text-base font-semibold text-[#14243A]">
             Sign in to Submit a Proposal
           </h3>
-          <p className="text-xs text-[#646B76] leading-relaxed">
+          <p className="text-xs text-[#5A6578] leading-relaxed">
             You need a registered seller account to submit quotes and communicate with buyers on Request Orbit.
           </p>
           <div className="pt-2 flex items-center justify-center gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-xs font-medium text-[#646B76] hover:text-[#17191F] rounded-lg transition-colors cursor-pointer"
+              className="px-4 py-2 text-xs font-medium text-[#5A6578] hover:text-[#14243A] rounded-lg transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -62,7 +62,7 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
                 onClose();
                 onOpenAuth('signin');
               }}
-              className="px-4 py-2 text-xs font-medium text-white bg-[#17191F] hover:bg-[#27272A] rounded-lg transition-colors cursor-pointer active:scale-[0.98]"
+              className="px-4 py-2 text-xs font-medium text-white bg-[#14243A] hover:bg-[#0E1B2D] rounded-lg transition-colors cursor-pointer active:scale-[0.98]"
             >
               Sign In / Register
             </button>
@@ -118,19 +118,19 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto novora-animate-backdrop">
-      <div className="bg-white rounded-2xl max-w-2xl w-full border border-[#E5E7EB] shadow-2xl relative overflow-hidden my-auto max-h-[92vh] flex flex-col novora-animate-modal">
+      <div className="bg-white rounded-2xl max-w-2xl w-full border border-[#E2DFD8] shadow-2xl relative overflow-hidden my-auto max-h-[92vh] flex flex-col novora-animate-modal">
         
         {/* Header */}
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[#E5E7EB] flex items-center justify-between shrink-0 bg-[#FAFAF8]">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-[#E2DFD8] flex items-center justify-between shrink-0 bg-[#F7F5F0]">
           <div>
-            <h2 className="text-base font-semibold text-[#17191F]">Submit Quote Proposal</h2>
-            <p className="text-xs text-[#646B76] truncate max-w-md">
+            <h2 className="text-base font-semibold text-[#14243A]">Submit Quote Proposal</h2>
+            <p className="text-xs text-[#5A6578] truncate max-w-md">
               Replying to: "{request.title}" ({request.buyerName})
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-[#646B76] hover:text-[#17191F] hover:bg-[#F3F4F6] rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-[#5A6578] hover:text-[#14243A] hover:bg-[#EFECE5] rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -147,22 +147,22 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
           )}
 
           {/* Request summary banner */}
-          <div className="p-3.5 bg-[#F9FAFB] rounded-xl border border-[#E5E7EB] text-xs space-y-1">
-            <div className="flex items-center justify-between text-[#646B76]">
+          <div className="p-3.5 bg-[#F7F5F0] rounded-xl border border-[#E2DFD8] text-xs space-y-1">
+            <div className="flex items-center justify-between text-[#5A6578]">
               <span>Buyer Budget Range:</span>
-              <span className="font-semibold text-[#17191F] font-mono">
+              <span className="font-semibold text-[#14243A] font-mono">
                 ${request.budgetMin} – ${request.budgetMax} {request.currency}
               </span>
             </div>
-            <div className="flex items-center justify-between text-[#646B76]">
+            <div className="flex items-center justify-between text-[#5A6578]">
               <span>Preferred Fulfillment:</span>
-              <span className="capitalize font-medium text-[#17191F]">{request.fulfillmentPreference.replace('_', ' ')}</span>
+              <span className="capitalize font-medium text-[#14243A]">{request.fulfillmentPreference.replace('_', ' ')}</span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">
+              <label className="block text-xs font-medium text-[#14243A] mb-1">
                 Your Quoted Price *
               </label>
               <input
@@ -171,18 +171,18 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
                 required
                 value={proposedPrice}
                 onChange={(e) => setProposedPrice(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] font-mono"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] font-mono focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">
+              <label className="block text-xs font-medium text-[#14243A] mb-1">
                 Currency *
               </label>
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F]"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden cursor-pointer"
               >
                 {CURRENCIES.map(c => (
                   <option key={c.code} value={c.code}>{c.code} ({c.symbol})</option>
@@ -191,7 +191,7 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#17191F] mb-1">
+              <label className="block text-xs font-medium text-[#14243A] mb-1">
                 Est. Turnaround (Days) *
               </label>
               <input
@@ -200,13 +200,13 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
                 required
                 value={estimatedDays}
                 onChange={(e) => setEstimatedDays(e.target.value)}
-                className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] font-mono"
+                className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] font-mono focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#17191F] mb-1">
+            <label className="block text-xs font-medium text-[#14243A] mb-1">
               Proposal Details & Approach *
             </label>
             <textarea
@@ -215,12 +215,12 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
               placeholder="Introduce your capabilities, proposed materials, process, and why your workshop is the ideal match..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F] leading-relaxed"
+              className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] leading-relaxed focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#17191F] mb-1">
+            <label className="block text-xs font-medium text-[#14243A] mb-1">
               Included Deliverables
             </label>
             <input
@@ -228,12 +228,12 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
               placeholder="e.g. 50 laser-cut keytags, tracked international air parcel, presentation boxes"
               value={deliverables}
               onChange={(e) => setDeliverables(e.target.value)}
-              className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F]"
+              className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#17191F] mb-1">
+            <label className="block text-xs font-medium text-[#14243A] mb-1">
               Fulfillment & Shipping Terms *
             </label>
             <input
@@ -242,7 +242,7 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
               placeholder="e.g. Dispatched via DHL Express with insurance included"
               value={shippingDetails}
               onChange={(e) => setShippingDetails(e.target.value)}
-              className="w-full text-xs p-2.5 bg-[#F9FAFB] border border-[#E5E7EB] rounded-lg text-[#17191F]"
+              className="w-full text-xs p-2.5 bg-[#F7F5F0] border border-[#E2DFD8] rounded-lg text-[#14243A] focus:border-[#C5A572] focus:bg-white focus:outline-hidden"
             />
           </div>
 
@@ -252,16 +252,16 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
               id="offerCustom"
               checked={customizationIncluded}
               onChange={(e) => setCustomizationIncluded(e.target.checked)}
-              className="rounded border-[#E5E7EB] text-[#4057D6]"
+              className="rounded border-[#E2DFD8] text-[#14243A] accent-[#14243A]"
             />
-            <label htmlFor="offerCustom" className="text-xs font-medium text-[#17191F] cursor-pointer">
+            <label htmlFor="offerCustom" className="text-xs font-medium text-[#14243A] cursor-pointer">
               Customization & personalized adjustments included in quoted price
             </label>
           </div>
 
           {/* Actions */}
-          <div className="pt-4 border-t border-[#E5E7EB] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <span className="text-xs text-[#646B76] text-center sm:text-left">
+          <div className="pt-4 border-t border-[#E2DFD8] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <span className="text-xs text-[#5A6578] text-center sm:text-left">
               Valid for 14 days · Zero platform fees
             </span>
 
@@ -270,14 +270,14 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
                 type="button"
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="flex-1 sm:flex-none px-4 py-2 text-xs font-medium text-[#646B76] hover:text-[#17191F] rounded-lg transition-colors cursor-pointer text-center"
+                className="flex-1 sm:flex-none px-4 py-2 text-xs font-medium text-[#5A6578] hover:text-[#14243A] rounded-lg transition-colors cursor-pointer text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 sm:flex-none px-5 py-2.5 text-xs font-medium text-white bg-[#17191F] hover:bg-[#27272A] rounded-lg transition-colors shadow-xs cursor-pointer text-center flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-50"
+                className="flex-1 sm:flex-none px-5 py-2.5 text-xs font-medium text-white bg-[#14243A] hover:bg-[#0E1B2D] rounded-lg transition-colors shadow-xs cursor-pointer text-center flex items-center justify-center gap-1.5 active:scale-[0.98] disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <>

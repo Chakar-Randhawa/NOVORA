@@ -6,49 +6,49 @@ export const TrustSafetyBanner: React.FC = () => {
     <section id="safety" className="py-16 bg-white">
       <div className="max-w-[1440px] mx-auto px-6">
         
-        <div className="p-8 sm:p-10 rounded-2xl bg-[#FAFAF8] border border-[#E5E7EB] space-y-8">
+        <div className="p-8 sm:p-10 rounded-2xl bg-[#F7F5F0] border border-[#E2DFD8] space-y-8">
           
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-medium mb-3 border border-emerald-200">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
               <span>Platform Integrity & Direct Trade</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-semibold text-[#17191F] tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-[#14243A] tracking-tight">
               Trust, Direct Trade & The Zero-Cost Promise
             </h2>
-            <p className="text-xs sm:text-sm text-[#646B76] mt-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#5A6578] mt-2 leading-relaxed">
               NOVORA was engineered to operate on a permanent $0 external infrastructure budget. We never take marketplace commissions, charge listing fees, or require payment cards.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-[#E5E7EB]">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-[#E2DFD8]">
             
             <div className="space-y-2">
-              <div className="w-8 h-8 rounded-lg bg-white border border-[#E5E7EB] flex items-center justify-center text-[#17191F]">
-                <Scale className="w-4 h-4 text-[#4057D6]" />
+              <div className="w-8 h-8 rounded-lg bg-white border border-[#E2DFD8] flex items-center justify-center text-[#14243A]">
+                <Scale className="w-4 h-4 text-[#C5A572]" />
               </div>
-              <h3 className="text-sm font-semibold text-[#17191F]">Direct Transaction Model</h3>
-              <p className="text-xs text-[#646B76] leading-relaxed">
+              <h3 className="text-sm font-semibold text-[#14243A]">Direct Transaction Model</h3>
+              <p className="text-xs text-[#5A6578] leading-relaxed">
                 NOVORA is a discovery and connection platform. Buyers and sellers independently agree upon lawful payment and shipment methods without middleman markups.
               </p>
             </div>
 
             <div className="space-y-2">
-              <div className="w-8 h-8 rounded-lg bg-white border border-[#E5E7EB] flex items-center justify-center text-[#17191F]">
+              <div className="w-8 h-8 rounded-lg bg-white border border-[#E2DFD8] flex items-center justify-center text-[#14243A]">
                 <Lock className="w-4 h-4 text-[#059669]" />
               </div>
-              <h3 className="text-sm font-semibold text-[#17191F]">Zero Paid API Dependencies</h3>
-              <p className="text-xs text-[#646B76] leading-relaxed">
+              <h3 className="text-sm font-semibold text-[#14243A]">Zero Paid API Dependencies</h3>
+              <p className="text-xs text-[#5A6578] leading-relaxed">
                 Need-Based Matching and natural queries are powered by an efficient client-side heuristic engine. No paid AI endpoints or hidden token bills.
               </p>
             </div>
 
             <div className="space-y-2">
-              <div className="w-8 h-8 rounded-lg bg-white border border-[#E5E7EB] flex items-center justify-center text-[#17191F]">
+              <div className="w-8 h-8 rounded-lg bg-white border border-[#E2DFD8] flex items-center justify-center text-[#14243A]">
                 <RefreshCw className="w-4 h-4 text-[#D97706]" />
               </div>
-              <h3 className="text-sm font-semibold text-[#17191F]">Community Moderation</h3>
-              <p className="text-xs text-[#646B76] leading-relaxed">
+              <h3 className="text-sm font-semibold text-[#14243A]">Community Moderation</h3>
+              <p className="text-xs text-[#5A6578] leading-relaxed">
                 All community members can report fraudulent, counterfeit, or prohibited listings. Our moderation queue operates with auditable, transparent controls.
               </p>
             </div>

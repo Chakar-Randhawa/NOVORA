@@ -104,17 +104,17 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-4 sm:pl-10">
-        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col border-l border-[#E5E7EB] novora-animate-drawer">
+        <div className="w-screen max-w-md bg-white shadow-2xl flex flex-col border-l border-[#E2DFD8] novora-animate-drawer">
           
           {/* Header */}
-          <div className="p-4 sm:p-5 border-b border-[#E5E7EB] flex items-center justify-between bg-[#FAFAF8]">
+          <div className="p-4 sm:p-5 border-b border-[#E2DFD8] flex items-center justify-between bg-[#F7F5F0]">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-[#F7F3EB] text-[#C5A572] border border-[#E8DAC2] flex items-center justify-center">
                 <Bell className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-[#17191F]">Notification Center</h3>
-                <p className="text-[11px] text-[#646B76]">
+                <h3 className="text-sm font-semibold text-[#14243A]">Notification Center</h3>
+                <p className="text-[11px] text-[#5A6578]">
                   {realNotifications.filter(n => !n.read).length} unread updates
                 </p>
               </div>
@@ -122,7 +122,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
 
             <button
               onClick={onClose}
-              className="p-1.5 text-[#646B76] hover:text-[#17191F] hover:bg-[#E5E7EB] rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 text-[#5A6578] hover:text-[#14243A] hover:bg-[#EFECE4] rounded-lg transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -135,13 +135,13 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                 const getIcon = () => {
                   switch (notif.type) {
                     case 'message':
-                      return <MessageSquare className="w-4 h-4 text-[#4057D6]" />;
+                      return <MessageSquare className="w-4 h-4 text-[#C5A572]" />;
                     case 'offer':
                       return <Tag className="w-4 h-4 text-emerald-600" />;
                     case 'store':
-                      return <Store className="w-4 h-4 text-amber-600" />;
+                      return <Store className="w-4 h-4 text-[#8E6D38]" />;
                     default:
-                      return <Bell className="w-4 h-4 text-[#646B76]" />;
+                      return <Bell className="w-4 h-4 text-[#5A6578]" />;
                   }
                 };
 
@@ -154,29 +154,29 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                         onNavigate(notif.targetView, notif.targetId);
                       }
                     }}
-                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 hover:border-[#17191F] ${
-                      !notif.read ? 'bg-[#EEF2FF]/40 border-[#C7D2FE]' : 'bg-white border-[#E5E7EB]'
+                    className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 hover:border-[#14243A] ${
+                      !notif.read ? 'bg-[#F7F3EB]/70 border-[#E8DAC2]' : 'bg-white border-[#E2DFD8]'
                     }`}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-white border border-[#E5E7EB] flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                    <div className="w-8 h-8 rounded-lg bg-white border border-[#E2DFD8] flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
                       {getIcon()}
                     </div>
 
                     <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex items-center justify-between gap-1">
-                        <h4 className="text-xs font-semibold text-[#17191F] truncate">
+                        <h4 className="text-xs font-semibold text-[#14243A] truncate">
                           {notif.title}
                         </h4>
                         {!notif.read && (
-                          <span className="w-2 h-2 rounded-full bg-[#4057D6] shrink-0" />
+                          <span className="w-2 h-2 rounded-full bg-[#C5A572] shrink-0" />
                         )}
                       </div>
-                      <p className="text-[11px] text-[#4B5563] line-clamp-2 leading-relaxed">
+                      <p className="text-[11px] text-[#5A6578] line-clamp-2 leading-relaxed">
                         {notif.message}
                       </p>
-                      <div className="flex items-center justify-between text-[10px] text-[#9CA3AF] pt-1">
+                      <div className="flex items-center justify-between text-[10px] text-[#8A94A6] pt-1">
                         <span>{new Date(notif.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                        <span className="text-[#4057D6] font-medium flex items-center gap-0.5">
+                        <span className="text-[#8E6D38] font-medium flex items-center gap-0.5 hover:text-[#14243A]">
                           <span>View</span>
                           <ArrowRight className="w-2.5 h-2.5" />
                         </span>
@@ -187,11 +187,11 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               })
             ) : (
               <div className="text-center py-16 px-4 space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#F3F4F6] text-[#9CA3AF] flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-2xl bg-[#F7F3EB] text-[#C5A572] border border-[#E8DAC2] flex items-center justify-center mx-auto">
                   <Inbox className="w-6 h-6" />
                 </div>
-                <h4 className="text-sm font-semibold text-[#17191F]">All Caught Up</h4>
-                <p className="text-xs text-[#646B76] max-w-xs mx-auto leading-relaxed">
+                <h4 className="text-sm font-semibold text-[#14243A]">All Caught Up</h4>
+                <p className="text-xs text-[#5A6578] max-w-xs mx-auto leading-relaxed">
                   When you receive messages, quote proposals, or platform updates, they will appear here in real time.
                 </p>
               </div>
@@ -199,8 +199,8 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="p-3 border-t border-[#E5E7EB] bg-[#FAFAF8] text-center">
-            <span className="text-[11px] text-[#9CA3AF]">
+          <div className="p-3 border-t border-[#E2DFD8] bg-[#F7F5F0] text-center">
+            <span className="text-[11px] text-[#8A94A6]">
               NOVORA Real-Time Notification Stream
             </span>
           </div>

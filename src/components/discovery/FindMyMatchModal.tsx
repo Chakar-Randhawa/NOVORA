@@ -138,19 +138,19 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto novora-animate-backdrop">
-      <div className="bg-white rounded-2xl max-w-4xl w-full border border-[#E5E7EB] shadow-2xl relative overflow-hidden my-auto max-h-[92vh] flex flex-col novora-animate-modal">
+      <div className="bg-white rounded-2xl max-w-4xl w-full border border-[#E2DFD8] shadow-2xl relative overflow-hidden my-auto max-h-[92vh] flex flex-col novora-animate-modal">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between shrink-0 bg-[#FAFAF8]">
+        <div className="px-6 py-4 border-b border-[#E2DFD8] flex items-center justify-between shrink-0 bg-[#F7F5F0]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#EEF2FF] flex items-center justify-center text-[#4057D6]">
+            <div className="w-8 h-8 rounded-lg bg-white border border-[#E2DFD8] flex items-center justify-center text-[#C5A572] shadow-2xs">
               <Compass className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-[#17191F]">
+              <h2 className="text-base font-semibold text-[#14243A]">
                 Find My Match · Need-Based Discovery
               </h2>
-              <p className="text-[11px] text-[#646B76]">
+              <p className="text-[11px] text-[#5A6578]">
                 Natural query matching engine · Transparent relevance explanations
               </p>
             </div>
@@ -158,36 +158,36 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 text-[#646B76] hover:text-[#17191F] hover:bg-[#E5E7EB] rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-[#5A6578] hover:text-[#14243A] hover:bg-[#EFECE5] rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Input, Recent Searches & Examples Section */}
-        <div className="p-6 border-b border-[#E5E7EB] bg-white">
+        <div className="p-6 border-b border-[#E2DFD8] bg-white">
           <form onSubmit={handleSubmit} className="relative">
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="e.g. Handmade gift under $30 that ships to Canada..."
-              className="w-full text-xs sm:text-sm p-3.5 pr-28 bg-[#F9FAFB] border border-[#E5E7EB] rounded-xl text-[#17191F] focus:border-[#4057D6] focus:bg-white focus:outline-hidden transition-all shadow-xs"
+              className="w-full text-xs sm:text-sm p-3.5 pr-28 bg-[#F7F5F0] border border-[#E2DFD8] rounded-xl text-[#14243A] focus:border-[#14243A] focus:bg-white focus:outline-hidden transition-all shadow-xs"
             />
             <button
               type="submit"
-              className="absolute right-2 top-2 bottom-2 px-4 rounded-lg bg-[#17191F] hover:bg-[#27272A] text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="absolute right-2 top-2 bottom-2 px-4 rounded-lg bg-[#14243A] hover:bg-[#0E1B2D] text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
             >
               <span>Match</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3.5 h-3.5 text-[#C5A572]" />
             </button>
           </form>
 
           {/* Recent Searches (stored in localStorage, last 5) */}
           {recentSearches.length > 0 && (
             <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs">
-              <div className="flex items-center gap-1 text-[#646B76] font-medium text-[11px] mr-0.5">
-                <History className="w-3 h-3 text-[#4057D6]" />
+              <div className="flex items-center gap-1 text-[#5A6578] font-medium text-[11px] mr-0.5">
+                <History className="w-3 h-3 text-[#C5A572]" />
                 <span>Recent:</span>
               </div>
               {recentSearches.map((item, i) => (
@@ -197,7 +197,7 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
                     setQuery(item);
                     handleSearch(item);
                   }}
-                  className="group inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F9FAFB] hover:bg-[#EEF2FF] hover:border-[#C7D2FE] border border-[#E5E7EB] rounded-lg text-[#1F2937] hover:text-[#4057D6] transition-all text-[11px] cursor-pointer shadow-2xs"
+                  className="group inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F7F5F0] hover:bg-white hover:border-[#14243A] border border-[#E2DFD8] rounded-lg text-[#283548] hover:text-[#14243A] transition-all text-[11px] cursor-pointer shadow-2xs"
                   title={`Search for "${item}"`}
                 >
                   <span className="truncate max-w-[160px] sm:max-w-[220px]">
@@ -206,7 +206,7 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
                   <button
                     type="button"
                     onClick={(e) => handleRemoveRecentSearch(e, item)}
-                    className="text-[#9CA3AF] hover:text-[#EF4444] p-0.5 rounded-full hover:bg-white/80 transition-colors cursor-pointer"
+                    className="text-[#8A94A6] hover:text-[#EF4444] p-0.5 rounded-full hover:bg-white/80 transition-colors cursor-pointer"
                     title="Remove from history"
                     aria-label={`Remove search ${item}`}
                   >
@@ -217,7 +217,7 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
               <button
                 type="button"
                 onClick={handleClearAllRecentSearches}
-                className="text-[11px] text-[#9CA3AF] hover:text-[#646B76] underline underline-offset-2 ml-1 px-1 py-0.5 transition-colors cursor-pointer"
+                className="text-[11px] text-[#8A94A6] hover:text-[#5A6578] underline underline-offset-2 ml-1 px-1 py-0.5 transition-colors cursor-pointer"
               >
                 Clear
               </button>
@@ -225,8 +225,8 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
           )}
 
           {/* Sample Prompts */}
-          <div className="mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 text-xs text-[#646B76]">
-            <span className="shrink-0 font-medium text-[11px] text-[#646B76]">Examples:</span>
+          <div className="mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 text-xs text-[#5A6578]">
+            <span className="shrink-0 font-medium text-[11px] text-[#5A6578]">Examples:</span>
             {SAMPLE_PROMPTS.map((prompt, i) => (
               <button
                 key={i}
@@ -235,7 +235,7 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
                   setQuery(prompt);
                   handleSearch(prompt);
                 }}
-                className="shrink-0 px-2.5 py-1 bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#374151] rounded-md transition-colors text-[11px] cursor-pointer"
+                className="shrink-0 px-2.5 py-1 bg-[#F7F5F0] hover:bg-[#EFECE4] text-[#283548] border border-[#E2DFD8] rounded-md transition-colors text-[11px] cursor-pointer"
               >
                 "{prompt.length > 45 ? prompt.substring(0, 45) + '...' : prompt}"
               </button>
@@ -247,42 +247,42 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
         <div className="p-6 overflow-y-auto flex-1 space-y-6">
           
           {parsedNeed && hasSearched && (
-            <div className="p-4 bg-[#FAFAF8] rounded-xl border border-[#E5E7EB] space-y-2">
-              <span className="text-[11px] font-semibold text-[#646B76] uppercase tracking-wider block">
+            <div className="p-4 bg-[#F7F5F0] rounded-xl border border-[#E2DFD8] space-y-2">
+              <span className="text-[11px] font-semibold text-[#5A6578] uppercase tracking-wider block">
                 Extracted Criteria
               </span>
 
               <div className="flex flex-wrap gap-2 text-xs">
                 {parsedNeed.categoryMatch && (
-                  <span className="px-2.5 py-1 bg-white border border-[#E5E7EB] rounded-md text-[#17191F] font-medium flex items-center gap-1.5">
-                    <Tag className="w-3 h-3 text-[#4057D6]" />
+                  <span className="px-2.5 py-1 bg-white border border-[#E2DFD8] rounded-md text-[#14243A] font-medium flex items-center gap-1.5 shadow-2xs">
+                    <Tag className="w-3 h-3 text-[#C5A572]" />
                     <span>Category: {parsedNeed.categoryMatch.name}</span>
                   </span>
                 )}
 
                 {parsedNeed.maxBudget !== undefined && (
-                  <span className="px-2.5 py-1 bg-white border border-[#E5E7EB] rounded-md text-[#17191F] font-medium flex items-center gap-1.5 font-mono">
+                  <span className="px-2.5 py-1 bg-white border border-[#E2DFD8] rounded-md text-[#14243A] font-medium flex items-center gap-1.5 font-mono shadow-2xs">
                     <DollarSign className="w-3 h-3 text-emerald-600" />
                     <span>Budget Cap: ${parsedNeed.maxBudget}</span>
                   </span>
                 )}
 
                 {parsedNeed.destinationCountry && (
-                  <span className="px-2.5 py-1 bg-white border border-[#E5E7EB] rounded-md text-[#17191F] font-medium flex items-center gap-1.5">
+                  <span className="px-2.5 py-1 bg-white border border-[#E2DFD8] rounded-md text-[#14243A] font-medium flex items-center gap-1.5 shadow-2xs">
                     <MapPin className="w-3 h-3 text-rose-600" />
                     <span>Destination: {parsedNeed.destinationCountry.name}</span>
                   </span>
                 )}
 
                 {parsedNeed.requiresCustomization && (
-                  <span className="px-2.5 py-1 bg-white border border-[#E5E7EB] rounded-md text-[#17191F] font-medium flex items-center gap-1.5">
-                    <Sparkles className="w-3 h-3 text-amber-600" />
+                  <span className="px-2.5 py-1 bg-white border border-[#E2DFD8] rounded-md text-[#14243A] font-medium flex items-center gap-1.5 shadow-2xs">
+                    <Sparkles className="w-3 h-3 text-[#C5A572]" />
                     <span>Customization: Required</span>
                   </span>
                 )}
 
                 {parsedNeed.extractedKeywords.length > 0 && (
-                  <span className="px-2.5 py-1 bg-white border border-[#E5E7EB] rounded-md text-[#4B5563]">
+                  <span className="px-2.5 py-1 bg-white border border-[#E2DFD8] rounded-md text-[#5A6578] shadow-2xs">
                     Keywords: {parsedNeed.extractedKeywords.join(', ')}
                   </span>
                 )}
@@ -295,10 +295,10 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
             results.length > 0 ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-[#17191F] uppercase tracking-wider">
+                  <h3 className="text-xs font-semibold text-[#14243A] uppercase tracking-wider">
                     Relevant Matches ({results.length})
                   </h3>
-                  <span className="text-[11px] text-[#646B76]">
+                  <span className="text-[11px] text-[#5A6578]">
                     Ranked by multi-factor score
                   </span>
                 </div>
@@ -308,28 +308,28 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
                     <div
                       key={listing.id}
                       onClick={() => onSelectListing(listing)}
-                      className="p-4 rounded-xl border border-[#E5E7EB] bg-white hover:border-[#17191F] transition-all cursor-pointer flex flex-col justify-between space-y-3"
+                      className="p-4 rounded-xl border border-[#E2DFD8] bg-white hover:border-[#14243A] transition-all cursor-pointer flex flex-col justify-between space-y-3 shadow-2xs hover:shadow-xs group"
                     >
                       <div className="flex gap-4">
-                        <div className="w-18 h-18 rounded-lg bg-[#F3F4F6] overflow-hidden shrink-0">
+                        <div className="w-18 h-18 rounded-lg bg-[#F7F5F0] overflow-hidden shrink-0">
                           {listing.images && listing.images[0] ? (
-                            <img src={listing.images[0]} alt="" className="w-full h-full object-cover" />
+                            <img src={listing.images[0]} alt="" className="w-full h-full object-cover group-hover:scale-102 transition-transform" />
                           ) : (
-                            <div className="w-full h-full bg-[#E5E7EB]" />
+                            <div className="w-full h-full bg-[#EFECE5]" />
                           )}
                         </div>
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-xs font-semibold text-[#17191F] truncate">
+                            <span className="text-xs font-semibold text-[#14243A] group-hover:text-[#283548] transition-colors truncate">
                               {listing.title}
                             </span>
-                            <span className="text-xs font-mono font-semibold text-[#17191F] shrink-0">
+                            <span className="text-xs font-mono font-semibold text-[#14243A] shrink-0">
                               {formatPrice(listing.price, listing.currency)}
                             </span>
                           </div>
 
-                          <p className="text-[11px] text-[#646B76] mt-0.5 line-clamp-1">
+                          <p className="text-[11px] text-[#5A6578] mt-0.5 line-clamp-1">
                             {listing.sellerName} · {listing.sellerCity || listing.sellerCountry}
                           </p>
 
@@ -344,13 +344,13 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
                         </div>
                       </div>
 
-                      <div className="pt-2 border-t border-[#F3F4F6] flex items-center justify-between text-xs">
-                        <span className="text-[11px] font-medium text-[#4057D6]">
+                      <div className="pt-2 border-t border-[#F7F5F0] flex items-center justify-between text-xs">
+                        <span className="text-[11px] font-semibold text-[#8E6D38]">
                           Match Score: {relevanceScore}%
                         </span>
-                        <span className="text-xs font-medium text-[#17191F] flex items-center gap-0.5">
+                        <span className="text-xs font-medium text-[#14243A] group-hover:text-[#8E6D38] flex items-center gap-0.5 transition-colors">
                           <span>View Listing</span>
-                          <ArrowUpRight className="w-3.5 h-3.5" />
+                          <ArrowUpRight className="w-3.5 h-3.5 text-[#C5A572]" />
                         </span>
                       </div>
                     </div>
@@ -358,12 +358,12 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="text-center py-12 px-4 rounded-xl border border-dashed border-[#E5E7EB] space-y-3">
-                <AlertCircle className="w-8 h-8 text-[#9CA3AF] mx-auto" />
-                <h4 className="text-sm font-semibold text-[#17191F]">
+              <div className="text-center py-12 px-4 rounded-xl border border-dashed border-[#E2DFD8] space-y-3 bg-[#F7F5F0]">
+                <AlertCircle className="w-8 h-8 text-[#8A94A6] mx-auto" />
+                <h4 className="text-sm font-semibold text-[#14243A]">
                   No exact matches in current catalog
                 </h4>
-                <p className="text-xs text-[#646B76] max-w-md mx-auto leading-relaxed">
+                <p className="text-xs text-[#5A6578] max-w-md mx-auto leading-relaxed">
                   We couldn't find a listed item matching all criteria. You can post an open buyer request to our Request Orbit so independent sellers worldwide can quote you directly!
                 </p>
                 <div className="pt-2">
@@ -372,7 +372,7 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
                       onClose();
                       onOpenCreateRequest();
                     }}
-                    className="px-4 py-2 text-xs font-medium text-white bg-[#17191F] hover:bg-[#27272A] rounded-lg transition-colors cursor-pointer"
+                    className="px-4 py-2 text-xs font-medium text-white bg-[#14243A] hover:bg-[#0E1B2D] rounded-lg transition-colors cursor-pointer shadow-xs active:scale-[0.98]"
                   >
                     Post this to Request Orbit
                   </button>
@@ -380,7 +380,7 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
               </div>
             )
           ) : (
-            <div className="text-center py-10 text-xs text-[#646B76]">
+            <div className="text-center py-10 text-xs text-[#5A6578]">
               Enter a search description above to see transparent heuristic match results.
             </div>
           )}

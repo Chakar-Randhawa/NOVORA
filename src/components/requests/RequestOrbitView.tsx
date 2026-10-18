@@ -58,25 +58,25 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
     <div className="space-y-6">
       
       {/* Top Banner & Action */}
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
+      <div className="bg-white rounded-2xl border border-[#E2DFD8] p-6 sm:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xs">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#4057D6] mb-1">
-            <Compass className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#8E6D38] mb-1">
+            <Compass className="w-4 h-4 text-[#C5A572]" />
             <span>Buyer-Driven Sourcing Board</span>
           </div>
-          <h2 className="text-2xl font-semibold text-[#17191F] tracking-tight">
+          <h2 className="text-2xl font-semibold text-[#14243A] tracking-tight">
             Request Orbit
           </h2>
-          <p className="text-xs text-[#646B76] mt-1 max-w-xl leading-relaxed">
+          <p className="text-xs text-[#5A6578] mt-1 max-w-xl leading-relaxed">
             Can't find what you need in the catalog? Broadcast your exact custom requirements. Independent artisans, suppliers, and specialists worldwide respond with competitive quotes.
           </p>
         </div>
 
         <button
           onClick={onOpenCreateRequest}
-          className="px-5 py-2.5 rounded-lg bg-[#17191F] hover:bg-[#27272A] text-white text-xs font-medium flex items-center gap-2 shadow-xs transition-colors whitespace-nowrap cursor-pointer"
+          className="px-5 py-2.5 rounded-lg bg-[#14243A] hover:bg-[#0E1B2D] text-white text-xs font-medium flex items-center gap-2 shadow-xs transition-colors whitespace-nowrap cursor-pointer active:scale-[0.98]"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 text-[#C5A572]" />
           <span>Post a Custom Request</span>
         </button>
       </div>
@@ -87,8 +87,8 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
           onClick={() => setSelectedCategoryId('all')}
           className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
             selectedCategoryId === 'all'
-              ? 'bg-[#17191F] text-white shadow-xs'
-              : 'bg-white border border-[#E5E7EB] text-[#646B76] hover:text-[#17191F]'
+              ? 'bg-[#14243A] text-white shadow-xs'
+              : 'bg-white border border-[#E2DFD8] text-[#5A6578] hover:text-[#14243A]'
           }`}
         >
           All Requests ({requests.length})
@@ -101,8 +101,8 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
               onClick={() => setSelectedCategoryId(cat.id)}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 selectedCategoryId === cat.id
-                  ? 'bg-[#17191F] text-white shadow-xs'
-                  : 'bg-white border border-[#E5E7EB] text-[#646B76] hover:text-[#17191F]'
+                  ? 'bg-[#14243A] text-white shadow-xs'
+                  : 'bg-white border border-[#E2DFD8] text-[#5A6578] hover:text-[#14243A]'
               }`}
             >
               {cat.name} ({count})
@@ -113,24 +113,24 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
 
       {/* Main Layout or Empty State */}
       {requests.length === 0 ? (
-        <div className="text-center py-20 px-6 bg-white rounded-2xl border border-dashed border-[#E5E7EB] space-y-4 max-w-xl mx-auto">
-          <div className="w-12 h-12 rounded-2xl bg-[#EEF2FF] text-[#4057D6] flex items-center justify-center mx-auto">
+        <div className="text-center py-20 px-6 bg-white rounded-2xl border border-dashed border-[#E2DFD8] space-y-4 max-w-xl mx-auto">
+          <div className="w-12 h-12 rounded-2xl bg-[#F7F3EB] text-[#C5A572] border border-[#E8DAC2] flex items-center justify-center mx-auto">
             <Compass className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-[#17191F]">
+            <h3 className="text-base font-semibold text-[#14243A]">
               There are no requests to display yet
             </h3>
-            <p className="text-xs text-[#646B76] max-w-md mx-auto mt-1 leading-relaxed">
+            <p className="text-xs text-[#5A6578] max-w-md mx-auto mt-1 leading-relaxed">
               Looking for a custom manufactured part, specialized translation, bespoke furniture piece, or wholesale order? Post the first open request to receive direct quotes from international sellers.
             </p>
           </div>
           <div className="pt-2">
             <button
               onClick={onOpenCreateRequest}
-              className="px-5 py-2.5 bg-[#17191F] hover:bg-[#27272A] text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-xs inline-flex items-center gap-1.5"
+              className="px-5 py-2.5 bg-[#14243A] hover:bg-[#0E1B2D] text-white text-xs font-medium rounded-lg transition-colors cursor-pointer shadow-xs inline-flex items-center gap-1.5 active:scale-[0.98]"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 text-[#C5A572]" />
               <span>Post What You Need</span>
             </button>
           </div>
@@ -156,33 +156,33 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                     }}
                     className={`p-4 rounded-xl border transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-white border-[#17191F] shadow-xs'
-                        : 'bg-white border-[#E5E7EB] hover:border-[#D1D5DB]'
+                        ? 'bg-white border-[#14243A] shadow-xs'
+                        : 'bg-white border-[#E2DFD8] hover:border-[#14243A]'
                     }`}
                   >
-                    <div className="flex items-center justify-between text-[11px] text-[#646B76] mb-1.5">
+                    <div className="flex items-center justify-between text-[11px] text-[#5A6578] mb-1.5">
                       <span className="flex items-center gap-1 font-medium">
                         <span>{destCountry?.flag}</span>
                         <span>To {destCountry?.name || req.destinationCountry}</span>
                       </span>
-                      <span className="font-mono font-semibold text-[#17191F]">
+                      <span className="font-mono font-semibold text-[#14243A]">
                         {req.currency} {req.budgetMin}–{req.budgetMax}
                       </span>
                     </div>
 
-                    <h3 className="text-sm font-semibold text-[#17191F] line-clamp-1 mb-1">
+                    <h3 className="text-sm font-semibold text-[#14243A] line-clamp-1 mb-1">
                       {req.title}
                     </h3>
 
-                    <p className="text-xs text-[#646B76] line-clamp-2 leading-relaxed mb-3">
+                    <p className="text-xs text-[#5A6578] line-clamp-2 leading-relaxed mb-3">
                       {req.description}
                     </p>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-[#F3F4F6] text-[11px]">
-                      <span className="text-[#646B76]">
+                    <div className="flex items-center justify-between pt-2 border-t border-[#F7F5F0] text-[11px]">
+                      <span className="text-[#5A6578]">
                         by {req.buyerName}
                       </span>
-                      <span className="font-medium text-[#4057D6]">
+                      <span className="font-medium text-[#8E6D38]">
                         {proposalCount} {proposalCount === 1 ? 'Proposal' : 'Proposals'}
                       </span>
                     </div>
@@ -190,20 +190,20 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                 );
               })
             ) : (
-              <div className="p-8 text-center bg-white rounded-xl border border-dashed border-[#E5E7EB]">
-                <p className="text-xs text-[#646B76]">No requests found in this category.</p>
+              <div className="p-8 text-center bg-white rounded-xl border border-dashed border-[#E2DFD8]">
+                <p className="text-xs text-[#5A6578]">No requests found in this category.</p>
               </div>
             )}
           </div>
 
           {/* Right Column: Detailed Request View and Offers (7 cols on lg, toggled on mobile) */}
-          <div className={`${mobileTab === 'list' ? 'hidden lg:block' : 'block'} lg:col-span-7 bg-white rounded-2xl border border-[#E5E7EB] p-4 sm:p-6 space-y-6 shadow-xs`}>
+          <div className={`${mobileTab === 'list' ? 'hidden lg:block' : 'block'} lg:col-span-7 bg-white rounded-2xl border border-[#E2DFD8] p-4 sm:p-6 space-y-6 shadow-xs`}>
             {/* Mobile Back Button */}
-            <div className="lg:hidden pb-3 border-b border-[#E5E7EB]">
+            <div className="lg:hidden pb-3 border-b border-[#E2DFD8]">
               <button
                 type="button"
                 onClick={() => setMobileTab('list')}
-                className="text-xs font-semibold text-[#4057D6] flex items-center gap-1.5 py-1 px-2.5 bg-[#EEF2FF] rounded-lg cursor-pointer"
+                className="text-xs font-semibold text-[#14243A] flex items-center gap-1.5 py-1 px-2.5 bg-[#F7F5F0] hover:bg-[#EFECE5] rounded-lg cursor-pointer border border-[#E2DFD8]"
               >
                 <span>← Back to All Requests</span>
               </button>
@@ -212,12 +212,12 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
             {activeRequest ? (
               <>
                 {/* Header */}
-                <div className="border-b border-[#E5E7EB] pb-5 space-y-3">
+                <div className="border-b border-[#E2DFD8] pb-5 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs text-[#646B76]">
+                    <div className="flex items-center gap-2 text-xs text-[#5A6578]">
                       <span>Posted {new Date(activeRequest.createdAt).toLocaleDateString()}</span>
                       <span>·</span>
-                      <span className={activeRequest.status === 'open' ? 'text-emerald-700 font-medium' : 'text-[#646B76]'}>
+                      <span className={activeRequest.status === 'open' ? 'text-emerald-700 font-medium' : 'text-[#5A6578]'}>
                         {activeRequest.status === 'open' ? '● Open for Quotes' : '✓ Fulfilled'}
                       </span>
                     </div>
@@ -232,44 +232,44 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                     )}
                   </div>
 
-                  <h1 className="text-lg font-semibold text-[#17191F] leading-snug">
+                  <h1 className="text-lg font-semibold text-[#14243A] leading-snug">
                     {activeRequest.title}
                   </h1>
 
                   <div className="flex flex-wrap items-center gap-4 text-xs">
-                    <div className="flex items-center gap-1.5 text-[#17191F]">
+                    <div className="flex items-center gap-1.5 text-[#14243A]">
                       <DollarSign className="w-4 h-4 text-emerald-600" />
                       <span className="font-semibold font-mono">
                         {activeRequest.currency} {activeRequest.budgetMin} – {activeRequest.budgetMax}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#646B76]">
-                      <MapPin className="w-4 h-4 text-[#4057D6]" />
+                    <div className="flex items-center gap-1.5 text-[#5A6578]">
+                      <MapPin className="w-4 h-4 text-[#C5A572]" />
                       <span>Destination: {getCountryByCode(activeRequest.destinationCountry)?.name || activeRequest.destinationCountry}</span>
                     </div>
                     {activeRequest.deadline && (
-                      <div className="flex items-center gap-1.5 text-[#646B76]">
+                      <div className="flex items-center gap-1.5 text-[#5A6578]">
                         <Clock className="w-4 h-4 text-amber-600" />
                         <span>Deadline: {activeRequest.deadline}</span>
                       </div>
                     )}
                   </div>
 
-                  <p className="text-xs text-[#374151] leading-relaxed whitespace-pre-line pt-2">
+                  <p className="text-xs text-[#283548] leading-relaxed whitespace-pre-line pt-2">
                     {activeRequest.description}
                   </p>
 
                   {activeRequest.customizationDetails && (
-                    <div className="p-3 bg-[#FAFAF8] rounded-lg border border-[#E5E7EB] text-xs">
-                      <span className="font-semibold text-[#17191F]">Customization Specs: </span>
-                      <span className="text-[#646B76]">{activeRequest.customizationDetails}</span>
+                    <div className="p-3 bg-[#F7F5F0] rounded-lg border border-[#E2DFD8] text-xs">
+                      <span className="font-semibold text-[#14243A]">Customization Specs: </span>
+                      <span className="text-[#5A6578]">{activeRequest.customizationDetails}</span>
                     </div>
                   )}
 
                   {/* Seller response action */}
                   {!isOwner && (
                     <div className="pt-2 flex items-center justify-between">
-                      <p className="text-[11px] text-[#646B76]">
+                      <p className="text-[11px] text-[#5A6578]">
                         Can you fulfill this request? Submit a quote directly to the buyer.
                       </p>
                       <button
@@ -280,9 +280,9 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                             onOpenSubmitOffer(activeRequest);
                           }
                         }}
-                        className="px-4 py-2 rounded-lg bg-[#17191F] hover:bg-[#27272A] text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="px-4 py-2 rounded-lg bg-[#14243A] hover:bg-[#0E1B2D] text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer active:scale-[0.98]"
                       >
-                        <Send className="w-3.5 h-3.5 text-[#818CF8]" />
+                        <Send className="w-3.5 h-3.5 text-[#C5A572]" />
                         <span>Submit Proposal</span>
                       </button>
                     </div>
@@ -292,10 +292,10 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                 {/* Submitted Offers Section */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-semibold text-[#17191F] uppercase tracking-wider">
+                    <h3 className="text-xs font-semibold text-[#14243A] uppercase tracking-wider">
                       Seller Proposals ({activeRequest.offersCount || activeOffers.length})
                     </h3>
-                    <span className="text-[11px] text-[#646B76]">
+                    <span className="text-[11px] text-[#5A6578]">
                       Direct quotes · $0 platform fees
                     </span>
                   </div>
@@ -309,50 +309,50 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                         return (
                           <div
                             key={offer.id}
-                            className={`p-4 rounded-xl border bg-[#FAFAF8] space-y-3 transition-colors ${
-                              isMyOffer ? 'border-[#4057D6] bg-indigo-50/20' : 'border-[#E5E7EB] hover:border-[#17191F]'
+                            className={`p-4 rounded-xl border bg-[#F7F5F0] space-y-3 transition-colors ${
+                              isMyOffer ? 'border-[#C5A572] bg-[#FDFBF7]' : 'border-[#E2DFD8] hover:border-[#14243A]'
                             }`}
                           >
                             <div className="flex items-start justify-between gap-4">
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-xs font-semibold text-[#17191F]">
+                                  <span className="text-xs font-semibold text-[#14243A]">
                                     {offer.sellerName}
                                   </span>
                                   {isMyOffer && (
-                                    <span className="px-1.5 py-0.5 text-[10px] font-medium bg-[#EEF2FF] text-[#4057D6] rounded-md">
+                                    <span className="px-1.5 py-0.5 text-[10px] font-medium bg-[#F7F3EB] text-[#8E6D38] border border-[#E8DAC2] rounded-md">
                                       Your Submission
                                     </span>
                                   )}
-                                  <span className="text-xs text-[#646B76]">
+                                  <span className="text-xs text-[#5A6578]">
                                     {sellerCountry?.flag} {sellerCountry?.name || offer.sellerCountry}
                                   </span>
                                 </div>
-                                <span className="text-[11px] text-[#646B76]">
+                                <span className="text-[11px] text-[#5A6578]">
                                   Lead time: {offer.estimatedDays} business days · Status: {offer.status}
                                 </span>
                               </div>
 
                               <div className="text-right">
-                                <span className="text-base font-semibold font-mono text-[#17191F] tabular-nums">
+                                <span className="text-base font-semibold font-mono text-[#14243A] tabular-nums">
                                   {formatPrice(offer.proposedPrice, offer.currency)}
                                 </span>
                               </div>
                             </div>
 
-                            <p className="text-xs text-[#374151] leading-relaxed">
+                            <p className="text-xs text-[#283548] leading-relaxed">
                               {offer.description}
                             </p>
 
                             {offer.deliverables && (
-                              <div className="text-[11px] text-[#646B76]">
-                                <span className="font-medium text-[#17191F]">Deliverables: </span>
+                              <div className="text-[11px] text-[#5A6578]">
+                                <span className="font-medium text-[#14243A]">Deliverables: </span>
                                 <span>{offer.deliverables}</span>
                               </div>
                             )}
 
-                            <div className="pt-2 border-t border-[#E5E7EB] flex items-center justify-between text-xs">
-                              <span className="text-[11px] text-[#646B76]">
+                            <div className="pt-2 border-t border-[#E2DFD8] flex items-center justify-between text-xs">
+                              <span className="text-[11px] text-[#5A6578]">
                                 Shipping: {offer.shippingOrFulfillmentDetails}
                               </span>
 
@@ -370,9 +370,9 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                                       );
                                     }
                                   }}
-                                  className="px-3 py-1.5 bg-white border border-[#E5E7EB] hover:border-[#17191F] text-[#17191F] rounded-lg font-medium flex items-center gap-1.5 transition-colors cursor-pointer text-xs"
+                                  className="px-3 py-1.5 bg-white border border-[#E2DFD8] hover:border-[#14243A] text-[#14243A] rounded-lg font-medium flex items-center gap-1.5 transition-colors cursor-pointer text-xs"
                                 >
-                                  <MessageSquare className="w-3.5 h-3.5 text-[#4057D6]" />
+                                  <MessageSquare className="w-3.5 h-3.5 text-[#C5A572]" />
                                   <span>Discuss Proposal</span>
                                 </button>
                               )}
@@ -382,17 +382,17 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                       })}
                     </div>
                   ) : isOwner ? (
-                    <div className="p-8 text-center border border-dashed border-[#E5E7EB] rounded-xl space-y-1">
-                      <p className="text-xs font-medium text-[#17191F]">No seller proposals received yet.</p>
-                      <p className="text-[11px] text-[#646B76]">Independent makers and suppliers can review this request and submit bids.</p>
+                    <div className="p-8 text-center border border-dashed border-[#E2DFD8] rounded-xl space-y-1">
+                      <p className="text-xs font-medium text-[#14243A]">No seller proposals received yet.</p>
+                      <p className="text-[11px] text-[#5A6578]">Independent makers and suppliers can review this request and submit bids.</p>
                     </div>
                   ) : (
-                    <div className="p-6 text-center border border-[#E5E7EB] bg-[#FAFAF8] rounded-xl space-y-2">
-                      <Shield className="w-5 h-5 text-[#4057D6] mx-auto" />
-                      <h4 className="text-xs font-semibold text-[#17191F]">
+                    <div className="p-6 text-center border border-[#E2DFD8] bg-[#F7F5F0] rounded-xl space-y-2">
+                      <Shield className="w-5 h-5 text-[#C5A572] mx-auto" />
+                      <h4 className="text-xs font-semibold text-[#14243A]">
                         {activeRequest.offersCount ? `${activeRequest.offersCount} Proposal${activeRequest.offersCount === 1 ? '' : 's'} Received` : 'Confidential Direct Procurement'}
                       </h4>
-                      <p className="text-[11px] text-[#646B76] max-w-sm mx-auto leading-relaxed">
+                      <p className="text-[11px] text-[#5A6578] max-w-sm mx-auto leading-relaxed">
                         Negotiated quotes, custom pricing, and proprietary deliverables remain strictly confidential between the buyer and bidding makers.
                       </p>
                     </div>
@@ -400,7 +400,7 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                 </div>
               </>
             ) : (
-              <div className="p-12 text-center text-xs text-[#646B76]">
+              <div className="p-12 text-center text-xs text-[#5A6578]">
                 Select a buyer request to view its specifications and seller quotes.
               </div>
             )}

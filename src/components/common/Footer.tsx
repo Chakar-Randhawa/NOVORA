@@ -19,35 +19,38 @@ export const Footer: React.FC<FooterProps> = ({
   onClearData
 }) => {
   return (
-    <footer className="bg-white border-t border-[#E5E7EB] pt-12 sm:pt-14 pb-12">
+    <footer className="bg-[#FFFFFF] border-t border-[#E2DFD8] pt-12 sm:pt-14 pb-12">
       <div className="novora-container">
         
         {/* Top summary row: Fluid responsive columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 pb-10 sm:pb-12 border-b border-[#E5E7EB]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 pb-10 sm:pb-12 border-b border-[#E2DFD8]">
           
           {/* Brand info (2 cols on md+) */}
           <div className="sm:col-span-2 space-y-3">
-            <span className="text-xl font-bold text-[#17191F] tracking-tight block">
-              NOVORA
-            </span>
-            <p className="text-xs text-[#646B76] max-w-sm leading-relaxed">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold text-[#14243A] tracking-tight block">
+                NOVORA
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C5A572]" aria-hidden="true" />
+            </div>
+            <p className="text-xs text-[#5A6578] max-w-sm leading-relaxed">
               A calm, borderless global discovery marketplace. Sell authentic products, offer creative services, post custom requests, and build your branded storefront without listing fees.
             </p>
-            <div className="pt-2 flex items-center gap-2 text-xs text-emerald-700">
-              <ShieldCheck className="w-4 h-4 shrink-0 text-emerald-600" />
-              <span>Independent Direct Trade · Zero Commission Markups</span>
+            <div className="pt-2 flex items-center gap-2 text-xs text-[#283548]">
+              <ShieldCheck className="w-4 h-4 shrink-0 text-[#C5A572]" />
+              <span className="font-medium">Independent Direct Trade · Zero Commission Markups</span>
             </div>
           </div>
 
           {/* Explore */}
           <div>
-            <h4 className="text-xs font-semibold text-[#17191F] uppercase tracking-wider mb-3">Explore</h4>
-            <ul className="space-y-2 text-xs text-[#646B76]">
+            <h4 className="text-xs font-semibold text-[#14243A] uppercase tracking-wider mb-3">Explore</h4>
+            <ul className="space-y-2 text-xs text-[#5A6578]">
               <li>
                 <button
                   type="button"
                   onClick={() => onNavigateSection('discover')}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   Public Catalog
                 </button>
@@ -56,7 +59,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateSection('categories')}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   All Categories
                 </button>
@@ -65,7 +68,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateSection('request-orbit')}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   Buyer Requests
                 </button>
@@ -74,7 +77,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={onOpenFindMatch}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   Find My Match
                 </button>
@@ -84,13 +87,13 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Sell */}
           <div>
-            <h4 className="text-xs font-semibold text-[#17191F] uppercase tracking-wider mb-3">Sell on NOVORA</h4>
-            <ul className="space-y-2 text-xs text-[#646B76]">
+            <h4 className="text-xs font-semibold text-[#14243A] uppercase tracking-wider mb-3">Sell on NOVORA</h4>
+            <ul className="space-y-2 text-xs text-[#5A6578]">
               <li>
                 <button
                   type="button"
                   onClick={() => onOpenCreateListing?.()}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   Create Listing
                 </button>
@@ -99,7 +102,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onOpenStoreWizard?.()}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   Set Up Storefront
                 </button>
@@ -108,7 +111,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateSection('seller')}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   Seller Control Center
                 </button>
@@ -117,7 +120,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateSection('seller-guide')}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   Seller Guide
                 </button>
@@ -127,13 +130,13 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Company & Info */}
           <div>
-            <h4 className="text-xs font-semibold text-[#17191F] uppercase tracking-wider mb-3">Company</h4>
-            <ul className="space-y-2 text-xs text-[#646B76]">
+            <h4 className="text-xs font-semibold text-[#14243A] uppercase tracking-wider mb-3">Company</h4>
+            <ul className="space-y-2 text-xs text-[#5A6578]">
               <li>
                 <button
                   type="button"
                   onClick={() => onNavigateSection('about')}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   About NOVORA
                 </button>
@@ -142,7 +145,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateSection('how-it-works')}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   How It Works
                 </button>
@@ -151,7 +154,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateSection('safety')}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   Safety Guidelines
                 </button>
@@ -160,7 +163,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={() => onNavigateSection('terms')}
-                  className="hover:text-[#17191F] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#14243A] transition-colors text-left cursor-pointer"
                 >
                   Terms of Service
                 </button>
@@ -169,7 +172,7 @@ export const Footer: React.FC<FooterProps> = ({
                 <button
                   type="button"
                   onClick={onClearData}
-                  className="text-[11px] text-[#9CA3AF] hover:text-rose-600 underline cursor-pointer transition-colors"
+                  className="text-[11px] text-[#8C96A5] hover:text-rose-600 underline cursor-pointer transition-colors"
                   title="Clears local browser search history and preferences"
                 >
                   Reset Local Preferences
@@ -181,16 +184,16 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-[#646B76] gap-3 text-center sm:text-left">
+        <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-[#5A6578] gap-3 text-center sm:text-left">
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3">
             <span>© {new Date().getFullYear()} NOVORA Global Marketplace</span>
             <span>·</span>
-            <span>Independent Direct Commerce</span>
+            <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-[#C5A572]" />Independent Direct Commerce</span>
           </div>
 
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1.5">
-              <Globe className="w-3.5 h-3.5" />
+            <span className="flex items-center gap-1.5 text-[#283548]">
+              <Globe className="w-3.5 h-3.5 text-[#C5A572]" />
               <span>Worldwide Public Directory</span>
             </span>
           </div>
