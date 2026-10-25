@@ -16,6 +16,7 @@ import { CATEGORIES } from '../../data/categories';
 
 interface HeroProps {
   listings: Listing[];
+  displayCurrency?: string;
   onSearchNeed: (query: string) => void;
   onExploreMarketplace: () => void;
   onPostRequest: () => void;
@@ -25,6 +26,7 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({
   listings,
+  displayCurrency,
   onSearchNeed,
   onExploreMarketplace,
   onPostRequest,
@@ -171,7 +173,7 @@ export const Hero: React.FC<HeroProps> = ({
                       {CATEGORIES.find((c) => c.id === featuredRealListing.categoryId)?.name || 'Featured'}
                     </span>
                     <span className="text-sm font-bold font-mono text-[#14243A] tabular-nums">
-                      {formatPrice(featuredRealListing.price, featuredRealListing.currency)}
+                      {formatPrice(featuredRealListing.price, featuredRealListing.currency, displayCurrency)}
                     </span>
                   </div>
 

@@ -27,6 +27,7 @@ interface PublicUserProfileProps {
   store: Storefront | null;
   currentUser: UserProfile | null;
   favorites: string[];
+  displayCurrency?: string;
   onSelectListing: (listing: Listing) => void;
   onToggleFavorite: (id: string) => void;
   onStartMessage: (sellerId: string, sellerName: string) => void;
@@ -42,6 +43,7 @@ export const PublicUserProfile: React.FC<PublicUserProfileProps> = ({
   store,
   currentUser,
   favorites,
+  displayCurrency,
   onSelectListing,
   onToggleFavorite,
   onStartMessage,
@@ -347,7 +349,7 @@ export const PublicUserProfile: React.FC<PublicUserProfileProps> = ({
                           </h3>
                           <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between">
                             <span className="text-xs font-mono font-semibold text-[#14243A]">
-                              {formatPrice(listing.price, listing.currency)}
+                              {formatPrice(listing.price, listing.currency, displayCurrency)}
                             </span>
                             <span className="text-[11px] text-[#5A6578]">
                               {listing.condition?.replace('_', ' ') || 'Authentic'}
@@ -399,7 +401,7 @@ export const PublicUserProfile: React.FC<PublicUserProfileProps> = ({
                         </p>
                         <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between">
                           <span className="text-xs font-mono font-semibold text-[#14243A]">
-                            {formatPrice(listing.price, listing.currency)}
+                            {formatPrice(listing.price, listing.currency, displayCurrency)}
                           </span>
                         </div>
                       </div>
@@ -436,7 +438,7 @@ export const PublicUserProfile: React.FC<PublicUserProfileProps> = ({
                       </div>
                       <div className="pt-3 border-t border-[#EFECE5] flex items-center justify-between text-xs">
                         <span className="font-mono font-semibold text-[#14243A]">
-                          {formatPrice(listing.price, listing.currency)}
+                          {formatPrice(listing.price, listing.currency, displayCurrency)}
                         </span>
                         <span className="text-[#14243A] group-hover:text-[#8E6D38] font-medium transition-colors">Inquire →</span>
                       </div>

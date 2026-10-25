@@ -325,7 +325,7 @@ export const FindMyMatchModal: React.FC<FindMyMatchModalProps> = ({
                               {listing.title}
                             </span>
                             <span className="text-xs font-mono font-semibold text-[#14243A] shrink-0">
-                              {formatPrice(listing.price, listing.currency)}
+                              {formatPrice(listing.price, listing.currency, displayCurrency)}
                             </span>
                           </div>
 

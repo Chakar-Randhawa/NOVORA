@@ -1,11 +1,12 @@
 import React from 'react';
 import { Compass, ArrowRight, Plus, Send, Clock, MapPin, DollarSign } from 'lucide-react';
 import { BuyerRequest, RequestOffer } from '../../types';
-import { getCountryByCode } from '../../data/countries';
+import { getCountryByCode, formatPrice } from '../../data/countries';
 
 interface RequestOrbitPreviewProps {
   requests: BuyerRequest[];
   offers: RequestOffer[];
+  displayCurrency?: string;
   onOpenOrbit: () => void;
   onOpenCreateRequest: () => void;
 }
@@ -13,6 +14,7 @@ interface RequestOrbitPreviewProps {
 export const RequestOrbitPreview: React.FC<RequestOrbitPreviewProps> = ({
   requests,
   offers,
+  displayCurrency,
   onOpenOrbit,
   onOpenCreateRequest
 }) => {
@@ -89,7 +91,7 @@ export const RequestOrbitPreview: React.FC<RequestOrbitPreviewProps> = ({
                         <span className="truncate max-w-[130px]">{destCountry?.name || req.destinationCountry}</span>
                       </span>
                       <span className="font-mono font-semibold text-[#14243A]">
-                        {req.currency} {req.budgetMin}–{req.budgetMax}
+                        {formatPrice(req.budgetMin, req.currency, displayCurrency)} – {formatPrice(req.budgetMax, req.currency, displayCurrency)}
                       </span>
                     </div>
 

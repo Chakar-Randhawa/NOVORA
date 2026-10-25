@@ -69,6 +69,7 @@ import { PublicUserProfile } from './components/profile/PublicUserProfile';
 import { InfoPages } from './components/legal/InfoPages';
 import { AuthModal } from './components/auth/AuthModal';
 import { Breadcrumbs } from './components/common/Breadcrumbs';
+import { getStoredCurrencyPreference, setStoredCurrencyPreference } from './utils/currency';
 
 export const App: React.FC = () => {
   // 1. Core State
@@ -86,7 +87,7 @@ export const App: React.FC = () => {
 
   // Country & Currency preferences
   const [currentCountry, setCurrentCountry] = useState<string>('US');
-  const [currentCurrency, setCurrentCurrency] = useState<string>('USD');
+  const [currentCurrency, setCurrentCurrency] = useState<string>(() => getStoredCurrencyPreference());
 
   // Navigation & View state
   const [activeView, setActiveView] = useState<'home' | 'seller' | 'buyer' | 'admin' | 'request-orbit' | 'store' | 'user-profile' | 'info'>('home');
@@ -286,6 +287,26 @@ export const App: React.FC = () => {
     const pendingOffers = offers.filter(o => myRequestIds.has(o.requestId) && o.status === 'pending').length;
     return unreadMsgs + pendingOffers;
   }, [currentUser, conversations, requests, offers]);
+
+  // Sync currency preference when user loads or updates
+  useEffect(() => {
+    if (currentUser?.preferredCurrency && currentUser.preferredCurrency !== currentCurrency) {
+      setCurrentCurrency(currentUser.preferredCurrency);
+      setStoredCurrencyPreference(currentUser.preferredCurrency);
+    }
+  }, [currentUser?.preferredCurrency]);
+
+  // Listen to cross-component / storage currency events
+  useEffect(() => {
+    const handleCurrencyEvent = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      if (customEvent.detail && customEvent.detail !== currentCurrency) {
+        setCurrentCurrency(customEvent.detail);
+      }
+    };
+    window.addEventListener('novora-currency-change', handleCurrencyEvent);
+    return () => window.removeEventListener('novora-currency-change', handleCurrencyEvent);
+  }, [currentCurrency]);
 
   // Handlers
   const handleOpenAuth = (mode: 'signin' | 'register' = 'signin') => {
@@ -597,6 +618,15 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleSelectCurrency = (currencyCode: string) => {
+    const code = currencyCode.toUpperCase();
+    setCurrentCurrency(code);
+    setStoredCurrencyPreference(code);
+    if (currentUser && currentUser.preferredCurrency !== code) {
+      handleUpdateProfile({ preferredCurrency: code });
+    }
+  };
+
   const handleNavigateSection = (sectionId: string) => {
     if (sectionId === 'home') {
       setActiveView('home');
@@ -632,7 +662,7 @@ export const App: React.FC = () => {
         currentCountry={currentCountry}
         currentCurrency={currentCurrency}
         onSelectCountry={setCurrentCountry}
-        onSelectCurrency={setCurrentCurrency}
+        onSelectCurrency={handleSelectCurrency}
         onOpenAuth={handleOpenAuth}
         onLogout={handleLogout}
         onOpenCreateListing={() => {
@@ -683,6 +713,7 @@ export const App: React.FC = () => {
           <div className="space-y-16">
             <Hero
               listings={listings}
+              displayCurrency={currentCurrency}
               onSearchNeed={(q) => {
                 setFindMatchInitialQuery(q);
                 setShowFindMatchModal(true);
@@ -757,6 +788,7 @@ export const App: React.FC = () => {
               <RequestOrbitPreview
                 requests={requests}
                 offers={offers}
+                displayCurrency={currentCurrency}
                 onOpenOrbit={() => setActiveView('request-orbit')}
                 onOpenCreateRequest={() => {
                   if (!currentUser) handleOpenAuth('signin');
@@ -777,6 +809,7 @@ export const App: React.FC = () => {
             listings={listings}
             currentUser={currentUser}
             favorites={favorites}
+            displayCurrency={currentCurrency}
             onSelectListing={handleSelectListing}
             onToggleFavorite={handleToggleFavorite}
             onStartMessage={handleStartMessageWithSeller}
@@ -806,6 +839,7 @@ export const App: React.FC = () => {
             store={stores.find(s => s.sellerId === activeProfileForView.id) || null}
             currentUser={currentUser}
             favorites={favorites}
+            displayCurrency={currentCurrency}
             onSelectListing={handleSelectListing}
             onToggleFavorite={handleToggleFavorite}
             onStartMessage={(sid, sname) => handleStartMessageWithSeller(sid, sname)}
@@ -842,6 +876,7 @@ export const App: React.FC = () => {
               requests={requests}
               offers={offers}
               currentUser={currentUser}
+              displayCurrency={currentCurrency}
               onOpenCreateRequest={() => {
                 if (!currentUser) handleOpenAuth('signin');
                 else setShowCreateRequestModal(true);
@@ -877,6 +912,7 @@ export const App: React.FC = () => {
               requests={requests}
               offers={offers}
               conversations={conversations}
+              displayCurrency={currentCurrency}
               onOpenCreateListing={() => {
                 setListingToEdit(null);
                 if (!currentUser) handleOpenAuth('signin');
@@ -920,6 +956,7 @@ export const App: React.FC = () => {
               requests={requests}
               offers={offers}
               conversations={conversations}
+              displayCurrency={currentCurrency}
               onSelectListing={handleSelectListing}
               onOpenCreateRequest={() => {
                 if (!currentUser) handleOpenAuth('signin');
@@ -1020,6 +1057,7 @@ export const App: React.FC = () => {
         <ListingDetailModal
           listing={activeListingForDetail}
           currentUser={currentUser}
+          displayCurrency={currentCurrency}
           onClose={() => {
             setActiveListingForDetail(null);
             try {
@@ -1097,6 +1135,7 @@ export const App: React.FC = () => {
         <SubmitOfferModal
           request={requestForOffer}
           currentUser={currentUser}
+          displayCurrency={currentCurrency}
           onClose={() => setRequestForOffer(null)}
           onSubmit={handleSubmitOffer}
           onOpenAuth={handleOpenAuth}

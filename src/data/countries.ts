@@ -43,16 +43,37 @@ export const CURRENCIES = [
   { code: 'SEK', symbol: 'kr', name: 'Swedish Krona' }
 ];
 
-export function formatPrice(amount: number, currency: string = 'USD'): string {
-  const curr = CURRENCIES.find(c => c.code === currency);
-  const symbol = curr ? curr.symbol : currency + ' ';
-  
-  // Format based on currency type (no decimal for JPY/KRW)
-  if (currency === 'JPY' || currency === 'KRW') {
-    return `${symbol}${Math.round(amount).toLocaleString()}`;
-  }
-  
-  return `${symbol}${amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+import {
+  formatCurrency,
+  formatDynamicPrice,
+  getDynamicPriceParts,
+  convertCurrency,
+  getStoredCurrencyPreference,
+  setStoredCurrencyPreference,
+  useUserCurrencyPreference,
+  DynamicPriceOptions,
+  DynamicPriceParts
+} from '../utils/currency';
+
+export {
+  formatCurrency,
+  formatDynamicPrice,
+  getDynamicPriceParts,
+  convertCurrency,
+  getStoredCurrencyPreference,
+  setStoredCurrencyPreference,
+  useUserCurrencyPreference
+};
+export type { DynamicPriceOptions, DynamicPriceParts };
+
+export function formatPrice(
+  amount: number,
+  currency: string = 'USD',
+  userPreferredCurrency?: string | null,
+  options?: DynamicPriceOptions
+): string {
+  const target = userPreferredCurrency || getStoredCurrencyPreference();
+  return formatDynamicPrice(amount, currency, target, options);
 }
 
 export function getCountryByCode(code: string): CountryInfo | undefined {

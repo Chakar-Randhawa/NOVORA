@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Heart, Globe, Sparkles, MapPin, Package, ArrowUpRight } from 'lucide-react';
 import { Listing } from '../../types';
-import { formatPrice, getCountryByCode } from '../../data/countries';
+import { formatPrice, getDynamicPriceParts, getCountryByCode } from '../../data/countries';
 import { CATEGORIES, LISTING_TYPE_LABELS } from '../../data/categories';
 
 interface ListingCardProps {
   listing: Listing;
   isFavorite: boolean;
-  displayCurrency: string;
+  displayCurrency?: string;
   onSelect: (listing: Listing) => void;
   onToggleFavorite: (id: string) => void;
 }
@@ -23,7 +23,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const countryObj = getCountryByCode(listing.sellerCountry);
   const categoryObj = CATEGORIES.find(c => c.id === listing.categoryId);
 
-  const formattedAmount = formatPrice(listing.price, listing.currency);
+  const priceParts = getDynamicPriceParts(listing.price, listing.currency, displayCurrency);
 
   return (
     <article
@@ -98,9 +98,16 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         {/* Footer: Price & Seller Action */}
         <div className="pt-3 border-t border-[#EFECE5] flex items-baseline justify-between gap-2">
           <div className="flex flex-col min-w-0">
-            <span className="text-base font-semibold text-[#14243A] tabular-nums font-mono truncate">
-              {formattedAmount}
-            </span>
+            <div className="flex items-baseline gap-1.5 truncate">
+              <span className="text-base font-semibold text-[#14243A] tabular-nums font-mono truncate">
+                {priceParts.formattedPrice}
+              </span>
+              {priceParts.isConverted && (
+                <span className="text-[10px] text-[#8E6D38] font-mono shrink-0" title={`Original price: ${priceParts.originalPrice}`}>
+                  (~{priceParts.originalPrice})
+                </span>
+              )}
+            </div>
             <span className="text-[11px] text-[#5A6578] truncate" title={`by ${listing.sellerName}`}>
               by {listing.sellerName}
             </span>

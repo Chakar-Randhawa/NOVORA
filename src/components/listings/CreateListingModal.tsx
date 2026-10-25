@@ -3,6 +3,7 @@ import { X, Upload, Plus, Trash2, ShieldCheck, AlertCircle, Loader2, Sparkles, C
 import { Listing, ListingType, ProductCondition, UserProfile } from '../../types';
 import { CATEGORIES } from '../../data/categories';
 import { COUNTRIES, CURRENCIES } from '../../data/countries';
+import { getStoredCurrencyPreference } from '../../utils/currency';
 import { compressImageToDataUrl } from '../../services/storage';
 
 interface CreateListingModalProps {
@@ -33,7 +34,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({
     initialListing ? String(initialListing.price) : ''
   );
   const [currency, setCurrency] = useState(
-    initialListing?.currency || currentUser?.preferredCurrency || 'USD'
+    initialListing?.currency || currentUser?.preferredCurrency || getStoredCurrencyPreference() || 'USD'
   );
   const [condition, setCondition] = useState<ProductCondition>(
     initialListing?.condition || 'new'

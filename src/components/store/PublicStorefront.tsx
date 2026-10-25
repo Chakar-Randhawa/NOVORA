@@ -29,6 +29,7 @@ interface PublicStorefrontProps {
   listings: Listing[];
   currentUser: UserProfile | null;
   favorites: string[];
+  displayCurrency?: string;
   onSelectListing: (listing: Listing) => void;
   onToggleFavorite: (id: string) => void;
   onStartMessage: (sellerId: string, sellerName: string, context?: any) => void;
@@ -43,6 +44,7 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
   listings,
   currentUser,
   favorites,
+  displayCurrency,
   onSelectListing,
   onToggleFavorite,
   onStartMessage,
@@ -346,7 +348,7 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
                         </p>
                         <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between">
                           <span className="text-xs font-mono font-semibold text-[#14243A]">
-                            {formatPrice(listing.price, listing.currency)}
+                            {formatPrice(listing.price, listing.currency, displayCurrency)}
                           </span>
                           <span className="text-[11px] text-[#5A6578] capitalize">
                             {listing.condition?.replace('_', ' ') || 'Authentic'}
@@ -427,7 +429,7 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
                         </h3>
                         <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between">
                           <span className="text-xs font-mono font-semibold text-[#14243A]">
-                            {formatPrice(listing.price, listing.currency)}
+                            {formatPrice(listing.price, listing.currency, displayCurrency)}
                           </span>
                           <span className="text-[11px] text-[#5A6578]">
                             Ships worldwide
@@ -538,7 +540,7 @@ export const PublicStorefront: React.FC<PublicStorefrontProps> = ({
                       </p>
                       <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between">
                         <span className="text-xs font-mono font-semibold text-[#14243A]">
-                          {formatPrice(listing.price, listing.currency)}
+                          {formatPrice(listing.price, listing.currency, displayCurrency)}
                         </span>
                         <span className="text-[11px] text-[#5A6578]">
                           {listing.sellerCity || listing.sellerCountry}

@@ -126,7 +126,7 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
                   </h3>
                   <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between text-xs">
                     <span className="font-mono font-bold text-[#14243A] tabular-nums">
-                      {formatPrice(listing.price, listing.currency)}
+                      {formatPrice(listing.price, listing.currency, displayCurrency)}
                     </span>
                     <span className="text-[11px] text-[#5A6578]">{listing.sellerCountry}</span>
                   </div>
@@ -273,7 +273,7 @@ export const DiscoveryShowcase: React.FC<DiscoveryShowcaseProps> = ({
                   </h3>
                   <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between text-xs">
                     <span className="font-mono font-bold text-[#14243A] tabular-nums">
-                      {formatPrice(listing.price, listing.currency)}
+                      {formatPrice(listing.price, listing.currency, displayCurrency)}
                     </span>
                     <span className="text-[11px] text-[#5A6578]">{listing.sellerName}</span>
                   </div>

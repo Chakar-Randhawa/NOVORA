@@ -3,6 +3,7 @@ import { X, Sparkles, Shield, AlertCircle, Plus, Loader2 } from 'lucide-react';
 import { BuyerRequest, UserProfile } from '../../types';
 import { CATEGORIES } from '../../data/categories';
 import { COUNTRIES, CURRENCIES } from '../../data/countries';
+import { getStoredCurrencyPreference } from '../../utils/currency';
 
 interface CreateRequestModalProps {
   currentUser: UserProfile | null;
@@ -22,7 +23,7 @@ export const CreateRequestModal: React.FC<CreateRequestModalProps> = ({
   const [categoryId, setCategoryId] = useState(CATEGORIES[0].id);
   const [budgetMin, setBudgetMin] = useState<string>('');
   const [budgetMax, setBudgetMax] = useState<string>('');
-  const [currency, setCurrency] = useState(currentUser?.preferredCurrency || 'USD');
+  const [currency, setCurrency] = useState(currentUser?.preferredCurrency || getStoredCurrencyPreference() || 'USD');
   const [quantity, setQuantity] = useState('1');
   const [destinationCountry, setDestinationCountry] = useState(currentUser?.country || 'US');
   const [deadline, setDeadline] = useState('');

@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { Listing, UserProfile } from '../../types';
-import { formatPrice, getCountryByCode } from '../../data/countries';
+import { formatPrice, getDynamicPriceParts, getCountryByCode } from '../../data/countries';
 import { CATEGORIES, LISTING_TYPE_LABELS, CONDITION_LABELS } from '../../data/categories';
 import { Breadcrumbs } from '../common/Breadcrumbs';
 
@@ -32,6 +32,7 @@ interface ListingDetailModalProps {
   listing: Listing;
   currentUser: UserProfile | null;
   isFavorite: boolean;
+  displayCurrency?: string;
   onClose: () => void;
   onToggleFavorite: (id: string) => void;
   onStartMessage: (listing: Listing) => void;
@@ -48,6 +49,7 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({
   listing,
   currentUser,
   isFavorite,
+  displayCurrency,
   onClose,
   onToggleFavorite,
   onStartMessage,
@@ -83,7 +85,9 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({
 
   const countryObj = getCountryByCode(listing.sellerCountry);
   const categoryObj = CATEGORIES.find((c) => c.id === listing.categoryId);
-  const formattedAmount = formatPrice(listing.price, listing.currency);
+  const userPreferredCurr = displayCurrency || currentUser?.preferredCurrency;
+  const priceParts = getDynamicPriceParts(listing.price, listing.currency, userPreferredCurr);
+  const formattedAmount = priceParts.formattedPrice;
 
   const isOwner = currentUser && currentUser.id === listing.sellerId;
 
@@ -422,8 +426,15 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({
                 <h1 className="text-lg sm:text-xl font-semibold text-[#14243A] leading-snug">
                   {listing.title}
                 </h1>
-                <div className="mt-1.5 text-2xl font-bold font-mono text-[#14243A] tabular-nums">
-                  {formattedAmount}
+                <div className="mt-1.5 flex items-baseline gap-2 flex-wrap">
+                  <span className="text-2xl font-bold font-mono text-[#14243A] tabular-nums">
+                    {priceParts.formattedPrice}
+                  </span>
+                  {priceParts.isConverted && (
+                    <span className="text-xs text-[#8E6D38] font-mono font-medium">
+                      (Orig. {priceParts.originalPrice})
+                    </span>
+                  )}
                 </div>
                 <div className="text-xs text-[#5A6578] mt-0.5">
                   Condition: {CONDITION_LABELS[listing.condition] || listing.condition}
@@ -604,8 +615,15 @@ export const ListingDetailModal: React.FC<ListingDetailModalProps> = ({
                 <h1 className="text-xl font-semibold text-[#14243A] leading-snug">
                   {listing.title}
                 </h1>
-                <div className="mt-2 text-2xl font-bold font-mono text-[#14243A] tabular-nums">
-                  {formattedAmount}
+                <div className="mt-2 flex items-baseline gap-2 flex-wrap">
+                  <span className="text-2xl font-bold font-mono text-[#14243A] tabular-nums">
+                    {priceParts.formattedPrice}
+                  </span>
+                  {priceParts.isConverted && (
+                    <span className="text-xs text-[#8E6D38] font-mono font-medium">
+                      (Orig. {priceParts.originalPrice})
+                    </span>
+                  )}
                 </div>
                 <div className="text-xs text-[#5A6578] mt-1">
                   Condition: {CONDITION_LABELS[listing.condition] || listing.condition}

@@ -21,6 +21,7 @@ interface RequestOrbitViewProps {
   requests: BuyerRequest[];
   offers: RequestOffer[];
   currentUser: UserProfile | null;
+  displayCurrency?: string;
   onOpenCreateRequest: () => void;
   onOpenSubmitOffer: (request: BuyerRequest) => void;
   onStartMessageWithSeller: (sellerId: string, sellerName: string, requestId: string, requestTitle: string) => void;
@@ -32,6 +33,7 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
   requests,
   offers,
   currentUser,
+  displayCurrency,
   onOpenCreateRequest,
   onOpenSubmitOffer,
   onStartMessageWithSeller,
@@ -166,7 +168,7 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                         <span>To {destCountry?.name || req.destinationCountry}</span>
                       </span>
                       <span className="font-mono font-semibold text-[#14243A]">
-                        {req.currency} {req.budgetMin}–{req.budgetMax}
+                        {formatPrice(req.budgetMin, req.currency, displayCurrency)} – {formatPrice(req.budgetMax, req.currency, displayCurrency)}
                       </span>
                     </div>
 
@@ -240,7 +242,7 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
                     <div className="flex items-center gap-1.5 text-[#14243A]">
                       <DollarSign className="w-4 h-4 text-emerald-600" />
                       <span className="font-semibold font-mono">
-                        {activeRequest.currency} {activeRequest.budgetMin} – {activeRequest.budgetMax}
+                        {formatPrice(activeRequest.budgetMin, activeRequest.currency, displayCurrency)} – {formatPrice(activeRequest.budgetMax, activeRequest.currency, displayCurrency)}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 text-[#5A6578]">
@@ -335,7 +337,7 @@ export const RequestOrbitView: React.FC<RequestOrbitViewProps> = ({
 
                               <div className="text-right">
                                 <span className="text-base font-semibold font-mono text-[#14243A] tabular-nums">
-                                  {formatPrice(offer.proposedPrice, offer.currency)}
+                                  {formatPrice(offer.proposedPrice, offer.currency, displayCurrency, { showOriginal: true })}
                                 </span>
                               </div>
                             </div>

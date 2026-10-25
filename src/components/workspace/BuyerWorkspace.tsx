@@ -31,6 +31,7 @@ interface BuyerWorkspaceProps {
   requests: BuyerRequest[];
   offers: RequestOffer[];
   conversations: Conversation[];
+  displayCurrency?: string;
   onSelectListing: (listing: Listing) => void;
   onOpenCreateRequest: () => void;
   onOpenMessages: (conv?: Conversation) => void;
@@ -49,6 +50,7 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
   requests,
   offers,
   conversations,
+  displayCurrency,
   onSelectListing,
   onOpenCreateRequest,
   onOpenMessages,
@@ -66,6 +68,8 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
   const [currency, setCurrency] = useState(currentUser?.preferredCurrency || 'USD');
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const activeDisplayCurrency = displayCurrency || currency || currentUser?.preferredCurrency || 'USD';
 
   // Recently viewed listings stored in localStorage
   const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>([]);
@@ -339,7 +343,7 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-[#14243A] truncate">{l.title}</p>
-                        <p className="text-[11px] font-mono text-[#8E6D38] font-medium">{formatPrice(l.price, l.currency)}</p>
+                        <p className="text-[11px] font-mono text-[#8E6D38] font-medium">{formatPrice(l.price, l.currency, activeDisplayCurrency)}</p>
                       </div>
                     </div>
                   ))}
@@ -404,7 +408,7 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
                       </p>
                       <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between text-xs">
                         <span className="font-mono font-semibold text-[#14243A]">
-                          {formatPrice(listing.price, listing.currency)}
+                          {formatPrice(listing.price, listing.currency, activeDisplayCurrency)}
                         </span>
                         <span className="text-[11px] text-[#5A6578]">
                           {listing.sellerName}
@@ -460,7 +464,7 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
                       <h4 className="text-sm font-semibold text-[#14243A]">{req.title}</h4>
                       <p className="text-xs text-[#5A6578] line-clamp-2 leading-relaxed">{req.description}</p>
                       <div className="flex items-center gap-3 text-xs font-mono pt-1 text-[#14243A]">
-                        <span>Budget: ${req.budgetMin} – ${req.budgetMax} {req.currency}</span>
+                        <span>Budget: {formatPrice(req.budgetMin, req.currency, activeDisplayCurrency)} – {formatPrice(req.budgetMax, req.currency, activeDisplayCurrency)}</span>
                         <span>·</span>
                         <span>{req.offersCount || 0} quotes received</span>
                       </div>
@@ -525,7 +529,7 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
 
                         <div className="text-right">
                           <span className="text-lg font-bold font-mono text-[#14243A] block">
-                            ${o.proposedPrice} {o.currency}
+                            {formatPrice(o.proposedPrice, o.currency, activeDisplayCurrency, { showOriginal: true })}
                           </span>
                           <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold capitalize ${
                             o.status === 'accepted'
@@ -667,7 +671,7 @@ export const BuyerWorkspace: React.FC<BuyerWorkspaceProps> = ({
                       </h4>
                       <div className="pt-2 border-t border-[#EFECE5] flex items-center justify-between text-xs">
                         <span className="font-mono font-semibold text-[#14243A]">
-                          {formatPrice(listing.price, listing.currency)}
+                          {formatPrice(listing.price, listing.currency, activeDisplayCurrency)}
                         </span>
                         <span className="text-[11px] text-[#5A6578]">{listing.sellerName}</span>
                       </div>

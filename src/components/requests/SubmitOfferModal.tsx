@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { X, Send, ShieldCheck, AlertCircle, Plus, Loader2 } from 'lucide-react';
 import { BuyerRequest, RequestOffer, UserProfile } from '../../types';
-import { CURRENCIES } from '../../data/countries';
+import { CURRENCIES, formatPrice } from '../../data/countries';
 
 interface SubmitOfferModalProps {
   request: BuyerRequest;
   currentUser: UserProfile | null;
+  displayCurrency?: string;
   onClose: () => void;
   onSubmit: (offer: RequestOffer) => Promise<void> | void;
   onOpenAuth: (mode?: 'signin' | 'register') => void;
@@ -14,6 +15,7 @@ interface SubmitOfferModalProps {
 export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
   request,
   currentUser,
+  displayCurrency,
   onClose,
   onSubmit,
   onOpenAuth
@@ -151,7 +153,7 @@ export const SubmitOfferModal: React.FC<SubmitOfferModalProps> = ({
             <div className="flex items-center justify-between text-[#5A6578]">
               <span>Buyer Budget Range:</span>
               <span className="font-semibold text-[#14243A] font-mono">
-                ${request.budgetMin} – ${request.budgetMax} {request.currency}
+                {formatPrice(request.budgetMin, request.currency, displayCurrency)} – {formatPrice(request.budgetMax, request.currency, displayCurrency)}
               </span>
             </div>
             <div className="flex items-center justify-between text-[#5A6578]">
